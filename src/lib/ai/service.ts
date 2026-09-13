@@ -21,6 +21,7 @@ import { GeminiProvider } from './providers/gemini';
 import { AnthropicProvider } from './providers/anthropic';
 import { prisma } from '../db';
 import { sanitizeStructuredAiOutput } from './sanitize';
+import { getRotationStatus } from './modelRotator';
 
 class AIService {
   private activeProvider: AIProvider;
@@ -75,13 +76,20 @@ class AIService {
     return chain;
   }
 
-  public getProviderInfo(): { provider: string; model: string; isConfigured: boolean; isMock: boolean } {
+  public getProviderInfo(): {
+    provider: string;
+    model: string;
+    isConfigured: boolean;
+    isMock: boolean;
+    modelRotation: ReturnType<typeof getRotationStatus>;
+  } {
     const isMock = this.activeProvider.name === 'mock';
     return {
       provider: this.activeProvider.name,
       model: this.activeProvider.defaultModel,
       isConfigured: this.activeProvider.isAvailable(),
       isMock,
+      modelRotation: getRotationStatus(),
     };
   }
 
@@ -157,7 +165,14 @@ class AIService {
       }
     }
 
-    throw new Error(`All AI providers in fallback chain failed. Last error: ${lastError?.message}`);
+    // Surface a clear, user-friendly message instead of a raw crash
+    const reason = lastError?.message || 'Unknown error';
+    const isRateLimit = reason.toLowerCase().includes('rate') || reason.toLowerCase().includes('quota') || reason.toLowerCase().includes('429');
+    const userMessage = isRateLimit
+      ? 'All AI models are currently rate-limited. The system will retry with the next available model shortly.'
+      : `All AI providers in fallback chain failed. Last error: ${reason}`;
+
+    throw new Error(userMessage);
   }
 
   /**
@@ -238,7 +253,13 @@ class AIService {
       }
     }
 
-    throw new Error(`All AI providers in fallback chain failed for ${req.action}. Last error: ${lastError?.message}`);
+    const reason = lastError?.message || 'Unknown error';
+    const isRateLimit = reason.toLowerCase().includes('rate') || reason.toLowerCase().includes('quota') || reason.toLowerCase().includes('429');
+    const userMessage = isRateLimit
+      ? 'All AI models are currently rate-limited. The system will retry shortly.'
+      : `All AI providers in fallback chain failed for ${req.action}. Last error: ${reason}`;
+
+    throw new Error(userMessage);
   }
 
   private async logGeneration(data: {

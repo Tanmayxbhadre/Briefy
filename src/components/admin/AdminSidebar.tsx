@@ -67,7 +67,7 @@ export function AdminSidebar({ isOpen, onClose, user = 'Editor', counts }: Admin
     <aside className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ''}`}>
       <div className={styles.brand}>
         <div className={styles.logoArea}>
-          <span className={styles.logoText}>THE BRIEF</span>
+          <span className={styles.logoText}>BRIEFY</span>
           <span className={styles.subBrand}>Newsroom Desk</span>
         </div>
         <button

@@ -69,8 +69,8 @@ export default function Header() {
         <div className={`container ${styles.inner}`}>
 
           {/* Logo */}
-          <Link href="/" className={styles.logo} aria-label="THE BRIEF — Home">
-            <span className={styles.logoText}>THE BRIEF</span>
+          <Link href="/" className={styles.logo} aria-label="BRIEFY — Home">
+            <span className={styles.logoText}>BRIEFY</span>
           </Link>
 
           {/* Desktop Navigation */}

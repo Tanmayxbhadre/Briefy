@@ -1,6 +1,6 @@
 # PostgreSQL Migration & Production Architecture Guide
 
-This document outlines the transition path from the current SQLite development database to a production-grade PostgreSQL deployment for **THE BRIEF**.
+This document outlines the transition path from the current SQLite development database to a production-grade PostgreSQL deployment for **BRIEFY**.
 
 ---
 

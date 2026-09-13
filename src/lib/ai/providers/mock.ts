@@ -70,8 +70,8 @@ export class MockAIProvider extends BaseAIProvider {
       suggestedCategory: req.categorySlug || 'technology',
       subcategory: req.subcategory,
       tags: [req.categorySlug || 'Technology', req.primarySource.name, 'Editorial', 'Analysis'],
-      seoTitle: `${cleanTitle.slice(0, 45)} — THE BRIEF`,
-      metaDescription: `Read THE BRIEF's comprehensive analysis on ${cleanTitle.toLowerCase()}. Facts, timeline, and industry implications explained.`.slice(
+      seoTitle: `${cleanTitle.slice(0, 45)} — BRIEFY`,
+      metaDescription: `Read BRIEFY's comprehensive analysis on ${cleanTitle.toLowerCase()}. Facts, timeline, and industry implications explained.`.slice(
         0,
         155
       ),
@@ -147,12 +147,12 @@ export class MockAIProvider extends BaseAIProvider {
       }
 
       case 'seo': {
-        const base = (req.title || 'The Brief Editorial').slice(0, 45);
+        const base = (req.title || 'Briefy Editorial').slice(0, 45);
         return {
           action: 'seo',
           result: {
-            seoTitle: `${base} — THE BRIEF`,
-            metaDescription: `Discover key facts, analysis, and implications regarding ${base.toLowerCase()}. Serious journalism by THE BRIEF.`.slice(
+            seoTitle: `${base} — BRIEFY`,
+            metaDescription: `Discover key facts, analysis, and implications regarding ${base.toLowerCase()}. Serious journalism by BRIEFY.`.slice(
               0,
               155
             ),

@@ -82,7 +82,7 @@ export async function POST(request: Request) {
     // 5. Compute clean unique slug
     const baseSlug =
       slugify(aiDraft.suggestedSlug || aiDraft.title, { lower: true, strict: true, trim: true }) ||
-      'thebrief-article';
+      'briefylive-article';
     let slug = baseSlug;
     let counter = 1;
     while (
@@ -118,7 +118,7 @@ export async function POST(request: Request) {
           excerpt: aiDraft.excerpt,
           content: aiDraft.content,
           categoryId,
-          authorName: session.user || 'THE BRIEF Editorial Team',
+          authorName: session.user || 'BRIEFY Editorial Team',
           status: 'DRAFT',
           seoTitle: aiDraft.seoTitle,
           metaDescription: aiDraft.metaDescription,
@@ -145,7 +145,7 @@ export async function POST(request: Request) {
           excerpt: aiDraft.excerpt,
           content: aiDraft.content,
           categoryId,
-          authorName: session.user || 'THE BRIEF Editorial Team',
+          authorName: session.user || 'BRIEFY Editorial Team',
           featuredImage: newsItem.imageUrl || '',
           imageAlt: newsItem.imageAlt || aiDraft.title,
           status: 'DRAFT',

@@ -22,6 +22,11 @@ import { buildSeoPrompt } from '../prompts/seoPrompt';
 import { buildTagsPrompt } from '../prompts/tagsPrompt';
 import { buildRewritePrompt } from '../prompts/rewritePrompt';
 import { buildFactCheckPrompt } from '../prompts/factCheckPrompt';
+import {
+  getAvailableModels,
+  isRateLimitError,
+  markModelRateLimited,
+} from '../modelRotator';
 
 export class GeminiProvider extends BaseAIProvider {
   readonly name = 'gemini';
@@ -32,65 +37,100 @@ export class GeminiProvider extends BaseAIProvider {
     return !!this.apiKey && !this.apiKey.startsWith('PASTE_') && this.apiKey.trim().length > 0;
   }
 
+  /**
+   * Calls the Gemini API with automatic model rotation on rate-limit errors.
+   * Tries each model in the chain until one succeeds.
+   */
   private async callGenerateContent(
     systemInstruction: string,
-    prompt: string,
-    model = this.defaultModel
-  ): Promise<{ content: string; usage?: { prompt_tokens: number; completion_tokens: number; total_tokens: number } }> {
+    prompt: string
+  ): Promise<{ content: string; model: string; usage?: { prompt_tokens: number; completion_tokens: number; total_tokens: number } }> {
     if (!this.apiKey) {
       throw new Error('Google Gemini API Key is not configured on the server.');
     }
 
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 45000);
+    const models = getAvailableModels('gemini');
+    let lastError: Error | null = null;
 
-    try {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${this.apiKey}`;
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          system_instruction: {
-            parts: [{ text: systemInstruction }],
-          },
-          contents: [
-            {
-              role: 'user',
-              parts: [{ text: prompt }],
+    for (const model of models) {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 45000);
+
+      try {
+        console.log(`[GEMINI] Attempting with model: ${model}`);
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${this.apiKey}`;
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            system_instruction: {
+              parts: [{ text: systemInstruction }],
             },
-          ],
-          generationConfig: {
-            responseMimeType: 'application/json',
-            temperature: 0.2,
-          },
-        }),
-        signal: controller.signal,
-      });
+            contents: [
+              {
+                role: 'user',
+                parts: [{ text: prompt }],
+              },
+            ],
+            generationConfig: {
+              responseMimeType: 'application/json',
+              temperature: 0.2,
+            },
+          }),
+          signal: controller.signal,
+        });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Gemini API returned status ${response.status}: ${errorText.slice(0, 200)}`);
-      }
+        clearTimeout(timeout);
 
-      const json = await response.json();
-      const content = json.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (!content) {
-        throw new Error('Gemini returned an empty completion.');
-      }
+        if (!response.ok) {
+          const errorText = await response.text();
+          const err = new Error(`Gemini API returned status ${response.status}: ${errorText.slice(0, 200)}`);
 
-      const meta = json.usageMetadata;
-      const usage = meta
-        ? {
-            prompt_tokens: meta.promptTokenCount || 0,
-            completion_tokens: meta.candidatesTokenCount || 0,
-            total_tokens: meta.totalTokenCount || 0,
+          if (response.status === 429 || isRateLimitError(err)) {
+            markModelRateLimited('gemini', model);
+            lastError = err;
+            console.warn(`[GEMINI] Rate limit hit on "${model}", rotating to next model...`);
+            continue; // Try next model
           }
-        : undefined;
 
-      return { content, usage };
-    } finally {
-      clearTimeout(timeout);
+          throw err; // Non-rate-limit error — propagate immediately
+        }
+
+        const json = await response.json();
+        const content = json.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!content) {
+          throw new Error('Gemini returned an empty completion.');
+        }
+
+        const meta = json.usageMetadata;
+        const usage = meta
+          ? {
+              prompt_tokens: meta.promptTokenCount || 0,
+              completion_tokens: meta.candidatesTokenCount || 0,
+              total_tokens: meta.totalTokenCount || 0,
+            }
+          : undefined;
+
+        if (model !== this.defaultModel) {
+          console.log(`[GEMINI] Successfully used fallback model: ${model}`);
+        }
+
+        return { content, model, usage };
+      } catch (err) {
+        clearTimeout(timeout);
+
+        if (isRateLimitError(err)) {
+          markModelRateLimited('gemini', model);
+          lastError = err instanceof Error ? err : new Error(String(err));
+          console.warn(`[GEMINI] Rate limit hit on "${model}", rotating to next model...`);
+          continue;
+        }
+
+        throw err; // Non-rate-limit: bubble up immediately
+      }
     }
+
+    throw lastError ?? new Error('All Gemini models are exhausted or rate-limited.');
   }
 
   async generateDraft(req: GenerateDraftRequest): Promise<GenerateDraftResponse> {
@@ -98,7 +138,7 @@ export class GeminiProvider extends BaseAIProvider {
     const systemPrompt = buildArticleDraftSystemPrompt();
     const userPrompt = buildArticleDraftUserPrompt(req);
 
-    const { content, usage } = await this.callGenerateContent(systemPrompt, userPrompt);
+    const { content, model, usage } = await this.callGenerateContent(systemPrompt, userPrompt);
     const draft = this.parseJsonResponse<StructuredArticleDraft>(content);
 
     return {
@@ -110,7 +150,7 @@ export class GeminiProvider extends BaseAIProvider {
         durationMs: Date.now() - startTime,
       },
       provider: this.name,
-      model: this.defaultModel,
+      model,
     };
   }
 
@@ -139,8 +179,8 @@ export class GeminiProvider extends BaseAIProvider {
         break;
     }
 
-    const { content, usage } = await this.callGenerateContent(
-      'You are an authoritative editor for THE BRIEF. Output strictly valid JSON.',
+    const { content, model, usage } = await this.callGenerateContent(
+      'You are an authoritative editor for BRIEFY. Output strictly valid JSON.',
       prompt
     );
 
@@ -169,7 +209,7 @@ export class GeminiProvider extends BaseAIProvider {
         durationMs: Date.now() - startTime,
       },
       provider: this.name,
-      model: this.defaultModel,
+      model,
     };
   }
 }

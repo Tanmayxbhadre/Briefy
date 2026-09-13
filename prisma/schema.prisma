@@ -139,7 +139,7 @@ model ArticleDraft {
   categoryId        String?
   category          Category?         @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   subcategory       String?
-  authorName        String            @default("THE BRIEF Editorial Team")
+  authorName        String            @default("BRIEFY Editorial Team")
   authorId          String?
   featuredImage     String?
   imageAlt          String?

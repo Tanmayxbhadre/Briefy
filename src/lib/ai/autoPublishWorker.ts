@@ -28,9 +28,13 @@ export async function runAutoPublishWorker(limit = 20): Promise<AutoPublishResul
   const minConfidence = parseInt(process.env.AUTO_PUBLISH_MIN_CONFIDENCE || '70', 10);
   const minQuality = parseInt(process.env.AUTO_PUBLISH_MIN_QUALITY || '65', 10);
 
+  // When AUTO_PUBLISH_ENABLED, also sweep DRAFT items (covers the backlog of existing items
+  // that were created before the APPROVED status path existed).
+  const eligibleStatuses = autoPublishEnabled ? ['APPROVED', 'DRAFT'] : ['APPROVED'];
+
   const candidates = await prisma.articleDraft.findMany({
     where: {
-      status: 'APPROVED',
+      status: { in: eligibleStatuses },
       publishConfidence: { gte: minConfidence },
       aiQualityScore: { gte: minQuality },
     },

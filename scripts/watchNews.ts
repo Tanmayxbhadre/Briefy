@@ -6,7 +6,7 @@ let isStopping = false;
 let timeoutHandle: NodeJS.Timeout | null = null;
 
 console.log('==================================================');
-console.log('THEBRIEF NEWS COLLECTION (DEVELOPMENT WATCH MODE)');
+console.log('BRIEFYLIVE NEWS COLLECTION (DEVELOPMENT WATCH MODE)');
 console.log(`Interval: Every ${intervalMinutes} minutes`);
 console.log('Press Ctrl+C to exit cleanly.');
 console.log('==================================================\n');

@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 
 async function testAISystem() {
   console.log('==================================================');
-  console.log('TESTING THEBRIEF AI-ASSISTED DRAFTING SYSTEM');
+  console.log('TESTING BRIEFYLIVE AI-ASSISTED DRAFTING SYSTEM');
   console.log('==================================================\n');
 
   // 1. Check AI Provider and Models
@@ -45,8 +45,8 @@ async function testAISystem() {
     ],
     suggestedCategory: sampleNewsItem.category?.slug || 'technology',
     tags: ['Semiconductors', 'Manufacturing', 'Technology', 'India'],
-    seoTitle: 'India Semiconductor Mission Approvals — THE BRIEF',
-    metaDescription: 'Read THE BRIEF analysis on new semiconductor fabrication approvals in India. Facts, timelines, and industry impact.',
+    seoTitle: 'India Semiconductor Mission Approvals — BRIEFY',
+    metaDescription: 'Read BRIEFY analysis on new semiconductor fabrication approvals in India. Facts, timelines, and industry impact.',
     sources: [
       { name: sampleNewsItem.source.name, url: sampleNewsItem.originalUrl },
       { name: 'Official PIB Release', url: 'https://pib.gov.in/sample' },
@@ -75,7 +75,7 @@ async function testAISystem() {
       excerpt: mockDraft.excerpt,
       content: mockDraft.content,
       categoryId: sampleNewsItem.categoryId,
-      authorName: 'THE BRIEF Editorial Team',
+      authorName: 'BRIEFY Editorial Team',
       status: 'DRAFT', // Strictly DRAFT, never auto-published
       seoTitle: mockDraft.seoTitle,
       metaDescription: mockDraft.metaDescription,

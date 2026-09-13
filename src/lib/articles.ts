@@ -8,6 +8,25 @@ type DraftWithCategory = ArticleDraft & {
   category: PrismaCategory | null;
 };
 
+const DEFAULT_IMAGES = [
+  'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&h=675&fit=crop',
+  'https://images.unsplash.com/photo-1495020689067-958852a7765e?w=1200&h=675&fit=crop',
+  'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=1200&h=675&fit=crop',
+  'https://images.unsplash.com/photo-1444653614773-995cb1ef9efa?w=1200&h=675&fit=crop',
+  'https://images.unsplash.com/photo-1557428894-56bcc97113fe?w=1200&h=675&fit=crop',
+  'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=1200&h=675&fit=crop',
+  'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=1200&h=675&fit=crop',
+  'https://images.unsplash.com/photo-1586339949916-3e9457bef6d3?w=1200&h=675&fit=crop'
+];
+
+function getFallbackImage(seed: string) {
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) {
+    hash = seed.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return DEFAULT_IMAGES[Math.abs(hash) % DEFAULT_IMAGES.length];
+}
+
 export function draftToArticle(draft: DraftWithCategory): Article {
   let sources: Source[] = [];
   try {
@@ -53,8 +72,8 @@ export function draftToArticle(draft: DraftWithCategory): Article {
     content: draft.content || '',
     author: {
       id: draft.authorId || 'admin-author',
-      name: draft.authorName || 'THE BRIEF Editorial Team',
-      slug: slugify(draft.authorName || 'thebrief', { lower: true }),
+      name: draft.authorName || 'BRIEFY Editorial Team',
+      slug: slugify(draft.authorName || 'briefylive', { lower: true }),
     },
     category: {
       id: draft.category?.id || 'c1',
@@ -69,8 +88,7 @@ export function draftToArticle(draft: DraftWithCategory): Article {
       : new Date(draft.createdAt).toISOString(),
     updatedAt: draft.updatedAt ? new Date(draft.updatedAt).toISOString() : undefined,
     featuredImage:
-      draft.featuredImage ||
-      'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&h=675&fit=crop',
+      draft.featuredImage || getFallbackImage(draft.id),
     imageAlt: draft.imageAlt || draft.title,
     tags,
     readingTime: draft.readingTime || 3,

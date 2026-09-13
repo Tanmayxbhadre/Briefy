@@ -327,8 +327,8 @@ export async function getHomepageData(): Promise<HomepageData> {
 
     const featured = mockArticles[0];
     const secondary = mockArticles.slice(1, 4);
-    const latestArticles = mockArticles.slice(0, 8);
-    const trendingArticles = mockArticles.slice(0, 5);
+    const latestArticles = mockArticles.slice(4, 12);
+    const trendingArticles = mockArticles.slice(12, 17);
     const breakingItem = getMockBreakingNews() || null;
 
     return {

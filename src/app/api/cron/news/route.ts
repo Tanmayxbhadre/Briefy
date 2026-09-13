@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { runNewsCollectionJob } from '@/lib/news/jobRunner';
 
 export const dynamic = 'force-dynamic';
-export const maxDuration = 300; // Allow up to 5 minutes on serverless if needed
+export const maxDuration = 300; // Allow up to 5 minutes on serverless
 
 /**
  * Automated Cron Collection Endpoint
@@ -82,11 +82,11 @@ async function handleCronRequest(request: Request) {
       console.warn('[NEWS-CRON] Job queue tick skipped:', qErr);
     }
 
-    // 5. Auto-publish APPROVED drafts that meet quality/confidence thresholds
+    // 5. Auto-publish APPROVED/DRAFT articles (first pass — catches anything already in queue)
     let autoPublishSummary = { swept: 0, published: 0, skipped: 0, errors: 0 };
     try {
       const { runAutoPublishWorker } = await import('@/lib/ai/autoPublishWorker');
-      const apResult = await runAutoPublishWorker(20);
+      const apResult = await runAutoPublishWorker(100);
       autoPublishSummary = {
         swept: apResult.swept,
         published: apResult.published,
@@ -95,6 +95,27 @@ async function handleCronRequest(request: Request) {
       };
     } catch (apErr) {
       console.warn('[NEWS-CRON] Auto-publish step skipped:', apErr);
+    }
+
+    // 5b. Second auto-publish pass — catches newly generated drafts from step 3
+    try {
+      const { runAutoPublishWorker } = await import('@/lib/ai/autoPublishWorker');
+      const apResult2 = await runAutoPublishWorker(100);
+      autoPublishSummary.swept += apResult2.swept;
+      autoPublishSummary.published += apResult2.published;
+      autoPublishSummary.skipped += apResult2.skipped;
+      autoPublishSummary.errors += apResult2.errors.length;
+    } catch (apErr) {
+      console.warn('[NEWS-CRON] Auto-publish second pass skipped:', apErr);
+    }
+
+    // 5.5. Clean up old unpublished news automatically (> 2 days)
+    let cleanupSummary = { deletedDrafts: 0, deletedNewsItems: 0 };
+    try {
+      const { runCleanupWorker } = await import('@/lib/ai/cleanupWorker');
+      cleanupSummary = await runCleanupWorker();
+    } catch (cleanErr) {
+      console.warn('[NEWS-CRON] Cleanup step skipped:', cleanErr);
     }
 
     // 6. Revalidate cache
@@ -109,7 +130,7 @@ async function handleCronRequest(request: Request) {
     const finishedAt = new Date();
     console.log(
       [
-        '[THEBRIEF CRON]',
+        '[BRIEFYLIVE CRON]',
         `Finished: ${finishedAt.toISOString()}`,
         `Sources checked: ${result.sourcesProcessed}`,
         `Articles fetched: ${result.itemsFound}`,
@@ -121,6 +142,8 @@ async function handleCronRequest(request: Request) {
         `Auto-published: ${autoPublishSummary.published}`,
         `Failed sources: ${result.failedSources}`,
         `Failed AI generations: ${aiSummary.errors.length}`,
+        `Cleaned Drafts: ${cleanupSummary.deletedDrafts}`,
+        `Cleaned Items: ${cleanupSummary.deletedNewsItems}`,
         `Status: ${result.status}`,
       ].join(' | ')
     );
@@ -141,6 +164,7 @@ async function handleCronRequest(request: Request) {
       aiGeneration: aiSummary,
       queue: queueSummary,
       autoPublish: autoPublishSummary,
+      cleanup: cleanupSummary,
     });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Internal Server Error';

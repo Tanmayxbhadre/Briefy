@@ -55,7 +55,7 @@ async function verify() {
       authorName: 'Tanmay (Editor-in-Chief)',
       status: 'PUBLISHED',
       publishedAt: new Date(),
-      seoTitle: 'Global Tech Summit AI Framework — THE BRIEF',
+      seoTitle: 'Global Tech Summit AI Framework — BRIEFY',
       metaDescription: 'World leaders and tech leaders agree on international AI safety benchmarks.',
       sources: JSON.stringify([{ name: 'Reuters', url: 'https://reuters.com' }]),
       quickSummary: JSON.stringify(['AI safety benchmarks established', 'Ratified by 40 nations']),

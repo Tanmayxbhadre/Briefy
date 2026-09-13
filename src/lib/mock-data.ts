@@ -647,7 +647,7 @@ Market strategists at Goldman Sachs and CLSA have maintained their year-end targ
     category: categories[4],
     publishedAt: '2026-08-31T08:45:00Z',
     featuredImage:
-      'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1200&h=675&fit=crop',
+      'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=1200&h=675&fit=crop',
     imageAlt: 'Stock market charts showing upward movement',
     tags: ['Sensex', 'Stock Market', 'BSE', 'FII', 'India'],
     readingTime: 3,

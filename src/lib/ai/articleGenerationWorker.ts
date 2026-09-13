@@ -162,7 +162,7 @@ export function calculatePublishConfidence(options: {
   // NOTE: Single-source stories (sourceCount === 1) are NOT excluded from
   // auto-publishing — they simply receive a smaller "multiSourceBonus" than
   // stories that have been independently corroborated by multiple outlets.
-  // This is what allows THE BRIEF to publish fresh news automatically every
+  // This is what allows BRIEFY to publish fresh news automatically every
   // hour instead of waiting for a second outlet to report the same story.
   let multiSourceBonus = 10;
   if (sourceCount >= 5) multiSourceBonus = 25;
@@ -340,8 +340,16 @@ export async function generateDraftForCluster(
     isBreaking: cluster.isBreaking,
   });
 
+  const autoPublishEnabled = process.env.AUTO_PUBLISH_ENABLED === 'true';
   const shouldAutoPublish = evaluation.decision === 'AUTO_PUBLISH';
-  const draftStatus = shouldAutoPublish ? 'PUBLISHED' : 'DRAFT';
+  // When auto-publish is enabled but this article doesn't fully qualify (e.g. sensitive),
+  // mark it APPROVED so the autoPublishWorker still picks it up for the next sweep.
+  // Only keep it as DRAFT if auto-publish is fully disabled.
+  const draftStatus = shouldAutoPublish
+    ? 'PUBLISHED'
+    : autoPublishEnabled && !evaluation.isSensitive
+    ? 'APPROVED'
+    : 'DRAFT';
 
   // Ensure unique slug
   let uniqueSlug = draftData.suggestedSlug;
@@ -359,7 +367,7 @@ export async function generateDraftForCluster(
     seoTitle: draftData.seoTitle,
     metaDescription: draftData.metaDescription,
     categorySlug: cluster.category?.slug,
-    authorName: 'THE BRIEF Editorial Team',
+    authorName: 'BRIEFY Editorial Team',
     featuredImage: cluster.leadImageUrl || primaryItem.imageUrl || undefined,
     imageAlt: primaryItem.imageAlt || draftData.title,
     sources: draftData.sources,
@@ -395,7 +403,7 @@ export async function generateDraftForCluster(
       content: draftData.content,
       categoryId: cluster.categoryId,
       subcategory: draftData.subcategory || primaryItem.subcategory,
-      authorName: 'THE BRIEF Editorial Team',
+      authorName: 'BRIEFY Editorial Team',
       featuredImage: cluster.leadImageUrl || primaryItem.imageUrl || undefined,
       imageAlt: optimizedSeo.imageAlt,
       status: draftStatus,
@@ -506,7 +514,7 @@ export async function runArticleGenerationWorker(multiSourceLimit?: number): Pro
 
   // 2. Process single-source stories too. Most fresh news only appears on one
   // reliable outlet at ingestion time — without this step those stories would
-  // stay PENDING forever and THE BRIEF would never actually publish anything
+  // stay PENDING forever and BRIEFY would never actually publish anything
   // automatically. Quality/confidence gating in generateDraftForCluster still
   // decides whether each one is safe to auto-publish.
   const singleSourceClusters = await prisma.storyCluster.findMany({

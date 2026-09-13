@@ -184,7 +184,7 @@ export function ClusterManager({ initialClusters, categories }: ClusterManagerPr
                       Importance: <strong>{cluster.importanceScore}</strong>
                     </span>
                   </div>
-                  <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
+                  <span suppressHydrationWarning style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
                     Updated {new Date(cluster.lastSeenAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </span>
                 </div>

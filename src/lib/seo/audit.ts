@@ -1,5 +1,5 @@
 /**
- * Algorithmic SEO Audit Engine for TheBrief Newsroom
+ * Algorithmic SEO Audit Engine for Briefy Newsroom
  * Evaluates all major ranking factors required for Google News, Google Discover,
  * Top Stories Carousels, and search result snippet dominance.
  */

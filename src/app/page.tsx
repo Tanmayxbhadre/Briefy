@@ -15,7 +15,7 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export const metadata: Metadata = {
-  title: 'THE BRIEF — Serious Journalism for the Modern Reader',
+  title: 'BRIEFY — Serious Journalism for the Modern Reader',
   description:
     "India's most trusted source for clear, concise news across Technology, AI, Business, India, World, and Science.",
   alternates: {
