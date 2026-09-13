@@ -6,6 +6,8 @@ import { GenerateDraftRequest, SourceContext } from '@/lib/ai/types';
 import { aiRateLimiter } from '@/lib/ai/rateLimit';
 import slugify from 'slugify';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: Request) {
   try {
     const session = await getAdminSession();
