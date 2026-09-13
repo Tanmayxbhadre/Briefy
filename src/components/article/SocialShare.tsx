@@ -45,7 +45,7 @@ export default function SocialShare({ title, url }: SocialShareProps) {
 
         {/* X / Twitter */}
         <a
-          href={`https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}&via=thebriefin`}
+          href={`https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}&via=briefylive`}
           target="_blank"
           rel="noopener noreferrer"
           className={styles.shareBtn}

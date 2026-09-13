@@ -6,13 +6,13 @@ export function notifyNewsPublished() {
 
   try {
     if ('BroadcastChannel' in window) {
-      const channel = new BroadcastChannel('thebrief_news_channel');
+      const channel = new BroadcastChannel('briefylive_news_channel');
       channel.postMessage({ type: 'NEWS_PUBLISHED', timestamp: Date.now() });
       channel.close();
     }
   } catch { }
 
   try {
-    localStorage.setItem('thebrief_last_published', Date.now().toString());
+    localStorage.setItem('briefylive_last_published', Date.now().toString());
   } catch { }
 }

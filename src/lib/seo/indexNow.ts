@@ -4,10 +4,10 @@
  * Allows near-instant discovery of newly published articles.
  */
 
-export const INDEXNOW_KEY = process.env.INDEXNOW_KEY || 'thebrief-indexnow-key-2026';
+export const INDEXNOW_KEY = process.env.INDEXNOW_KEY || 'briefylive-indexnow-key-2026';
 
 export async function submitToIndexNow(urls: string[]): Promise<boolean> {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://thebrief.in';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://briefy.live';
   
   if (!urls.length) return false;
 
@@ -44,7 +44,7 @@ export async function submitToIndexNow(urls: string[]): Promise<boolean> {
 }
 
 export async function pingGoogleSitemap(): Promise<void> {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://thebrief.in';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://briefy.live';
   const sitemaps = [
     `${siteUrl}/sitemap.xml`,
     `${siteUrl}/sitemap-news.xml`,
@@ -54,7 +54,7 @@ export async function pingGoogleSitemap(): Promise<void> {
     try {
       await fetch(`https://www.google.com/ping?sitemap=${encodeURIComponent(sm)}`, {
         method: 'GET',
-        headers: { 'User-Agent': 'TheBrief-Publisher/1.0' },
+        headers: { 'User-Agent': 'Briefy-Publisher/1.0' },
       });
       console.log(`[Google-Ping] Pinged sitemap: ${sm}`);
     } catch {

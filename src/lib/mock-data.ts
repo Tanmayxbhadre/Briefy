@@ -1,5 +1,5 @@
 // ============================================================
-// TheBrief — Mock Data
+// Briefy — Mock Data
 // Structured for easy API/CMS replacement later.
 // Replace this file's exports with API calls when backend is ready.
 // ============================================================
@@ -61,7 +61,7 @@ export const categories: Category[] = [
     name: 'Technology',
     slug: 'technology',
     description: 'Latest technology news, product launches, and digital innovation.',
-    seoTitle: 'Technology News — THE BRIEF',
+    seoTitle: 'Technology News — BRIEFY',
     seoDescription: 'Stay updated with the latest technology news, product launches, AI developments, and major announcements from the world of tech.',
   },
   {
@@ -69,7 +69,7 @@ export const categories: Category[] = [
     name: 'India',
     slug: 'india',
     description: 'National news, politics, economy, and society from across India.',
-    seoTitle: 'India News — THE BRIEF',
+    seoTitle: 'India News — BRIEFY',
     seoDescription: "Comprehensive coverage of India's politics, economy, society, and governance. Read the latest news from across the country.",
   },
   {
@@ -77,7 +77,7 @@ export const categories: Category[] = [
     name: 'World',
     slug: 'world',
     description: 'International news, geopolitics, and global developments.',
-    seoTitle: 'World News — THE BRIEF',
+    seoTitle: 'World News — BRIEFY',
     seoDescription: 'Follow the latest international news, global developments, and geopolitical events from around the world.',
   },
   {
@@ -85,7 +85,7 @@ export const categories: Category[] = [
     name: 'AI',
     slug: 'ai',
     description: 'Artificial intelligence breakthroughs, products, and policy.',
-    seoTitle: 'AI News — THE BRIEF',
+    seoTitle: 'AI News — BRIEFY',
     seoDescription: 'Latest artificial intelligence news: model releases, research breakthroughs, AI policy, and the companies shaping the future.',
   },
   {
@@ -93,7 +93,7 @@ export const categories: Category[] = [
     name: 'Business',
     slug: 'business',
     description: 'Markets, economy, startups, and corporate India.',
-    seoTitle: 'Business News — THE BRIEF',
+    seoTitle: 'Business News — BRIEFY',
     seoDescription: 'Covering Indian and global markets, startup funding, corporate news, economic policy, and financial markets.',
   },
   {
@@ -101,7 +101,7 @@ export const categories: Category[] = [
     name: 'Science',
     slug: 'science',
     description: 'Scientific discoveries, space exploration, and climate.',
-    seoTitle: 'Science News — THE BRIEF',
+    seoTitle: 'Science News — BRIEFY',
     seoDescription: 'Latest science news: research discoveries, space missions, climate change, and breakthroughs in medicine and biology.',
   },
   {
@@ -109,7 +109,7 @@ export const categories: Category[] = [
     name: 'Startups',
     slug: 'startups',
     description: 'Startup funding, founders, and Indian tech ecosystem.',
-    seoTitle: 'Startup News — THE BRIEF',
+    seoTitle: 'Startup News — BRIEFY',
     seoDescription: 'Indian and global startup news: funding rounds, founder stories, product launches, and ecosystem updates.',
   },
   {
@@ -117,7 +117,7 @@ export const categories: Category[] = [
     name: 'Gaming',
     slug: 'gaming',
     description: 'Game releases, esports, and gaming industry news.',
-    seoTitle: 'Gaming News — THE BRIEF',
+    seoTitle: 'Gaming News — BRIEFY',
     seoDescription: 'Latest gaming news including game releases, esports tournaments, and major gaming industry developments.',
   },
   {
@@ -125,7 +125,7 @@ export const categories: Category[] = [
     name: 'Entertainment',
     slug: 'entertainment',
     description: 'Films, music, streaming, OTT, and pop culture.',
-    seoTitle: 'Entertainment News — THE BRIEF',
+    seoTitle: 'Entertainment News — BRIEFY',
     seoDescription: 'Latest entertainment news covering Bollywood, Hollywood, OTT releases, music, and pop culture trends.',
   },
   {
@@ -133,7 +133,7 @@ export const categories: Category[] = [
     name: 'Sports',
     slug: 'sports',
     description: 'Cricket, football, and major sporting events from India and the world.',
-    seoTitle: 'Sports News — THE BRIEF',
+    seoTitle: 'Sports News — BRIEFY',
     seoDescription: 'Latest sports news covering cricket, football, tennis, the Olympics, and major tournaments from India and around the world.',
   },
   {
@@ -141,7 +141,7 @@ export const categories: Category[] = [
     name: 'Finance',
     slug: 'finance',
     description: 'Markets, banking, personal finance, and the economy.',
-    seoTitle: 'Finance News — THE BRIEF',
+    seoTitle: 'Finance News — BRIEFY',
     seoDescription: 'Latest finance news covering stock markets, banking, personal finance, cryptocurrency, and the global economy.',
   },
 ];

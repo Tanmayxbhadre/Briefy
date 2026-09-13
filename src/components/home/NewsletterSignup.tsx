@@ -23,7 +23,7 @@ export default function NewsletterSignup() {
     <section className={styles.section} aria-label="Newsletter signup">
       <div className={`container ${styles.inner}`}>
         <div className={styles.content}>
-          <h2 className={styles.heading}>The Brief, Daily.</h2>
+          <h2 className={styles.heading}>Briefy, Daily.</h2>
           <p className={styles.subtext}>
             Get the most important stories of the day delivered to your inbox every morning.
             No noise, no spam.

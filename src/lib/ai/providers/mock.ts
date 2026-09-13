@@ -10,7 +10,7 @@ import slugify from 'slugify';
 
 export class MockAIProvider extends BaseAIProvider {
   readonly name = 'mock';
-  readonly defaultModel = 'thebrief-editorial-mock-v1';
+  readonly defaultModel = 'briefylive-editorial-mock-v1';
 
   isAvailable(): boolean {
     return true;

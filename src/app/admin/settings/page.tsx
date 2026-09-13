@@ -45,7 +45,7 @@ export default async function AdminSettingsPage() {
       <div className={styles.header}>
         <h1 className={styles.title}>System & Editorial Settings</h1>
         <p className={styles.subtitle}>
-          Configuration, security posture, AI provider parameters, database metrics, and editorial rules for TheBrief.
+          Configuration, security posture, AI provider parameters, database metrics, and editorial rules for Briefy.
         </p>
       </div>
 

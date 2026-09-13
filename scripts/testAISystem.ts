@@ -87,7 +87,7 @@ async function testAISystem() {
       readingTime: mockDraft.readingTime,
       aiGenerated: true,
       aiProvider: 'mock',
-      aiModel: 'thebrief-editorial-mock-v1',
+      aiModel: 'briefylive-editorial-mock-v1',
       aiFlags: JSON.stringify(mockDraft.reviewFlags),
     },
   });
@@ -103,7 +103,7 @@ async function testAISystem() {
     data: {
       operation: 'draft_generation',
       provider: 'mock',
-      model: 'thebrief-editorial-mock-v1',
+      model: 'briefylive-editorial-mock-v1',
       newsItemId: sampleNewsItem.id,
       draftId: savedDraft.id,
       inputTokens: 450,

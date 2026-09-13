@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const article = await getPublishedArticleBySlug(slug);
   if (!article) return {};
 
-  const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://thebrief.in';
+  const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://briefy.live';
   const url = `${SITE_URL}/${article.category.slug}/${article.slug}`;
 
   return {
@@ -93,7 +93,7 @@ export default async function ArticlePage({ params }: Props) {
         <div className="article-container">
           <SocialShare
             title={article.title}
-            url={`${process.env.NEXT_PUBLIC_SITE_URL || 'https://thebrief.in'}/${article.category.slug}/${article.slug}`}
+            url={`${process.env.NEXT_PUBLIC_SITE_URL || 'https://briefy.live'}/${article.category.slug}/${article.slug}`}
           />
         </div>
 

@@ -85,7 +85,7 @@ export default function LiveNewsRefresher({
     let channel: BroadcastChannel | null = null;
     try {
       if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
-        channel = new BroadcastChannel('thebrief_news_channel');
+        channel = new BroadcastChannel('briefylive_news_channel');
         channel.onmessage = (event) => {
           if (event.data?.type === 'NEWS_PUBLISHED') {
             checkNewsVersion();
@@ -97,7 +97,7 @@ export default function LiveNewsRefresher({
 
     // 2. Storage event listener fallback for cross-tab sync
     const handleStorage = (e: StorageEvent) => {
-      if (e.key === 'thebrief_last_published') {
+      if (e.key === 'briefylive_last_published') {
         checkNewsVersion();
         refreshNews();
       }

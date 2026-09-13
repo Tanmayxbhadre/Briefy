@@ -1,5 +1,5 @@
 // ============================================================
-// TheBrief — Utility Functions
+// Briefy — Utility Functions
 // ============================================================
 
 /**
@@ -95,7 +95,7 @@ export function truncate(text: string, maxLength: number): string {
  * Get a canonical URL for the site.
  */
 export function getCanonicalUrl(path: string = ''): string {
-  const base = process.env.NEXT_PUBLIC_SITE_URL || 'https://thebrief.in';
+  const base = process.env.NEXT_PUBLIC_SITE_URL || 'https://briefy.live';
   return `${base}${path}`;
 }
 

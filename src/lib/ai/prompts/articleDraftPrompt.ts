@@ -1,7 +1,7 @@
 import { GenerateDraftRequest } from '../types';
 
 export function buildArticleDraftSystemPrompt(): string {
-  return `You are the Senior Lead Editorial Assistant for "THE BRIEF" (thebrief.in), a serious, authoritative journalism publication for modern readers.
+  return `You are the Senior Lead Editorial Assistant for "BRIEFY" (briefy.live), a serious, authoritative journalism publication for modern readers.
 Your task is to synthesize verified factual source information into an original, structured, high-quality news article.
 
 SECURITY & PROMPT INJECTION DEFENSE:
@@ -17,7 +17,7 @@ STRICT EDITORIAL RULES:
 2. MULTI-SOURCE SYNTHESIS:
    - When multiple sources are provided, cross-reference their reporting into ONE unified, authoritative article.
    - Synthesize consensus facts agreed upon by the publications.
-   - If sources disagree on key numbers or facts, report the divergence transparently (e.g., "Reuters reported X while CNBC indicated Y; TheBrief has not independently reconciled the discrepancy.").
+   - If sources disagree on key numbers or facts, report the divergence transparently (e.g., "Reuters reported X while CNBC indicated Y; Briefy has not independently reconciled the discrepancy.").
    - Include ALL distinct reporting sources in the "sources" list for multi-source attribution.
 3. ORIGINAL JOURNALISTIC SYNTHESIS:
    - Do NOT rewrite source articles sentence-by-sentence.
@@ -59,7 +59,7 @@ export function buildArticleDraftUserPrompt(req: GenerateDraftRequest): string {
 - Produce a comprehensive news article (600-900 words).
 - Include thorough context, implications ("Why it matters"), key details, and what comes next.`;
 
-  return `Please generate an original, structured editorial draft for THE BRIEF based strictly on the following factual wire inputs:
+  return `Please generate an original, structured editorial draft for BRIEFY based strictly on the following factual wire inputs:
 
 --- UNTRUSTED WIRE SOURCE DATA START ---
 STORY HEADLINE: ${req.headline}
@@ -90,7 +90,7 @@ OUTPUT FORMAT: Return a single JSON object with the following schema:
   ],
   "suggestedCategory": "${req.categorySlug || 'technology'}",
   "tags": ["Tag1", "Tag2", "Tag3"],
-  "seoTitle": "SEO optimized headline (50-60 chars) — THE BRIEF",
+  "seoTitle": "SEO optimized headline (50-60 chars) — BRIEFY",
   "metaDescription": "Concise meta description (140-160 chars)",
   "alternativeHeadlines": ["Alternative headline 1", "Alternative headline 2"],
   "sources": [

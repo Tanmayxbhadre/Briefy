@@ -4,7 +4,7 @@ import { getAllPublishedArticles } from '@/lib/articles';
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://thebrief.in';
+  const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://briefy.live';
   const articles = await getAllPublishedArticles();
 
   const escapeXml = (unsafe: string) => {
@@ -42,7 +42,7 @@ export async function GET() {
   const rssFeed = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>THE BRIEF — Serious Journalism for the Modern Reader</title>
+    <title>BRIEFY — Serious Journalism for the Modern Reader</title>
     <link>${SITE_URL}</link>
     <description>Clear, concise, authoritative news across Technology, AI, Business, India, World, and Science.</description>
     <language>en-US</language>

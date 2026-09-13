@@ -884,7 +884,7 @@ export function ArticleEditor({ initialDraft, categories }: ArticleEditorProps) 
 
             {/* Slug Editor */}
             <div className={styles.slugRow}>
-              <span className={styles.slugPrefix}>thebrief.in/[category]/</span>
+              <span className={styles.slugPrefix}>briefy.live/[category]/</span>
               <input
                 type="text"
                 className={styles.slugInput}
@@ -1629,7 +1629,7 @@ export function ArticleEditor({ initialDraft, categories }: ArticleEditorProps) 
                   setCanonicalUrl(e.target.value);
                   markDirty();
                 }}
-                placeholder="https://thebrief.in/..."
+                placeholder="https://briefy.live/..."
               />
             </div>
 

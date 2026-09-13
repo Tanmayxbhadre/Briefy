@@ -1,7 +1,7 @@
 import { Article } from '@/lib/types';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://thebrief.in';
-const SITE_NAME = 'THE BRIEF';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://briefy.live';
+const SITE_NAME = 'BRIEFY';
 
 interface SchemaOrgProps {
   article?: Article;
@@ -22,9 +22,9 @@ export default function SchemaOrg({ article }: SchemaOrgProps) {
       height: 60,
     },
     sameAs: [
-      'https://twitter.com/thebrief',
-      'https://instagram.com/thebrief',
-      'https://linkedin.com/company/thebrief',
+      'https://twitter.com/briefylive',
+      'https://instagram.com/briefylive',
+      'https://linkedin.com/company/briefylive',
     ],
   };
 

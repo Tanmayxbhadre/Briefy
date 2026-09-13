@@ -5,7 +5,7 @@ import Footer from '@/components/layout/Footer';
 import SchemaOrg from '@/components/seo/SchemaOrg';
 import GlobalLiveNewsListener from '@/components/layout/GlobalLiveNewsListener';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://thebrief.in';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://briefy.live';
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -18,15 +18,15 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: 'THE BRIEF — Serious Journalism for the Modern Reader',
-    template: '%s — THE BRIEF',
+    default: 'BRIEFY — Serious Journalism for the Modern Reader',
+    template: '%s — BRIEFY',
   },
   description:
-    'THE BRIEF delivers clear, concise, and trustworthy news across India, World, Technology, AI, Business, and Science.',
+    'BRIEFY delivers clear, concise, and trustworthy news across India, World, Technology, AI, Business, and Science.',
   keywords: ['news', 'India news', 'technology', 'AI', 'business', 'current affairs'],
-  authors: [{ name: 'THE BRIEF Editorial Team' }],
-  creator: 'THE BRIEF',
-  publisher: 'THE BRIEF',
+  authors: [{ name: 'BRIEFY Editorial Team' }],
+  creator: 'BRIEFY',
+  publisher: 'BRIEFY',
   robots: {
     index: true,
     follow: true,
@@ -42,8 +42,8 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_IN',
     url: SITE_URL,
-    siteName: 'THE BRIEF',
-    title: 'THE BRIEF — Serious Journalism for the Modern Reader',
+    siteName: 'BRIEFY',
+    title: 'BRIEFY — Serious Journalism for the Modern Reader',
     description:
       'Clear, concise, and trustworthy news across India, World, Technology, AI, Business, and Science.',
     images: [
@@ -51,15 +51,15 @@ export const metadata: Metadata = {
         url: `${SITE_URL}/og-image.png`,
         width: 1200,
         height: 630,
-        alt: 'THE BRIEF',
+        alt: 'BRIEFY',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    site: '@thebrief',
-    creator: '@thebrief',
-    title: 'THE BRIEF — Serious Journalism for the Modern Reader',
+    site: '@briefylive',
+    creator: '@briefylive',
+    title: 'BRIEFY — Serious Journalism for the Modern Reader',
     description: 'Clear, concise, and trustworthy news across India, World, Technology, AI, Business, and Science.',
     images: [`${SITE_URL}/og-image.png`],
   },

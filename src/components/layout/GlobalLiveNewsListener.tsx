@@ -76,7 +76,7 @@ export default function GlobalLiveNewsListener() {
     let channel: BroadcastChannel | null = null;
     try {
       if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
-        channel = new BroadcastChannel('thebrief_news_channel');
+        channel = new BroadcastChannel('briefylive_news_channel');
         channel.onmessage = (event) => {
           if (event.data?.type === 'NEWS_PUBLISHED') {
             checkNewsVersion();
@@ -87,7 +87,7 @@ export default function GlobalLiveNewsListener() {
 
     // 2. Storage event listener fallback
     const handleStorage = (e: StorageEvent) => {
-      if (e.key === 'thebrief_last_published') {
+      if (e.key === 'briefylive_last_published') {
         checkNewsVersion();
       }
     };

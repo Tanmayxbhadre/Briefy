@@ -2,11 +2,11 @@ import { cookies } from 'next/headers';
 import crypto from 'crypto';
 import { prisma } from './db';
 
-const COOKIE_NAME = 'thebrief_admin_session';
+const COOKIE_NAME = 'briefylive_admin_session';
 const SESSION_MAX_AGE = 60 * 60 * 24 * 7; // 7 days
 
 function getSecretKey(): string {
-  return process.env.ADMIN_SECRET || 'thebrief-dev-admin-secret-key-32chars!';
+  return process.env.ADMIN_SECRET || 'briefylive-dev-admin-secret-key-32chars!';
 }
 
 /**
@@ -78,7 +78,7 @@ export async function getAdminSession(): Promise<{ authenticated: boolean; user?
 export function verifyAdminPassword(password: string): boolean {
   const adminSecret = process.env.ADMIN_SECRET || 'secret';
   if (!password) return false;
-  return password === adminSecret || password === 'admin' || password === 'thebrief2026';
+  return password === adminSecret || password === 'admin' || password === 'briefylive2026';
 }
 
 /**

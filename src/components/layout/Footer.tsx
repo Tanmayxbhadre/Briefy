@@ -41,7 +41,7 @@ export default function Footer() {
         {/* Top: Brand + Links */}
         <div className={styles.grid}>
           <div className={styles.brand}>
-            <Link href="/" className={styles.logo}>THE BRIEF</Link>
+            <Link href="/" className={styles.logo}>BRIEFY</Link>
             <p className={styles.tagline}>
               Serious journalism for the modern reader. Clear, concise, and trustworthy.
             </p>
@@ -72,9 +72,9 @@ export default function Footer() {
           <div className={styles.linkGroup}>
             <h3 className={styles.groupLabel}>Follow</h3>
             <ul>
-              <li><a href="https://twitter.com/thebrief" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>X (Twitter)</a></li>
-              <li><a href="https://instagram.com/thebrief" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>Instagram</a></li>
-              <li><a href="https://linkedin.com/company/thebrief" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>LinkedIn</a></li>
+              <li><a href="https://twitter.com/briefylive" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>X (Twitter)</a></li>
+              <li><a href="https://instagram.com/briefylive" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>Instagram</a></li>
+              <li><a href="https://linkedin.com/company/briefylive" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>LinkedIn</a></li>
               <li><Link href="/rss.xml" className={styles.footerLink}>RSS Feed</Link></li>
             </ul>
           </div>
@@ -83,7 +83,7 @@ export default function Footer() {
         {/* Bottom: Copyright */}
         <div className={styles.bottom}>
           <p className={styles.copyright}>
-            © {year} THE BRIEF. All rights reserved.
+            © {year} BRIEFY. All rights reserved.
           </p>
           <p className={styles.disclaimer}>
             Content is for informational purposes. We are not responsible for external links.

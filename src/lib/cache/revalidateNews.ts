@@ -21,7 +21,7 @@ const ALL_CATEGORY_SLUGS = [
 ];
 
 /**
- * Centralized cache revalidation service for TheBrief news publishing pipeline.
+ * Centralized cache revalidation service for Briefy news publishing pipeline.
  * Ensures immediate synchronization across Homepage, all Category Feeds, RSS,
  * Sitemaps, and Search Engines (IndexNow + Google).
  */
@@ -65,7 +65,7 @@ export async function revalidateNewsPublication(options: RevalidateOptions = {})
     );
 
     // 5. Asynchronously trigger Search Engine Indexing (IndexNow + Google Ping)
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://thebrief.in';
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://briefy.live';
     const urlsToIndex = [`${siteUrl}/`];
 
     if (options.categorySlug) {

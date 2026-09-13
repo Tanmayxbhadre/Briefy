@@ -20,7 +20,7 @@ The entire Prisma schema in `prisma/schema.prisma` is designed to be database-ag
 Provision a managed instance on AWS RDS, Supabase, Neon, or Google Cloud SQL:
 ```bash
 # Example Connection String
-DATABASE_URL="postgresql://thebrief_admin:SECURE_PASSWORD@postgres.internal.net:5432/thebrief_prod?schema=public&sslmode=require"
+DATABASE_URL="postgresql://briefylive_admin:SECURE_PASSWORD@postgres.internal.net:5432/briefylive_prod?schema=public&sslmode=require"
 ```
 
 ### Step 2: Switch Provider in `schema.prisma`
@@ -44,7 +44,7 @@ If migrating existing development data:
 1. Export SQLite tables to CSV or JSON using `sqlite3 dev.db .dump`.
 2. Use tools like `pgloader`:
    ```bash
-   pgloader dev.db postgresql://thebrief_admin:SECURE_PASSWORD@postgres.internal.net:5432/thebrief_prod
+   pgloader dev.db postgresql://briefylive_admin:SECURE_PASSWORD@postgres.internal.net:5432/briefylive_prod
    ```
 
 ---

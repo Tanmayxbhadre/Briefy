@@ -13,7 +13,7 @@ function escapeXml(unsafe: string): string {
 }
 
 export async function GET() {
-  const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://thebrief.in';
+  const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://briefy.live';
   const allArticles = await getAllPublishedArticles();
 
   // Google News guidelines strictly require articles published within the last 48 hours
@@ -39,7 +39,7 @@ export async function GET() {
     <loc>${url}</loc>
     <news:news>
       <news:publication>
-        <news:name>THE BRIEF</news:name>
+        <news:name>BRIEFY</news:name>
         <news:language>en</news:language>
       </news:publication>
       <news:publication_date>${pubDateIso}</news:publication_date>

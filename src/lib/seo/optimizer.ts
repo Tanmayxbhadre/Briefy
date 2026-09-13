@@ -15,7 +15,7 @@ export interface OptimizedSeoFields {
  * Bing, and social search before publication.
  */
 export function optimizeArticleSeo(article: ArticleForAudit): OptimizedSeoFields {
-  const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://thebrief.in';
+  const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://briefy.live';
   const categorySlug = article.categorySlug || 'news';
   const rawTitle = article.title.trim();
   const slug = article.slug.trim();
@@ -45,7 +45,7 @@ export function optimizeArticleSeo(article: ArticleForAudit): OptimizedSeoFields
     const lastSpace = trimmed.lastIndexOf(' ');
     metaDescription = (lastSpace > 100 ? trimmed.slice(0, lastSpace) : trimmed) + '...';
   } else if (metaDescription.length < 90 && rawTitle) {
-    metaDescription = `${rawTitle}. Complete reporting and key takeaways on THE BRIEF.`;
+    metaDescription = `${rawTitle}. Complete reporting and key takeaways on BRIEFY.`;
   }
 
   // 3. Format Canonical URL
@@ -54,7 +54,7 @@ export function optimizeArticleSeo(article: ArticleForAudit): OptimizedSeoFields
   // 4. Optimize Image Alt Text
   let imageAlt = (article.imageAlt || '').trim();
   if (!imageAlt || imageAlt.length < 6) {
-    imageAlt = `${rawTitle} - News coverage by THE BRIEF`;
+    imageAlt = `${rawTitle} - News coverage by BRIEFY`;
   }
 
   // 5. Standardize Tags

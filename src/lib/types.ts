@@ -1,5 +1,5 @@
 // ============================================================
-// TheBrief — Type Definitions
+// Briefy — Type Definitions
 // ============================================================
 
 export interface Author {

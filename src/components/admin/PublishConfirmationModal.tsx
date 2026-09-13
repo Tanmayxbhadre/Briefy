@@ -93,7 +93,7 @@ export function PublishConfirmationModal({
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Globe size={18} color="var(--color-accent, #1a3a8b)" />
             <h2 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#171717' }}>
-              Publish Article to TheBrief
+              Publish Article to Briefy
             </h2>
           </div>
           <button
