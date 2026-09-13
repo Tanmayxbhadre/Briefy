@@ -307,3 +307,17 @@ h1, h2, h3, h4, h5, h6 {
     padding-top: var(--header-height-mobile);
   }
 }
+
+@media (max-width: 767px) {
+  .main-content {
+    padding-top: 101px;
+  }
+
+  .container {
+    padding-inline: 1rem;
+  }
+
+  .ad-slot {
+    max-width: 100%;
+  }
+}

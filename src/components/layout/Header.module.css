@@ -40,15 +40,14 @@
   flex-shrink: 0;
   display: flex;
   align-items: center;
+  min-width: 120px;
 }
 
-.logoText {
-  font-family: var(--font-serif);
-  font-size: 1.0625rem;
-  letter-spacing: 0.14em;
-  color: var(--color-text);
-  font-weight: 400;
-  /* Editorial masthead feel — no bold, no extra weight */
+.logoImage {
+  width: 120px;
+  height: 20px;
+  object-fit: contain;
+  object-position: left center;
 }
 
 /* ── Primary Navigation ── */
@@ -166,8 +165,17 @@
 }
 
 @media (max-width: 767px) {
-  .logoText {
-    font-size: 0.9375rem;
-    letter-spacing: 0.12em;
+  .inner {
+    min-height: 56px;
+    gap: var(--space-3);
+  }
+
+  .logo {
+    min-width: 104px;
+  }
+
+  .logoImage {
+    width: 104px;
+    height: 18px;
   }
 }

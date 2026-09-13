@@ -15,7 +15,7 @@
   align-items: start;
   max-width: var(--container-max);
   margin-inline: auto;
-  /* Removed padding-inline as the .container handles this globally, or Hero logic uses it */
+  padding-inline: clamp(0.875rem, 3.5vw, 3rem);
 }
 
 /* ── Main Story ── */
@@ -226,6 +226,7 @@
 
   .grid {
     gap: var(--space-5);
+    padding-inline: 0.875rem;
   }
 
   .main {
@@ -237,7 +238,7 @@
   }
 
   .mainHeadline {
-    font-size: clamp(1.25rem, 5.2vw, 1.6rem);
+    font-size: clamp(1.5rem, 7vw, 2rem);
     line-height: 1.22;
   }
 
@@ -280,5 +281,9 @@
   .secondaryImageWrapper {
     width: 80px;
     height: 60px;
+  }
+
+  .mainImageWrapper {
+    aspect-ratio: 16 / 10;
   }
 }

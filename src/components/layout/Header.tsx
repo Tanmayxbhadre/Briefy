@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Search, Menu, X } from 'lucide-react';
 import MobileMenu from './MobileMenu';
@@ -70,7 +71,14 @@ export default function Header() {
 
           {/* Logo */}
           <Link href="/" className={styles.logo} aria-label="BRIEFY — Home">
-            <span className={styles.logoText}>BRIEFY</span>
+            <Image
+              src="/logo.png"
+              alt="BRIEFY"
+              width={120}
+              height={20}
+              priority
+              className={styles.logoImage}
+            />
           </Link>
 
           {/* Desktop Navigation */}
