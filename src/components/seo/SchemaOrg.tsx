@@ -19,7 +19,7 @@ export default function SchemaOrg({ article }: SchemaOrgProps) {
       '@type': 'ImageObject',
       url: `${SITE_URL}/logo.png`,
       width: 600,
-      height: 60,
+      height: 100,
     },
     sameAs: [
       'https://twitter.com/briefylive',

@@ -15,9 +15,9 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export const metadata: Metadata = {
-  title: 'BRIEFY — Serious Journalism for the Modern Reader',
+  title: 'Latest India, World & Technology News',
   description:
-    "India's most trusted source for clear, concise news across Technology, AI, Business, India, World, and Science.",
+    'Get clear, concise, and trustworthy India, world, technology, AI, business, and science news from BRIEFY, your daily digital news briefing.',
   alternates: {
     canonical: '/',
   },

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">BRIEFY — Serious Journalism for the Modern Reader</title>
+  <desc id="desc">Clear, concise news across India, World, Technology, AI, Business, and Science.</desc>
+  <rect width="1200" height="630" fill="#fafaf8"/>
+  <rect x="56" y="56" width="1088" height="518" rx="28" fill="#ffffff" stroke="#e7e5df" stroke-width="4"/>
+  <text x="112" y="300" fill="#111111" font-family="Georgia, Times New Roman, serif" font-size="132" font-weight="700" letter-spacing="-8">BRIEFY</text>
+  <circle cx="1028" cy="286" r="20" fill="#ed1c24"/>
+  <text x="118" y="382" fill="#626262" font-family="Arial, Helvetica, sans-serif" font-size="30" letter-spacing="4">SERIOUS JOURNALISM FOR THE MODERN READER</text>
+  <text x="118" y="472" fill="#ed1c24" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700">INDIA · WORLD · TECHNOLOGY · AI · BUSINESS · SCIENCE</text>
+</svg>

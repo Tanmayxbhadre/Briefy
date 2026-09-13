@@ -18,15 +18,21 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: 'BRIEFY — Serious Journalism for the Modern Reader',
+    default: 'BRIEFY — Latest India, World & Technology News',
     template: '%s — BRIEFY',
   },
   description:
-    'BRIEFY delivers clear, concise, and trustworthy news across India, World, Technology, AI, Business, and Science.',
-  keywords: ['news', 'India news', 'technology', 'AI', 'business', 'current affairs'],
+    'Get clear, concise, and trustworthy India, world, technology, AI, business, and science news from BRIEFY, your daily digital news briefing.',
+  keywords: ['India news', 'world news', 'technology news', 'AI news', 'business news', 'science news'],
+  applicationName: 'BRIEFY',
+  category: 'news',
   authors: [{ name: 'BRIEFY Editorial Team' }],
   creator: 'BRIEFY',
   publisher: 'BRIEFY',
+  icons: {
+    icon: [{ url: '/icon.svg', type: 'image/svg+xml' }],
+    apple: [{ url: '/apple-icon.png', sizes: '180x180', type: 'image/png' }],
+  },
   robots: {
     index: true,
     follow: true,
@@ -43,15 +49,15 @@ export const metadata: Metadata = {
     locale: 'en_IN',
     url: SITE_URL,
     siteName: 'BRIEFY',
-    title: 'BRIEFY — Serious Journalism for the Modern Reader',
+    title: 'BRIEFY — Latest India, World & Technology News',
     description:
-      'Clear, concise, and trustworthy news across India, World, Technology, AI, Business, and Science.',
+      'Clear, concise news across India, World, Technology, AI, Business, and Science.',
     images: [
       {
         url: `${SITE_URL}/og-image.png`,
         width: 1200,
         height: 630,
-        alt: 'BRIEFY',
+        alt: 'BRIEFY — Latest India, World and Technology News',
       },
     ],
   },
@@ -59,8 +65,8 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     site: '@briefylive',
     creator: '@briefylive',
-    title: 'BRIEFY — Serious Journalism for the Modern Reader',
-    description: 'Clear, concise, and trustworthy news across India, World, Technology, AI, Business, and Science.',
+    title: 'BRIEFY — Latest India, World & Technology News',
+    description: 'Clear, concise news across India, World, Technology, AI, Business, and Science.',
     images: [`${SITE_URL}/og-image.png`],
   },
   alternates: {
