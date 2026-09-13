@@ -13,6 +13,8 @@
   grid-template-columns: 1fr 340px;
   gap: var(--space-12);
   align-items: start;
+  width: 100%;
+  min-width: 0;
   max-width: var(--container-max);
   margin-inline: auto;
   padding-inline: clamp(0.875rem, 3.5vw, 3rem);
@@ -24,6 +26,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-5);
+  min-width: 0;
 }
 
 .mainImageWrapper {
@@ -48,6 +51,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
+  min-width: 0;
 }
 
 .categoryTag {
@@ -60,6 +64,7 @@
   line-height: var(--leading-tight);
   color: var(--color-text);
   font-weight: 400;
+  overflow-wrap: anywhere;
 }
 
 .mainHeadline a {
@@ -226,7 +231,8 @@
 
   .grid {
     gap: var(--space-5);
-    padding-inline: 0.875rem;
+    padding-inline: max(0.875rem, env(safe-area-inset-left));
+    padding-right: max(0.875rem, env(safe-area-inset-right));
   }
 
   .main {
@@ -238,7 +244,7 @@
   }
 
   .mainHeadline {
-    font-size: clamp(1.5rem, 7vw, 2rem);
+    font-size: clamp(1.4rem, 7vw, 2rem);
     line-height: 1.22;
   }
 
@@ -285,5 +291,15 @@
 
   .mainImageWrapper {
     aspect-ratio: 16 / 10;
+  }
+}
+
+@media (max-width: 360px) {
+  .grid {
+    padding-inline: 0.75rem;
+  }
+
+  .mainHeadline {
+    font-size: 1.45rem;
   }
 }

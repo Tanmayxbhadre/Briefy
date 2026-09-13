@@ -32,6 +32,7 @@
   align-items: center;
   height: var(--header-height);
   gap: var(--space-6);
+  min-width: 0;
 }
 
 /* ── Logo / Masthead ── */
@@ -177,5 +178,19 @@
   .logoImage {
     width: 104px;
     height: 18px;
+  }
+}
+
+@media (max-width: 360px) {
+  .inner {
+    gap: var(--space-2);
+  }
+
+  .logo {
+    min-width: 96px;
+  }
+
+  .logoImage {
+    width: 96px;
   }
 }

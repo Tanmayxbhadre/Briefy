@@ -13,6 +13,7 @@
   gap: var(--space-10);
   margin-top: var(--space-4);
   align-items: start;
+  min-width: 0;
 }
 
 /* ── Primary Story ── */
@@ -21,6 +22,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
+  min-width: 0;
 }
 
 .imageWrapper {
@@ -45,6 +47,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+  min-width: 0;
 }
 
 .primaryHeadline {
@@ -53,6 +56,7 @@
   line-height: var(--leading-snug);
   font-weight: 400;
   color: var(--color-text);
+  overflow-wrap: anywhere;
 }
 
 .primaryHeadline a {
