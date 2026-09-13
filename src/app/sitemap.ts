@@ -5,7 +5,7 @@ import { categories } from '@/lib/mock-data';
 export const dynamic = 'force-dynamic';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://briefy.live';
+  const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.briefy.live';
   const articles = await getAllPublishedArticles();
 
   const articleEntries: MetadataRoute.Sitemap = articles.map((a) => ({

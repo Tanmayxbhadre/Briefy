@@ -67,6 +67,6 @@ export function getEnvironmentDiagnostics(): EnvironmentDiagnostics {
     AI_MODEL: model,
     AI_ENABLED: process.env.AI_ENABLED !== 'false' ? 'ENABLED' : 'DISABLED',
     AUTO_PUBLISH: process.env.AUTO_PUBLISH_ENABLED === 'true' ? 'ENABLED' : 'DISABLED',
-    SITE_URL: process.env.NEXT_PUBLIC_SITE_URL || 'https://briefy.live',
+    SITE_URL: process.env.NEXT_PUBLIC_SITE_URL || 'https://www.briefy.live',
   };
 }

@@ -1,6 +1,6 @@
 import { Article } from '@/lib/types';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://briefy.live';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.briefy.live';
 const SITE_NAME = 'BRIEFY';
 
 interface SchemaOrgProps {

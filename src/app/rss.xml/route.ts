@@ -4,7 +4,7 @@ import { getAllPublishedArticles } from '@/lib/articles';
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://briefy.live';
+  const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.briefy.live';
   const articles = await getAllPublishedArticles();
 
   const escapeXml = (unsafe: string) => {

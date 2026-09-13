@@ -7,7 +7,7 @@
 export const INDEXNOW_KEY = process.env.INDEXNOW_KEY || 'briefylive-indexnow-key-2026';
 
 export async function submitToIndexNow(urls: string[]): Promise<boolean> {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://briefy.live';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.briefy.live';
   
   if (!urls.length) return false;
 
@@ -44,7 +44,7 @@ export async function submitToIndexNow(urls: string[]): Promise<boolean> {
 }
 
 export async function pingGoogleSitemap(): Promise<void> {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://briefy.live';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.briefy.live';
   const sitemaps = [
     `${siteUrl}/sitemap.xml`,
     `${siteUrl}/sitemap-news.xml`,

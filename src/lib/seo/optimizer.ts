@@ -15,7 +15,7 @@ export interface OptimizedSeoFields {
  * Bing, and social search before publication.
  */
 export function optimizeArticleSeo(article: ArticleForAudit): OptimizedSeoFields {
-  const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://briefy.live';
+  const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.briefy.live';
   const categorySlug = article.categorySlug || 'news';
   const rawTitle = article.title.trim();
   const slug = article.slug.trim();

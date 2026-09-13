@@ -6,7 +6,7 @@ import Footer from '@/components/layout/Footer';
 import SchemaOrg from '@/components/seo/SchemaOrg';
 import GlobalLiveNewsListener from '@/components/layout/GlobalLiveNewsListener';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://briefy.live';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.briefy.live';
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -19,11 +19,11 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: 'BRIEFY — Latest India, World & Technology News',
+    default: 'BRIEFY — India News, World News & Technology Updates',
     template: '%s — BRIEFY',
   },
   description:
-    'Get clear, concise, and trustworthy India, world, technology, AI, business, and science news from BRIEFY, your daily digital news briefing.',
+    'BRIEFY delivers clear, concise India news, world news, technology updates, AI news, business news, and science coverage in one daily briefing.',
   keywords: ['India news', 'world news', 'technology news', 'AI news', 'business news', 'science news'],
   applicationName: 'BRIEFY',
   category: 'news',
@@ -50,7 +50,7 @@ export const metadata: Metadata = {
     locale: 'en_IN',
     url: SITE_URL,
     siteName: 'BRIEFY',
-    title: 'BRIEFY — Latest India, World & Technology News',
+    title: 'BRIEFY — India News, World News & Technology Updates',
     description:
       'Clear, concise news across India, World, Technology, AI, Business, and Science.',
     images: [

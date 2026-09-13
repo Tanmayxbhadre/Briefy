@@ -13,7 +13,7 @@ function escapeXml(unsafe: string): string {
 }
 
 export async function GET() {
-  const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://briefy.live';
+  const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.briefy.live';
   const allArticles = await getAllPublishedArticles();
 
   // Google News guidelines strictly require articles published within the last 48 hours

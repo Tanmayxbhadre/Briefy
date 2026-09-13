@@ -65,7 +65,7 @@ export async function revalidateNewsPublication(options: RevalidateOptions = {})
     );
 
     // 5. Asynchronously trigger Search Engine Indexing (IndexNow + Google Ping)
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://briefy.live';
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.briefy.live';
     const urlsToIndex = [`${siteUrl}/`];
 
     if (options.categorySlug) {
