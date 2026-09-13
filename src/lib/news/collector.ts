@@ -27,8 +27,8 @@ export interface CollectionSummary {
 // and still be considered "new" for ingestion. Configurable via NEWS_LOOKBACK_HOURS.
 // Items without a parseable publish date are always kept (better to review than to miss).
 function getLookbackHours(): number {
-  const parsed = parseFloat(process.env.NEWS_LOOKBACK_HOURS || '2');
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : 2;
+  const parsed = parseFloat(process.env.NEWS_LOOKBACK_HOURS || '26');
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 26;
 }
 
 export async function collectAllNews(): Promise<CollectionSummary> {

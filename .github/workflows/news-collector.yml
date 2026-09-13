@@ -2,8 +2,8 @@ name: Automatic News Collector
 
 on:
   schedule:
-    # Run every 15 minutes
-    - cron: '*/15 * * * *'
+    # Daily fallback at 03:45 UTC (09:15 AM IST)
+    - cron: '45 3 * * *'
   workflow_dispatch:
 
 jobs:
