@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db';
 import { getAdminSession, recordActivity } from '@/lib/auth';
 import { Prisma } from '@prisma/client';
 import slugify from 'slugify';
+import { optimizeAndPersistArticleSeo } from '@/lib/seo/articleSeoService';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -118,6 +119,23 @@ export async function PATCH(request: Request, { params }: RouteParams) {
       `Draft "${updated.title}" saved`,
       session.user || 'Admin'
     );
+
+    await optimizeAndPersistArticleSeo(updated.id, {
+      title: updated.title,
+      slug: updated.slug,
+      excerpt: updated.excerpt,
+      content: updated.content,
+      seoTitle: updated.seoTitle,
+      metaDescription: updated.metaDescription,
+      categorySlug: updated.category?.slug,
+      authorName: updated.authorName,
+      featuredImage: updated.featuredImage,
+      imageAlt: updated.imageAlt,
+      sources: updated.sources,
+      quickSummary: updated.quickSummary,
+      whatYouNeedToKnow: updated.whatYouNeedToKnow,
+      tags: updated.tags,
+    });
 
     return NextResponse.json({ success: true, draft: updated });
   } catch (error: unknown) {

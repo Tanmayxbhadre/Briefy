@@ -4,6 +4,7 @@ import { getAdminSession, recordActivity } from '@/lib/auth';
 import { aiService } from '@/lib/ai/service';
 import { GenerateDraftRequest, SourceContext } from '@/lib/ai/types';
 import { aiRateLimiter } from '@/lib/ai/rateLimit';
+import { optimizeAndPersistArticleSeo } from '@/lib/seo/articleSeoService';
 import slugify from 'slugify';
 
 export const dynamic = 'force-dynamic';
@@ -175,6 +176,23 @@ export async function POST(request: Request) {
         data: { status: 'REVIEW' },
       });
     }
+
+    await optimizeAndPersistArticleSeo(savedDraft.id, {
+      title: savedDraft.title,
+      slug: savedDraft.slug,
+      excerpt: savedDraft.excerpt,
+      content: savedDraft.content,
+      seoTitle: savedDraft.seoTitle,
+      metaDescription: savedDraft.metaDescription,
+      categorySlug: savedDraft.category?.slug,
+      authorName: savedDraft.authorName,
+      featuredImage: savedDraft.featuredImage,
+      imageAlt: savedDraft.imageAlt,
+      sources: savedDraft.sources,
+      quickSummary: savedDraft.quickSummary,
+      whatYouNeedToKnow: savedDraft.whatYouNeedToKnow,
+      tags: savedDraft.tags,
+    });
 
     await recordActivity(
       'ai_draft_generated',

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getAdminSession, recordActivity } from '@/lib/auth';
 import { revalidateNewsPublication } from '@/lib/cache/revalidateNews';
+import { getArticleSeoAudit, optimizeAndPersistArticleSeo } from '@/lib/seo/articleSeoService';
 
 export async function POST(request: Request) {
   try {
@@ -19,10 +20,77 @@ export async function POST(request: Request) {
         include: { category: true, newsItem: true },
       });
 
+      const invalidDrafts = drafts.map((draft) => {
+        const errors: string[] = [];
+        if (!draft.title?.trim()) errors.push('Title is required');
+        if (!draft.slug?.trim()) errors.push('Slug is required');
+        if (!draft.excerpt?.trim()) errors.push('Excerpt is required');
+        if (!draft.content?.trim()) errors.push('Content is required');
+        if (!draft.categoryId) errors.push('Category is required');
+        if (!draft.authorName?.trim()) errors.push('Author is required');
+        if (!draft.seoTitle?.trim()) errors.push('SEO title is required');
+        if (!draft.metaDescription?.trim()) errors.push('Meta description is required');
+
+        let sources: unknown = [];
+        try {
+          sources = draft.sources ? JSON.parse(draft.sources) : [];
+        } catch {
+          sources = [];
+        }
+        if (!Array.isArray(sources) || sources.length === 0) {
+          errors.push('Source attribution is required');
+        }
+
+        const audit = getArticleSeoAudit({
+          title: draft.title,
+          slug: draft.slug,
+          excerpt: draft.excerpt,
+          content: draft.content,
+          seoTitle: draft.seoTitle,
+          metaDescription: draft.metaDescription,
+          categorySlug: draft.category?.slug,
+          authorName: draft.authorName,
+          featuredImage: draft.featuredImage,
+          imageAlt: draft.imageAlt,
+          sources: draft.sources,
+          quickSummary: draft.quickSummary,
+          whatYouNeedToKnow: draft.whatYouNeedToKnow,
+          tags: draft.tags,
+        });
+        errors.push(...audit.checks.filter((check) => check.status === 'critical').map((check) => check.message));
+        return { id: draft.id, title: draft.title, errors: Array.from(new Set(errors)) };
+      }).filter((draft) => draft.errors.length > 0);
+
+      if (invalidDrafts.length > 0) {
+        return NextResponse.json(
+          {
+            error: 'No drafts were published because one or more failed the publication checklist.',
+            validationErrors: invalidDrafts,
+          },
+          { status: 422 }
+        );
+      }
+
       let publishedCount = 0;
       const revalidationPromises: Promise<void>[] = [];
 
       for (const draft of drafts) {
+        await optimizeAndPersistArticleSeo(draft.id, {
+          title: draft.title,
+          slug: draft.slug,
+          excerpt: draft.excerpt,
+          content: draft.content,
+          seoTitle: draft.seoTitle,
+          metaDescription: draft.metaDescription,
+          categorySlug: draft.category?.slug,
+          authorName: draft.authorName,
+          featuredImage: draft.featuredImage,
+          imageAlt: draft.imageAlt,
+          sources: draft.sources,
+          quickSummary: draft.quickSummary,
+          whatYouNeedToKnow: draft.whatYouNeedToKnow,
+          tags: draft.tags,
+        });
         const publishedAt = draft.publishedAt || new Date();
 
         await prisma.articleDraft.update({

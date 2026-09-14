@@ -132,6 +132,7 @@ model ArticleDraft {
   newsItem          NewsItem?         @relation(fields: [newsItemId], references: [id], onDelete: SetNull)
   clusterId         String?
   cluster           StoryCluster?     @relation(fields: [clusterId], references: [id], onDelete: SetNull)
+  seoProfile        ArticleSEO?
   title             String
   slug              String            @unique
   excerpt           String
@@ -175,6 +176,34 @@ model ArticleDraft {
   @@index([publishedAt])
   @@index([categoryId])
   @@index([clusterId])
+}
+
+model ArticleSEO {
+  id                    String       @id @default(uuid())
+  articleId             String       @unique
+  article               ArticleDraft @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  primaryKeyword        String?
+  secondaryKeywords     String       @default("[]")
+  longTailKeywords      String       @default("[]")
+  searchIntent          String       @default("NEWS")
+  seoTitle              String?
+  metaDescription       String?
+  canonicalUrl           String?
+  seoScore              Int?
+  technicalScore        Int?
+  contentRelevanceScore Int?
+  qualityScore          Int?
+  discoverabilityScore  Int?
+  imageAltText          String?
+  structuredData        String?
+  optimizationStatus    String       @default("PENDING")
+  lastOptimizedAt       DateTime?
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+
+  @@index([optimizationStatus])
+  @@index([primaryKeyword])
+  @@index([updatedAt])
 }
 
 model ArticleRevision {
@@ -318,4 +347,3 @@ model CollectionJob {
   @@index([startedAt])
   @@index([status])
 }
-

@@ -9,7 +9,7 @@ export async function GET() {
   try {
     const publishedDrafts = await prisma.articleDraft.findMany({
       where: { status: 'PUBLISHED' },
-      include: { category: true },
+      include: { category: true, seoProfile: true },
       orderBy: { publishedAt: 'desc' },
       take: 15,
     });
@@ -42,6 +42,7 @@ export async function GET() {
         isRankReady: audit.isRankReady,
         criticalCount: audit.criticalCount,
         warningCount: audit.warningCount,
+        seoProfile: d.seoProfile,
         publishedAt: d.publishedAt,
       };
     });

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getAdminSession, recordActivity } from '@/lib/auth';
 import { revalidateNewsPublication } from '@/lib/cache/revalidateNews';
+import { getArticleSeoAudit, optimizeAndPersistArticleSeo } from '@/lib/seo/articleSeoService';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -14,7 +15,7 @@ export async function POST(request: Request, { params }: RouteParams) {
 
     const draft = await prisma.articleDraft.findUnique({
       where: { id },
-      include: { category: true, newsItem: true },
+      include: { category: true, newsItem: true, seoProfile: true },
     });
 
     if (!draft) {
@@ -43,6 +44,26 @@ export async function POST(request: Request, { params }: RouteParams) {
       errors.push('At least one original source attribution is required');
     }
 
+    const seoAudit = getArticleSeoAudit({
+      title: draft.title,
+      slug: draft.slug,
+      excerpt: draft.excerpt,
+      content: draft.content,
+      seoTitle: draft.seoTitle,
+      metaDescription: draft.metaDescription,
+      categorySlug: draft.category?.slug,
+      authorName: draft.authorName,
+      featuredImage: draft.featuredImage,
+      imageAlt: draft.imageAlt,
+      sources: draft.sources,
+      quickSummary: draft.quickSummary,
+      whatYouNeedToKnow: draft.whatYouNeedToKnow,
+      tags: draft.tags,
+    });
+    for (const check of seoAudit.checks.filter((item) => item.status === 'critical')) {
+      errors.push(check.message);
+    }
+
     if (errors.length > 0) {
       return NextResponse.json(
         {
@@ -51,6 +72,25 @@ export async function POST(request: Request, { params }: RouteParams) {
         },
         { status: 422 }
       );
+    }
+
+    if (!draft.seoProfile) {
+      await optimizeAndPersistArticleSeo(draft.id, {
+        title: draft.title,
+        slug: draft.slug,
+        excerpt: draft.excerpt,
+        content: draft.content,
+        seoTitle: draft.seoTitle,
+        metaDescription: draft.metaDescription,
+        categorySlug: draft.category?.slug,
+        authorName: draft.authorName,
+        featuredImage: draft.featuredImage,
+        imageAlt: draft.imageAlt,
+        sources: draft.sources,
+        quickSummary: draft.quickSummary,
+        whatYouNeedToKnow: draft.whatYouNeedToKnow,
+        tags: draft.tags,
+      });
     }
 
     const publishedAt = draft.publishedAt || new Date();

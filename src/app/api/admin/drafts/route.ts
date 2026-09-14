@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db';
 import { getAdminSession, recordActivity } from '@/lib/auth';
 import { Prisma } from '@prisma/client';
 import slugify from 'slugify';
+import { optimizeAndPersistArticleSeo } from '@/lib/seo/articleSeoService';
 
 export async function GET(request: Request) {
   try {
@@ -158,6 +159,7 @@ export async function POST(request: Request) {
       include: {
         category: true,
         newsItem: { include: { source: true } },
+        seoProfile: true,
       },
     });
 
@@ -167,6 +169,23 @@ export async function POST(request: Request) {
       `Draft created with slug "${draft.slug}"`,
       session.user || 'Admin'
     );
+
+    await optimizeAndPersistArticleSeo(draft.id, {
+      title: draft.title,
+      slug: draft.slug,
+      excerpt: draft.excerpt,
+      content: draft.content,
+      seoTitle: draft.seoTitle,
+      metaDescription: draft.metaDescription,
+      categorySlug: draft.category?.slug,
+      authorName: draft.authorName,
+      featuredImage: draft.featuredImage,
+      imageAlt: draft.imageAlt,
+      sources: draft.sources,
+      quickSummary: draft.quickSummary,
+      whatYouNeedToKnow: draft.whatYouNeedToKnow,
+      tags: draft.tags,
+    });
 
     return NextResponse.json({ success: true, draft });
   } catch (error: unknown) {
