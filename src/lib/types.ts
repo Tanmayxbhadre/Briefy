@@ -16,8 +16,8 @@ export interface Category {
   name: string;
   slug: string;
   description: string;
-  seoTitle: string;
-  seoDescription: string;
+  seoTitle?: string;
+  seoDescription?: string;
   color?: string;
 }
 
@@ -63,6 +63,10 @@ export interface Article {
   timeline?: TimelineEvent[];
   featured?: boolean;
   breaking?: boolean;
+  /** SEO-optimized fields (from src/lib/seo/optimizer.ts). Falls back to title/description when absent. */
+  seoTitle?: string;
+  metaDescription?: string;
+  canonicalUrl?: string;
 }
 
 export interface BreakingNewsItem {

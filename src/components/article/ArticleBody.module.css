@@ -100,6 +100,16 @@
 
 /* ── Tags ── */
 
+.inlineLink {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.inlineLink:hover {
+  color: var(--color-accent-dark);
+}
+
 .tags {
   display: flex;
   flex-wrap: wrap;
@@ -117,4 +127,10 @@
   border-radius: 20px;
   font-size: var(--text-xs);
   color: var(--color-text-secondary);
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.tag:hover {
+  background: var(--color-accent-light);
+  color: var(--color-accent);
 }

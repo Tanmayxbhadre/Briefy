@@ -4,7 +4,9 @@ import { getLatestDailyBriefing } from '@/lib/news/dailyBriefService';
 import { formatDate } from '@/lib/utils';
 import styles from './daily-news.module.css';
 
-export const dynamic = 'force-dynamic';
+// ISR: edge-cached, revalidated on publish via revalidateNewsPublication().
+// Falls back to at-most-5-minutes-stale without any cron traffic.
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: 'The Daily Brief — Your 5-Minute News Briefing',

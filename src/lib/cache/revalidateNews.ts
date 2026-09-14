@@ -1,29 +1,20 @@
 import { revalidatePath, revalidateTag } from 'next/cache';
-import { submitToIndexNow, pingGoogleSitemap } from '../seo/indexNow';
+import { submitToIndexNow } from '../seo/indexNow';
+import { getAllCategorySlugs } from '../articles';
 
 interface RevalidateOptions {
   categorySlug?: string | null;
   slug?: string | null;
 }
 
-const ALL_CATEGORY_SLUGS = [
-  'technology',
-  'india',
-  'world',
-  'ai',
-  'business',
-  'finance',
-  'science',
-  'sports',
-  'startups',
-  'gaming',
-  'entertainment',
-];
-
 /**
  * Centralized cache revalidation service for Briefy news publishing pipeline.
  * Ensures immediate synchronization across Homepage, all Category Feeds, RSS,
- * Sitemaps, and Search Engines (IndexNow + Google).
+ * and Sitemaps, plus instant IndexNow submission for Bing/Yandex.
+ *
+ * Categories are read from the database (via getAllCategorySlugs) so newly
+ * created categories are always revalidated — previously this list was
+ * hardcoded and new categories were never refreshed.
  */
 export async function revalidateNewsPublication(options: RevalidateOptions = {}) {
   try {
@@ -35,12 +26,13 @@ export async function revalidateNewsPublication(options: RevalidateOptions = {})
     revalidatePath('/sitemap.xml');
     revalidatePath('/sitemap-news.xml');
 
-    // 2. Revalidate ALL Category Pages so new articles appear instantly in their sections
-    for (const catSlug of ALL_CATEGORY_SLUGS) {
+    // 2. Revalidate ALL Category Pages (DB-driven, includes newly created ones)
+    const categorySlugs = await getAllCategorySlugs();
+    for (const catSlug of categorySlugs) {
       revalidatePath(`/${catSlug}`);
     }
 
-    if (options.categorySlug && !ALL_CATEGORY_SLUGS.includes(options.categorySlug)) {
+    if (options.categorySlug && !categorySlugs.includes(options.categorySlug)) {
       revalidatePath(`/${options.categorySlug}`);
     }
 
@@ -49,23 +41,25 @@ export async function revalidateNewsPublication(options: RevalidateOptions = {})
       revalidatePath(`/${options.categorySlug}/${options.slug}`);
     }
 
-    // 4. Invalidate tagged Next.js cache segments
-    try {
-      revalidateTag('news', 'page');
-      revalidateTag('homepage', 'page');
-      revalidateTag('articles', 'page');
-      revalidateTag('categories', 'page');
-      revalidateTag('breaking', 'page');
-    } catch {
-      // Tags fallback
+    // 4. Invalidate tagged Next.js cache segments. The two-argument form is
+    // the current API (the single-argument form is deprecated in Next 16);
+    // these tags are only assigned if 'use cache'/fetch tags exist.
+    const tags = ['news', 'homepage', 'articles', 'categories', 'breaking'];
+    for (const tag of tags) {
+      try {
+        revalidateTag(tag, 'max');
+      } catch {
+        // Tag not assigned to any cached data — safe to ignore.
+      }
     }
 
     console.log(
       `[CacheRevalidation] Successfully revalidated feeds for category=${options.categorySlug || 'all'}, slug=${options.slug || 'all'}`
     );
 
-    // 5. Asynchronously trigger Search Engine Indexing (IndexNow + Google Ping)
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.briefy.live';
+    // 5. Asynchronously trigger search engine indexing (IndexNow). Google
+    // discovers updates via sitemaps; its ping endpoint was retired in 2023.
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://briefy.live';
     const urlsToIndex = [`${siteUrl}/`];
 
     if (options.categorySlug) {
@@ -76,13 +70,9 @@ export async function revalidateNewsPublication(options: RevalidateOptions = {})
     }
 
     // Run in background without blocking response
-    Promise.all([
-      submitToIndexNow(urlsToIndex),
-      pingGoogleSitemap(),
-    ]).catch((err) => {
-      console.warn('[CacheRevalidation] Background search indexing ping error:', err);
+    submitToIndexNow(urlsToIndex).catch((err) => {
+      console.warn('[CacheRevalidation] Background IndexNow submission error:', err);
     });
-
   } catch (error) {
     console.warn('[CacheRevalidation] Warning during cache revalidation:', error);
   }

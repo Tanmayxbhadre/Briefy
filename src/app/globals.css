@@ -3,7 +3,10 @@
    Classic · Editorial · Premium · Timeless
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap');
+/* Fonts are self-hosted via next/font (see src/app/layout.tsx) — the
+   --font-serif / --font-sans tokens below act as fallbacks and are overridden
+   by the next/font variables applied on <body>. This removes the
+   render-blocking Google Fonts @import (LCP improvement). */
 
 /* ─── Design Tokens ──────────────────────────────────────── */
 

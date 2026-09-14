@@ -1,7 +1,7 @@
 import { getAllPublishedArticles } from '@/lib/articles';
+import { SITE_URL, SITE_NAME } from '@/lib/site';
 
 export const dynamic = 'force-dynamic';
-export const revalidate = 300; // 5 minutes
 
 function escapeXml(unsafe: string): string {
   return unsafe
@@ -13,21 +13,19 @@ function escapeXml(unsafe: string): string {
 }
 
 export async function GET() {
-  const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.briefy.live';
   const allArticles = await getAllPublishedArticles();
 
-  // Google News guidelines strictly require articles published within the last 48 hours
+  // Google News guidelines strictly require articles published within the
+  // last 48 hours. When nothing is fresh we return an EMPTY urlset — never
+  // pad with stale articles (the previous fallback of inserting the 10 most
+  // recent stale items violated the spec and diluted the feed's freshness
+  // signal).
   const cutoff = new Date(Date.now() - 48 * 60 * 60 * 1000);
-  
-  let newsArticles = allArticles.filter((a) => {
+
+  const newsArticles = allArticles.filter((a) => {
     const pubDate = new Date(a.publishedAt);
     return pubDate >= cutoff;
   });
-
-  // Fallback: If in dev or baseline where all mocks are older than 48h, include the 10 most recent
-  if (newsArticles.length === 0) {
-    newsArticles = allArticles.slice(0, 10);
-  }
 
   const xmlItems = newsArticles
     .map((article) => {
@@ -39,7 +37,7 @@ export async function GET() {
     <loc>${url}</loc>
     <news:news>
       <news:publication>
-        <news:name>BRIEFY</news:name>
+        <news:name>${SITE_NAME}</news:name>
         <news:language>en</news:language>
       </news:publication>
       <news:publication_date>${pubDateIso}</news:publication_date>

@@ -5,19 +5,24 @@ import LatestNewsFeed from '@/components/home/LatestNewsFeed';
 import CategorySection from '@/components/home/CategorySection';
 import TrendingSection from '@/components/home/TrendingSection';
 import NewsletterSignup from '@/components/home/NewsletterSignup';
-import LiveNewsRefresher from '@/components/home/LiveNewsRefresher';
 import AdSlot from '@/components/shared/AdSlot';
 
 import { getHomepageData } from '@/lib/news/homepage';
 import styles from './page.module.css';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+// ISR: edge-cached with 60s freshness, plus instant revalidation on publish
+// via revalidateNewsPublication(). Previously force-dynamic: every request
+// (including every crawler hit) re-ran the full homepage data pipeline.
+export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: 'India News, World News & Technology Updates',
+  // absolute: prevents the root layout template from appending "— Briefy.live"
+  // a second time (previously rendered "...Modern Reader — Briefy.live").
+  title: {
+    absolute: 'Briefy.live — Serious Journalism for the Modern Reader',
+  },
   description:
-    'BRIEFY delivers clear, concise India news, world news, technology updates, AI news, business news, and science coverage in one daily briefing.',
+    "India's most trusted source for clear, concise news across Technology, AI, Business, India, World, and Science.",
   alternates: {
     canonical: '/',
   },
@@ -31,8 +36,6 @@ export default async function HomePage() {
     latestArticles,
     trendingArticles,
     categoryArticles,
-    latestPublishedAt,
-    latestArticleId,
   } = await getHomepageData();
 
   const techArticles = categoryArticles['technology'] || [];
@@ -47,12 +50,6 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* Client-Side Live News Refresher (Checks for new publications every 60s & on tab focus) */}
-      <LiveNewsRefresher
-        initialLatestPublishedAt={latestPublishedAt}
-        initialLatestArticleId={latestArticleId}
-      />
-
       {/* Dynamic Breaking News Bar */}
       {breakingItem && <BreakingNewsBar item={breakingItem} />}
 

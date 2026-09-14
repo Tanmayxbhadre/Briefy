@@ -7,6 +7,7 @@
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "eslint",
+    "assets:generate": "tsx scripts/generateSeoImages.ts",
     "test": "tsc scripts/runTests.ts --outDir .dist_test --module commonjs --target es2020 --moduleResolution node --esModuleInterop --skipLibCheck && node .dist_test/scripts/runTests.js && rm -rf .dist_test",
     "news:collect": "tsx scripts/collectNews.ts",
     "news:watch": "tsx scripts/watchNews.ts"

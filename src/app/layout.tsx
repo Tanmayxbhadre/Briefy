@@ -1,12 +1,25 @@
 import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
+import { DM_Serif_Display, Inter } from 'next/font/google';
 import './globals.css';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import SchemaOrg from '@/components/seo/SchemaOrg';
 import GlobalLiveNewsListener from '@/components/layout/GlobalLiveNewsListener';
+import { SITE_URL, SITE_NAME } from '@/lib/site';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.briefy.live';
+const dmSerif = DM_Serif_Display({
+  subsets: ['latin'],
+  weight: '400',
+  variable: '--font-serif',
+  display: 'swap',
+});
+
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-sans',
+  display: 'swap',
+});
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -19,17 +32,24 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: 'BRIEFY — India News, World News & Technology Updates',
-    template: '%s — BRIEFY',
+    default: 'Briefy.live — Serious Journalism for the Modern Reader',
+    template: '%s — Briefy.live',
   },
   description:
-    'BRIEFY delivers clear, concise India news, world news, technology updates, AI news, business news, and science coverage in one daily briefing.',
+    'Briefy.live delivers clear, concise, and trustworthy news across India, World, Technology, AI, Business, and Science.',
   keywords: ['India news', 'world news', 'technology news', 'AI news', 'business news', 'science news'],
-  applicationName: 'BRIEFY',
+  applicationName: SITE_NAME,
   category: 'news',
-  authors: [{ name: 'BRIEFY Editorial Team' }],
-  creator: 'BRIEFY',
-  publisher: 'BRIEFY',
+  authors: [{ name: 'Briefy.live Editorial Team' }],
+  creator: 'Briefy.live',
+  publisher: 'Briefy.live',
+  // Search Console / Bing Webmaster verification (set env vars when available)
+  verification: {
+    google: process.env.GOOGLE_SITE_VERIFICATION,
+    other: process.env.BING_SITE_VERIFICATION
+      ? { 'msvalidate.01': process.env.BING_SITE_VERIFICATION }
+      : undefined,
+  },
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: 'any' },
@@ -42,7 +62,15 @@ export const metadata: Metadata = {
       { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' },
     ],
   },
-  manifest: '/manifest.json',
+  manifest: '/manifest.webmanifest',
+  // RSS/Atom autodiscovery — feeds were previously invisible to readers
+  // and aggregators.
+  alternates: {
+    canonical: SITE_URL,
+    types: {
+      'application/rss+xml': `${SITE_URL}/rss.xml`,
+    },
+  },
   robots: {
     index: true,
     follow: true,
@@ -58,16 +86,16 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_IN',
     url: SITE_URL,
-    siteName: 'BRIEFY',
-    title: 'BRIEFY — India News, World News & Technology Updates',
+    siteName: SITE_NAME,
+    title: 'Briefy.live — Serious Journalism for the Modern Reader',
     description:
       'Clear, concise news across India, World, Technology, AI, Business, and Science.',
     images: [
       {
-        url: `${SITE_URL}/og-image.png`,
+        url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'BRIEFY — Latest India, World and Technology News',
+        alt: 'Briefy.live — Serious Journalism for the Modern Reader',
       },
     ],
   },
@@ -75,16 +103,25 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     site: '@briefylive',
     creator: '@briefylive',
-    title: 'BRIEFY — Latest India, World & Technology News',
-    description: 'Clear, concise news across India, World, Technology, AI, Business, and Science.',
+    title: 'Briefy.live — Serious Journalism for the Modern Reader',
+    description:
+      'Clear, concise, and trustworthy news across India, World, Technology, AI, Business, and Science.',
     images: [`${SITE_URL}/og-image.png`],
   },
   alternates: {
     canonical: SITE_URL,
+    types: {
+      'application/rss+xml': `${SITE_URL}/rss.xml`,
+    },
+  },
   },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en" data-scroll-behavior="smooth">
       <head>
@@ -102,7 +139,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           `}
         </Script>
       </head>
-      <body>
+      <body className={`${dmSerif.variable} ${inter.variable}`}>
         <div className="page-wrapper">
           <Header />
           <main className="main-content" id="main-content">

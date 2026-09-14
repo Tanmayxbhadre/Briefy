@@ -1,7 +1,14 @@
 import { prisma } from '../db';
 import { Article, BreakingNewsItem } from '../types';
 import { draftToArticle } from '../articles';
+import { IS_PRODUCTION } from '../site';
 import { articles as mockArticles, getBreakingNews as getMockBreakingNews } from '../mock-data';
+
+/**
+ * Mock articles are fictional placeholder content — production surfaces never
+ * include them (see src/lib/site.ts).
+ */
+const productionMockArticles: Article[] = IS_PRODUCTION ? [] : mockArticles;
 
 export interface HomepageData {
   breakingItem: BreakingNewsItem | null;
@@ -111,9 +118,10 @@ export async function getHomepageData(): Promise<HomepageData> {
 
     const dbArticles = dbDrafts.map(draftToArticle);
 
-    // If DB is completely empty, use mockArticles as baseline fallback
+    // If DB is completely empty, use mockArticles as baseline fallback (dev
+    // only — production gets an empty homepage rather than fictional news)
     const hasDbArticles = dbArticles.length > 0;
-    const allAvailable = hasDbArticles ? dbArticles : mockArticles;
+    const allAvailable = hasDbArticles ? dbArticles : productionMockArticles;
 
     // Track metadata for live version check
     const latestPublishedAt = hasDbArticles && dbArticles[0].publishedAt
@@ -143,7 +151,7 @@ export async function getHomepageData(): Promise<HomepageData> {
             : 'Live',
         };
       }
-    } else if (!hasDbArticles) {
+    } else if (!hasDbArticles && !IS_PRODUCTION) {
       breakingItem = getMockBreakingNews() || null;
     }
 
@@ -296,7 +304,7 @@ export async function getHomepageData(): Promise<HomepageData> {
 
       // B) Backfill from high-quality curated mock articles if needed
       if (catArticles.length < 4) {
-        const matchedMock = mockArticles.filter(
+        const matchedMock = productionMockArticles.filter(
           (a) => a.category.slug.toLowerCase() === catSlug.toLowerCase()
         );
 
@@ -325,11 +333,11 @@ export async function getHomepageData(): Promise<HomepageData> {
   } catch (error) {
     console.error('[HomepageData] Error loading published stories from database:', error);
 
-    const featured = mockArticles[0];
-    const secondary = mockArticles.slice(1, 4);
-    const latestArticles = mockArticles.slice(4, 12);
-    const trendingArticles = mockArticles.slice(12, 17);
-    const breakingItem = getMockBreakingNews() || null;
+    const featured = productionMockArticles[0];
+    const secondary = productionMockArticles.slice(1, 4);
+    const latestArticles = productionMockArticles.slice(4, 12);
+    const trendingArticles = productionMockArticles.slice(12, 17);
+    const breakingItem = IS_PRODUCTION ? null : getMockBreakingNews() || null;
 
     return {
       breakingItem,

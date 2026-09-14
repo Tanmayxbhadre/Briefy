@@ -1,6 +1,8 @@
 import { prisma } from './db';
 import { Article, Source, TimelineEvent, WhatYouNeedToKnow } from './types';
 import { articles as mockArticles } from './mock-data';
+import { categories as mockCategories } from './mock-data';
+import { IS_PRODUCTION } from './site';
 import slugify from 'slugify';
 import { ArticleDraft, Category as PrismaCategory } from '@prisma/client';
 
@@ -98,7 +100,21 @@ export function draftToArticle(draft: DraftWithCategory): Article {
     timeline: timeline.length > 0 ? timeline : undefined,
     featured: draft.featured,
     breaking: draft.breaking,
+    // SEO-optimized fields from src/lib/seo/optimizer.ts — previously computed
+    // and stored but never surfaced to crawlers. Metadata now prefers them.
+    seoTitle: draft.seoTitle || undefined,
+    metaDescription: draft.metaDescription || undefined,
+    canonicalUrl: draft.canonicalUrl || undefined,
   };
+}
+
+/**
+ * Mock articles are fictional placeholder content. In production they must
+ * never appear on public surfaces (sitemaps, feeds, listings) — only real
+ * published database articles do. Controlled via src/lib/site.ts.
+ */
+function getMockArticles(): Article[] {
+  return IS_PRODUCTION ? [] : mockArticles;
 }
 
 /**
@@ -123,14 +139,16 @@ export async function getPublishedArticleBySlug(slug: string): Promise<Article |
     console.error('Error querying published article by slug:', err);
   }
 
-  // Fallback to mock data
-  return mockArticles.find((a) => a.slug === slug);
+  // Fallback to mock data (development only — production returns [])
+  return getMockArticles().find((a) => a.slug === slug);
 }
 
 /**
  * Get all published articles merged with mock articles
  */
 export async function getAllPublishedArticles(): Promise<Article[]> {
+  const mock = getMockArticles();
+
   try {
     const dbDrafts = await prisma.articleDraft.findMany({
       where: {
@@ -146,13 +164,14 @@ export async function getAllPublishedArticles(): Promise<Article[]> {
 
     const dbArticles = dbDrafts.map(draftToArticle);
     const existingSlugs = new Set(dbArticles.map((a) => a.slug));
-    const nonDupeMocks = mockArticles.filter((a) => !existingSlugs.has(a.slug));
+    const nonDupeMocks = mock.filter((a) => !existingSlugs.has(a.slug));
 
     // Real published articles from database take priority, followed by baseline mock items
     return [...dbArticles, ...nonDupeMocks];
   } catch (err) {
     console.error('Error fetching all published articles:', err);
-    return mockArticles;
+    // In production an empty list is correct: never serve fictional content.
+    return mock;
   }
 }
 
@@ -177,7 +196,8 @@ export async function getLatestPublishedArticles(limit = 10): Promise<Article[]>
 }
 
 /**
- * Search published articles
+ * Search published articles (server-side; backs /api/search for the client
+ * search page so it can index real database articles).
  */
 export async function searchPublishedArticles(query: string): Promise<Article[]> {
   const all = await getAllPublishedArticles();
@@ -189,6 +209,76 @@ export async function searchPublishedArticles(query: string): Promise<Article[]>
       a.tags.some((t) => t.toLowerCase().includes(q)) ||
       a.category.name.toLowerCase().includes(q)
   );
+}
+
+/**
+ * Related articles: same category first, then newest others. Prefers real
+ * database articles (previously this only ever returned mock articles).
+ */
+export async function getRelatedArticles(
+  article: Article,
+  count = 4
+): Promise<Article[]> {
+  const all = await getAllPublishedArticles();
+  const sameCategory = all.filter(
+    (a) => a.id !== article.id && a.category.slug === article.category.slug
+  );
+  const others = all.filter(
+    (a) => a.id !== article.id && a.category.slug !== article.category.slug
+  );
+  return [...sameCategory, ...others].slice(0, count);
+}
+
+/**
+ * Resolve a category by slug from the database, falling back to the mock
+ * catalog. Previously only mock categories were recognized, so categories
+ * created in the admin panel led to 404s even with published articles.
+ */
+export async function getCategoryBySlug(
+  slug: string
+): Promise<(typeof mockCategories)[number] | undefined> {
+  try {
+    const dbCategory = await prisma.category.findUnique({
+      where: { slug },
+    });
+
+    if (dbCategory) {
+      return {
+        id: dbCategory.id,
+        name: dbCategory.name,
+        slug: dbCategory.slug,
+        description: dbCategory.description || '',
+        seoTitle: dbCategory.seoTitle || dbCategory.name,
+        seoDescription: dbCategory.seoDescription || dbCategory.description || '',
+      };
+    }
+  } catch (err) {
+    console.error('Error resolving category by slug:', err);
+  }
+
+  return mockCategories.find((c) => c.slug === slug);
+}
+
+/**
+ * List all category slugs: database first, then any mock-only categories
+ * (development). Used by the sitemap and revalidation layer so newly created
+ * categories are always discoverable.
+ */
+export async function getAllCategorySlugs(): Promise<string[]> {
+  const slugs = new Set<string>();
+
+  try {
+    const dbCategories = await prisma.category.findMany({ select: { slug: true } });
+    for (const c of dbCategories) slugs.add(c.slug);
+  } catch (err) {
+    console.error('Error listing categories:', err);
+  }
+
+  if (!IS_PRODUCTION) {
+    for (const c of mockCategories) slugs.add(c.slug);
+  }
+
+  return [...slugs];
 }
 
 /**
@@ -218,6 +308,8 @@ export async function getDynamicBreakingNews(): Promise<import('./types').Breaki
   } catch (err) {
     console.error('Error querying dynamic breaking news:', err);
   }
+
+  if (IS_PRODUCTION) return undefined;
 
   const { getBreakingNews } = await import('./mock-data');
   return getBreakingNews();

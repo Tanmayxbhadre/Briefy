@@ -1,27 +1,26 @@
 import { MetadataRoute } from 'next';
+import { SITE_URL } from '@/lib/site';
 
 export const dynamic = 'force-dynamic';
 
 export default function robots(): MetadataRoute.Robots {
-  const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.briefy.live';
-
   return {
     rules: [
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/admin/', '/api/admin/', '/api/cron/'],
+        // /api/ blanket rule covers JSON endpoints (/api/news/version,
+        // /api/indexnow, /api/analytics/track) that previously crawled as
+        // indexable JSON. /admin, /api/admin and /api/cron stay blocked.
+        disallow: ['/admin/', '/api/'],
       },
       {
         userAgent: ['Googlebot', 'Bingbot', 'Googlebot-News'],
         allow: '/',
-        disallow: ['/admin/', '/api/admin/', '/api/cron/'],
+        disallow: ['/admin/', '/api/'],
       },
     ],
-    sitemap: [
-      `${SITE_URL}/sitemap.xml`,
-      `${SITE_URL}/sitemap-news.xml`,
-    ],
+    sitemap: [`${SITE_URL}/sitemap.xml`, `${SITE_URL}/sitemap-news.xml`],
     host: SITE_URL,
   };
 }

@@ -1,9 +1,16 @@
+import type { Metadata } from 'next';
 import React from 'react';
 import { prisma } from '@/lib/db';
 import { getAdminSession } from '@/lib/auth';
 import { AdminLayoutClient } from '@/components/admin/AdminLayout';
 
 export const dynamic = 'force-dynamic';
+
+// robots.txt disallow does not deindex already-indexed URLs — an explicit
+// noindex on the admin area guarantees it stays out of search results.
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 export default async function AdminRootLayout({
   children,

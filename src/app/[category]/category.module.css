@@ -190,3 +190,37 @@
     font-size: var(--text-3xl);
   }
 }
+
+/* Empty state for newly created categories with no published stories yet */
+.emptyState {
+  padding: var(--space-16) 0;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.emptyState a {
+  display: inline-block;
+  margin-top: var(--space-4);
+  color: var(--color-accent);
+  text-decoration: underline;
+}
+
+/* Pagination link to archive pages */
+.pagination {
+  margin-top: var(--space-10);
+  text-align: center;
+}
+
+.pagination a {
+  display: inline-block;
+  padding: var(--space-3) var(--space-6);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-accent);
+  font-weight: 600;
+  transition: background var(--transition-fast);
+}
+
+.pagination a:hover {
+  background: var(--color-accent-light);
+}

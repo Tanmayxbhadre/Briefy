@@ -1,10 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import {
-  getRelatedArticles,
-  articles,
-} from '@/lib/mock-data';
-import { getPublishedArticleBySlug } from '@/lib/articles';
+import { getPublishedArticleBySlug, getRelatedArticles } from '@/lib/articles';
 import ArticleHeader from '@/components/article/ArticleHeader';
 import ArticleBody from '@/components/article/ArticleBody';
 import QuickSummary from '@/components/article/QuickSummary';
@@ -15,20 +11,15 @@ import AdSlot from '@/components/shared/AdSlot';
 import SchemaOrg from '@/components/seo/SchemaOrg';
 import SocialShare from '@/components/article/SocialShare';
 import ReadingProgressBar from '@/components/article/ReadingProgressBar';
+import { SITE_URL } from '@/lib/site';
 
-export const dynamic = 'force-dynamic';
+// ISR: edge-cached and revalidated on publish via revalidateNewsPublication().
+// Previously force-dynamic: every crawler hit re-ran the full DB pipeline.
+export const revalidate = 300;
 export const dynamicParams = true;
-export const revalidate = 0;
 
 interface Props {
   params: Promise<{ category: string; slug: string }>;
-}
-
-export async function generateStaticParams() {
-  return articles.map((a) => ({
-    category: a.category.slug,
-    slug: a.slug,
-  }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -36,18 +27,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const article = await getPublishedArticleBySlug(slug);
   if (!article) return {};
 
-  const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.briefy.live';
-  const url = `${SITE_URL}/${article.category.slug}/${article.slug}`;
+  const url = article.canonicalUrl || `${SITE_URL}/${article.category.slug}/${article.slug}`;
+
+  // Prefer the SEO-optimizer output (seoTitle/metaDescription) when present;
+  // the AI pipeline's SEO work previously never reached crawlers.
+  const title = article.seoTitle || article.title;
+  const description = article.metaDescription || article.description;
 
   return {
-    title: article.title,
-    description: article.description,
+    title,
+    description,
     authors: [{ name: article.author.name }],
-    keywords: article.tags,
     alternates: { canonical: url },
     openGraph: {
-      title: article.title,
-      description: article.description,
+      title,
+      description,
       url,
       type: 'article',
       publishedTime: article.publishedAt,
@@ -66,8 +60,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     twitter: {
       card: 'summary_large_image',
-      title: article.title,
-      description: article.description,
+      title,
+      description,
       images: [article.featuredImage],
     },
   };
@@ -79,21 +73,22 @@ export default async function ArticlePage({ params }: Props) {
 
   if (!article || article.category.slug !== category) notFound();
 
-  const relatedArticles = getRelatedArticles(article, 4);
+  // DB-backed: previously this only ever returned mock articles.
+  const relatedArticles = await getRelatedArticles(article, 4);
 
   return (
     <>
       <ReadingProgressBar />
       <SchemaOrg article={article} pageType="article" />
 
-      <article itemScope itemType="https://schema.org/NewsArticle">
+      <article>
         {/* Article Header */}
         <ArticleHeader article={article} />
 
         <div className="article-container">
           <SocialShare
             title={article.title}
-            url={`${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.briefy.live'}/${article.category.slug}/${article.slug}`}
+            url={`${SITE_URL}/${article.category.slug}/${article.slug}`}
           />
         </div>
 
