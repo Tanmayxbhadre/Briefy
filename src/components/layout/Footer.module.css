@@ -32,9 +32,20 @@
 .logo {
   font-family: var(--font-serif);
   font-size: 1.25rem;
-  letter-spacing: 0.12em;
   color: var(--color-text);
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.logo img {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+}
+
+.logoDot {
+  color: var(--color-live);
 }
 
 .tagline {

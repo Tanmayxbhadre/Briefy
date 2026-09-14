@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import Image from 'next/image';
 import styles from './Footer.module.css';
 
 const CATEGORIES = [
@@ -41,9 +42,12 @@ export default function Footer() {
         {/* Top: Brand + Links */}
         <div className={styles.grid}>
           <div className={styles.brand}>
-            <Link href="/" className={styles.logo}>BRIEFY</Link>
+            <Link href="/" className={styles.logo} aria-label="Briefy.live — Home">
+              <Image src="/favicon-32x32.png" alt="" width={32} height={32} />
+              <span>Briefy<span className={styles.logoDot}>.</span>live</span>
+            </Link>
             <p className={styles.tagline}>
-              Serious journalism for the modern reader. Clear, concise, and trustworthy.
+              Serious Journalism for the Modern Reader
             </p>
           </div>
 
@@ -83,7 +87,7 @@ export default function Footer() {
         {/* Bottom: Copyright */}
         <div className={styles.bottom}>
           <p className={styles.copyright}>
-            © {year} BRIEFY. All rights reserved.
+            © {year} Briefy.live. All rights reserved.
           </p>
           <p className={styles.disclaimer}>
             Content is for informational purposes. We are not responsible for external links.

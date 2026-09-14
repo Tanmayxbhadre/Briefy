@@ -74,7 +74,7 @@ export default function MobileMenu({ id, isOpen, onClose, links, currentPath }: 
         className={`${styles.menu} ${isOpen ? styles.menuOpen : ''}`}
       >
         <div className={styles.menuHeader}>
-          <span className={styles.menuTitle}>BRIEFY</span>
+          <span className={styles.menuTitle}>Briefy<span className={styles.menuDot}>.</span>live</span>
           <button onClick={onClose} className={styles.closeBtn} aria-label="Close menu">
             <X size={20} strokeWidth={1.75} />
           </button>

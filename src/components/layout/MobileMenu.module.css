@@ -59,6 +59,10 @@
   color: var(--color-text);
 }
 
+.menuDot {
+  color: var(--color-live);
+}
+
 .closeBtn {
   display: flex;
   align-items: center;
