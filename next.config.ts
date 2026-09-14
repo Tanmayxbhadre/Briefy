@@ -1,11 +1,5 @@
 import type { NextConfig } from "next";
 
-/**
- * Canonical production host. The www subdomain is 301-redirected here so
- * search engines only ever index one host (prevents duplicate-host content).
- */
-const PROD_HOST = "briefy.live";
-
 const nextConfig: NextConfig = {
   async rewrites() {
     return {
@@ -23,16 +17,6 @@ const nextConfig: NextConfig = {
       afterFiles: [],
       fallback: [],
     };
-  },
-  async redirects() {
-    return [
-      {
-        source: "/:path*",
-        has: [{ type: "host", value: `www.${PROD_HOST}` }],
-        destination: `https://${PROD_HOST}/:path*`,
-        permanent: true,
-      },
-    ];
   },
   async headers() {
     return [

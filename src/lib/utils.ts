@@ -95,7 +95,7 @@ export function truncate(text: string, maxLength: number): string {
  * Get a canonical URL for the site.
  */
 export function getCanonicalUrl(path: string = ''): string {
-  const base = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.briefy.live';
+  const base = process.env.NEXT_PUBLIC_SITE_URL || 'https://briefy.live';
   return `${base}${path}`;
 }
 
