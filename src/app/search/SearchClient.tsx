@@ -24,29 +24,27 @@ function SearchResults() {
   const searchParams = useSearchParams();
   const query = searchParams.get('q') || '';
   const [input, setInput] = useState(query);
-  const [results, setResults] = useState<SearchResult[] | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [resultState, setResultState] = useState<{
+    query: string;
+    items: SearchResult[];
+  } | null>(null);
+  const results = resultState?.query === query ? resultState.items : null;
+  const loading = !!query.trim() && results === null;
 
   useEffect(() => {
     let cancelled = false;
 
     if (!query.trim()) {
-      setResults([]);
-      setLoading(false);
       return;
     }
 
-    setLoading(true);
     fetch(`/api/search?q=${encodeURIComponent(query)}`)
       .then((res) => (res.ok ? res.json() : { results: [] }))
       .then((data) => {
-        if (!cancelled) setResults(data.results ?? []);
+        if (!cancelled) setResultState({ query, items: data.results ?? [] });
       })
       .catch(() => {
-        if (!cancelled) setResults([]);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) setResultState({ query, items: [] });
       });
 
     return () => {

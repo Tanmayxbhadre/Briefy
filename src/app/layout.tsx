@@ -108,13 +108,6 @@ export const metadata: Metadata = {
       'Clear, concise, and trustworthy news across India, World, Technology, AI, Business, and Science.',
     images: [`${SITE_URL}/og-image.png`],
   },
-  alternates: {
-    canonical: SITE_URL,
-    types: {
-      'application/rss+xml': `${SITE_URL}/rss.xml`,
-    },
-  },
-  },
 };
 
 export default function RootLayout({

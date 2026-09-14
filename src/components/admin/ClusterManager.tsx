@@ -10,6 +10,7 @@ import {
   X,
 } from 'lucide-react';
 import styles from './ClusterManager.module.css';
+import { notifyNewsPublished } from '@/lib/broadcast';
 
 export interface StoryClusterItem {
   id: string;
@@ -44,13 +45,16 @@ export function ClusterManager({ initialClusters, categories }: ClusterManagerPr
   const [selectedStatus, setSelectedStatus] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [isClusteringRunning, setIsClusteringRunning] = useState(false);
+  const [isPublishingAll, setIsPublishingAll] = useState(false);
   const [synthesizingClusterId, setSynthesizingClusterId] = useState<string | null>(null);
   const [inspectingCluster, setInspectingCluster] = useState<StoryClusterItem | null>(null);
   const [errorToast, setErrorToast] = useState<string | null>(null);
+  const [successToast, setSuccessToast] = useState<string | null>(null);
 
   const handleRunClustering = async () => {
     setIsClusteringRunning(true);
     setErrorToast(null);
+    setSuccessToast(null);
     try {
       const res = await fetch('/api/admin/clusters/run', { method: 'POST' });
       const data = await res.json();
@@ -64,6 +68,48 @@ export function ClusterManager({ initialClusters, categories }: ClusterManagerPr
       setErrorToast(err instanceof Error ? err.message : 'Error triggering clustering');
     } finally {
       setIsClusteringRunning(false);
+    }
+  };
+
+  const handlePublishAll = async () => {
+    const draftIds = clusters
+      .map((cluster) => cluster.draft)
+      .filter((draft): draft is NonNullable<StoryClusterItem['draft']> => !!draft && draft.status !== 'PUBLISHED')
+      .map((draft) => draft.id);
+
+    if (draftIds.length === 0) {
+      setErrorToast('There are no unpublished cluster drafts to publish.');
+      return;
+    }
+
+    if (!window.confirm(`Publish all ${draftIds.length} unpublished cluster draft${draftIds.length === 1 ? '' : 's'}?`)) {
+      return;
+    }
+
+    setIsPublishingAll(true);
+    setErrorToast(null);
+    setSuccessToast(null);
+    try {
+      const res = await fetch('/api/admin/drafts/bulk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'publish', ids: draftIds }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.error || 'Failed to publish cluster drafts');
+
+      notifyNewsPublished();
+      setSuccessToast(`Successfully published ${data.count} cluster draft${data.count === 1 ? '' : 's'}.`);
+      const reload = await fetch('/api/admin/clusters');
+      const reloadData = await reload.json();
+      if (reloadData.success && Array.isArray(reloadData.clusters)) {
+        setClusters(reloadData.clusters);
+      }
+      router.refresh();
+    } catch (err: unknown) {
+      setErrorToast(err instanceof Error ? err.message : 'Error publishing cluster drafts');
+    } finally {
+      setIsPublishingAll(false);
     }
   };
 
@@ -111,6 +157,14 @@ export function ClusterManager({ initialClusters, categories }: ClusterManagerPr
         </div>
         <div className={styles.headerActions}>
           <button
+            className={styles.primaryBtn}
+            onClick={handlePublishAll}
+            disabled={isPublishingAll}
+          >
+            <Sparkles size={16} />
+            {isPublishingAll ? 'Publishing All...' : 'Publish All'}
+          </button>
+          <button
             className={styles.secondaryBtn}
             onClick={handleRunClustering}
             disabled={isClusteringRunning}
@@ -124,6 +178,11 @@ export function ClusterManager({ initialClusters, categories }: ClusterManagerPr
       {errorToast && (
         <div style={{ background: '#fee2e2', color: '#991b1b', padding: '0.75rem 1rem', borderRadius: 6, fontSize: '0.875rem' }}>
           {errorToast}
+        </div>
+      )}
+      {successToast && (
+        <div style={{ background: '#dcfce7', color: '#166534', padding: '0.75rem 1rem', borderRadius: 6, fontSize: '0.875rem' }}>
+          {successToast}
         </div>
       )}
 
