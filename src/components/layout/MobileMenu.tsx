@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { X, Search } from 'lucide-react';
+import BrandLogo from '@/components/shared/BrandLogo';
 import styles from './MobileMenu.module.css';
 
 interface MobileMenuProps {
@@ -74,7 +75,7 @@ export default function MobileMenu({ id, isOpen, onClose, links, currentPath }: 
         className={`${styles.menu} ${isOpen ? styles.menuOpen : ''}`}
       >
         <div className={styles.menuHeader}>
-          <span className={styles.menuTitle}>Briefy<span className={styles.menuDot}>.</span>live</span>
+          <BrandLogo className={styles.menuTitle} />
           <button onClick={onClose} className={styles.closeBtn} aria-label="Close menu">
             <X size={20} strokeWidth={1.75} />
           </button>

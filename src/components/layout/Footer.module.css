@@ -30,22 +30,11 @@
 }
 
 .logo {
-  font-family: var(--font-serif);
-  font-size: 1.25rem;
-  color: var(--color-text);
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
+  align-self: flex-start;
 }
 
-.logo img {
-  width: 32px;
-  height: 32px;
-  border-radius: var(--radius-md);
-}
-
-.logoDot {
-  color: var(--color-live);
+.logo :global(.wordmark) {
+  font-size: 1.28rem;
 }
 
 .tagline {

@@ -1,7 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 100" role="img" aria-labelledby="title desc">
-  <title id="title">Briefy.live</title>
-  <desc id="desc">Briefy.live news logo</desc>
-  <rect width="600" height="100" fill="#fafaf8"/>
-  <text x="12" y="76" fill="#111111" font-family="Georgia, Times New Roman, serif" font-size="76" font-weight="700" letter-spacing="-4">Briefy.live</text>
-  <circle cx="564" cy="73" r="10" fill="#ed1c24"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 48" role="img" aria-labelledby="title desc"><title id="title">Briefy.live</title><desc id="desc">Briefy.live editorial news logo</desc><rect x="1" y="1" width="46" height="46" rx="9" fill="#e8edf8" stroke="#1a3a8b" stroke-opacity=".25"/><path d="M14 8h17a11 11 0 0 1 0 22H20v10h-6V8Zm6 6v10h10a5 5 0 0 0 0-10H20Zm0 16v4h10a2 2 0 0 0 0-4H20Z" fill="#1a3a8b"/><path d="M38 8h3v32h-3z" fill="#3b82f6"/><text x="59" y="33" fill="#111111" font-family="Georgia,serif" font-size="29" letter-spacing="-1.2">Briefy</text><circle cx="157" cy="29" r="3" fill="#3b82f6"/><text x="166" y="32" fill="#555555" font-family="Arial,sans-serif" font-size="19" font-weight="600">live</text></svg>
