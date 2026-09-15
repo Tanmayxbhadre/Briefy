@@ -7,6 +7,7 @@ import QuickSummary from '@/components/article/QuickSummary';
 import WhatYouNeedToKnow from '@/components/article/WhatYouNeedToKnow';
 import Timeline from '@/components/article/Timeline';
 import RelatedStories from '@/components/article/RelatedStories';
+import MultiSourceAttribution from '@/components/article/MultiSourceAttribution';
 import AdSlot from '@/components/shared/AdSlot';
 import SchemaOrg from '@/components/seo/SchemaOrg';
 import SocialShare from '@/components/article/SocialShare';
@@ -105,14 +106,17 @@ export default async function ArticlePage({ params }: Props) {
             <QuickSummary points={article.quickSummary} />
           )}
 
-          {/* What You Need To Know */}
-          {article.whatYouNeedToKnow && (
-            <WhatYouNeedToKnow data={article.whatYouNeedToKnow} />
-          )}
         </div>
 
         {/* Body Content */}
         <ArticleBody article={article} />
+
+        {/* Context panel follows the complete article body. */}
+        {article.whatYouNeedToKnow && (
+          <div className="article-container">
+            <WhatYouNeedToKnow data={article.whatYouNeedToKnow} />
+          </div>
+        )}
 
         {/* Ad slot between content and related */}
         <div className="article-container" style={{ paddingBottom: '2rem' }}>
@@ -128,8 +132,12 @@ export default async function ArticlePage({ params }: Props) {
       </article>
 
       {/* Related Stories */}
-      <div className="container" style={{ paddingBottom: '4rem' }}>
+      <div className="container" style={{ paddingBottom: '2rem' }}>
         <RelatedStories articles={relatedArticles} />
+      </div>
+
+      <div className="article-container">
+        <MultiSourceAttribution sources={article.sources} />
       </div>
     </>
   );

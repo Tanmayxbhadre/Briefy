@@ -2,7 +2,6 @@ import Link from 'next/link';
 import { Article } from '@/lib/types';
 import { formatDate, formatReadingTime } from '@/lib/utils';
 import Breadcrumbs from './Breadcrumbs';
-import MultiSourceAttribution from './MultiSourceAttribution';
 import ArticleImage from '@/components/shared/ArticleImage';
 import styles from './ArticleHeader.module.css';
 
@@ -49,8 +48,6 @@ export default function ArticleHeader({ article }: ArticleHeaderProps) {
           </div>
         </div>
 
-        {/* Multi-Source Attribution Bar */}
-        <MultiSourceAttribution sources={article.sources} />
       </div>
 
       {/* Hero image — full width */}
