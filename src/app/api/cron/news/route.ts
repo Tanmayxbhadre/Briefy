@@ -1,14 +1,9 @@
 import { NextResponse } from 'next/server';
-import { runNewsCollectionJob } from '@/lib/news/jobRunner';
+import { runAutomaticNewsUpdate } from '@/lib/news/jobRunner';
 
 export const dynamic = 'force-dynamic';
-export const maxDuration = 300; // Allow up to 5 minutes on serverless
+export const maxDuration = 300;
 
-/**
- * Automated Cron Collection Endpoint
- * Triggered periodically by Vercel Cron, GitHub Actions, or Server crontabs.
- * Protected strictly via CRON_SECRET.
- */
 export async function GET(request: Request) {
   return handleCronRequest(request);
 }
@@ -18,160 +13,23 @@ export async function POST(request: Request) {
 }
 
 async function handleCronRequest(request: Request) {
+  const cronSecret = process.env.CRON_SECRET;
+  if (!cronSecret) {
+    return NextResponse.json({ success: false, error: 'Server configuration error' }, { status: 500 });
+  }
+
+  const authHeader = request.headers.get('authorization');
+  const customHeader = request.headers.get('x-cron-secret');
+  if (authHeader !== `Bearer ${cronSecret}` && customHeader !== cronSecret) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
-    const cronSecret = process.env.CRON_SECRET;
-
-    // Fail securely if secret is not configured
-    if (!cronSecret) {
-      console.error('[NEWS-CRON] CRON_SECRET is not configured on server.');
-      return NextResponse.json(
-        { success: false, error: 'Server configuration error' },
-        { status: 500 }
-      );
-    }
-
-    const authHeader = request.headers.get('authorization');
-    const customHeader = request.headers.get('x-cron-secret');
-
-    const isBearerValid = authHeader === `Bearer ${cronSecret}`;
-    const isCustomValid = customHeader === cronSecret;
-
-    if (!isBearerValid && !isCustomValid) {
-      console.warn('[NEWS-CRON] Unauthorized cron attempt.');
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const result = await runNewsCollectionJob({ trigger: 'cron' });
-
-    if (result.skipped) {
-      return NextResponse.json({
-        success: true,
-        skipped: true,
-        reason: result.reason || 'job_already_running',
-      });
-    }
-
-    // 2. Run clustering on any unassigned news items
-    let clusteringSummary = { processed: 0, clustersCreated: 0 };
-    try {
-      const { clusterUnassignedNewsItems } = await import('@/lib/news/clustering');
-      clusteringSummary = await clusterUnassignedNewsItems();
-    } catch (clusterErr) {
-      console.warn('[NEWS-CRON] Clustering step skipped:', clusterErr);
-    }
-
-    // 3. Run background AI drafting worker
-    let aiSummary: { processed: number; draftsCreated: number; errors: Array<{ id: string; error: string }> } = {
-      processed: 0,
-      draftsCreated: 0,
-      errors: [],
-    };
-    try {
-      const { runArticleGenerationWorker } = await import('@/lib/ai/articleGenerationWorker');
-      aiSummary = await runArticleGenerationWorker();
-    } catch (aiErr) {
-      console.warn('[NEWS-CRON] AI worker step skipped:', aiErr);
-    }
-
-    // 4. Tick the background job queue
-    let queueSummary = { processed: 0, completed: 0, failed: 0 };
-    try {
-      const { runJobWorkerTick } = await import('@/lib/queue/jobQueue');
-      queueSummary = await runJobWorkerTick(3);
-    } catch (qErr) {
-      console.warn('[NEWS-CRON] Job queue tick skipped:', qErr);
-    }
-
-    // 5. Auto-publish APPROVED/DRAFT articles (first pass — catches anything already in queue)
-    let autoPublishSummary = { swept: 0, published: 0, skipped: 0, errors: 0 };
-    try {
-      const { runAutoPublishWorker } = await import('@/lib/ai/autoPublishWorker');
-      const apResult = await runAutoPublishWorker(100);
-      autoPublishSummary = {
-        swept: apResult.swept,
-        published: apResult.published,
-        skipped: apResult.skipped,
-        errors: apResult.errors.length,
-      };
-    } catch (apErr) {
-      console.warn('[NEWS-CRON] Auto-publish step skipped:', apErr);
-    }
-
-    // 5b. Second auto-publish pass — catches newly generated drafts from step 3
-    try {
-      const { runAutoPublishWorker } = await import('@/lib/ai/autoPublishWorker');
-      const apResult2 = await runAutoPublishWorker(100);
-      autoPublishSummary.swept += apResult2.swept;
-      autoPublishSummary.published += apResult2.published;
-      autoPublishSummary.skipped += apResult2.skipped;
-      autoPublishSummary.errors += apResult2.errors.length;
-    } catch (apErr) {
-      console.warn('[NEWS-CRON] Auto-publish second pass skipped:', apErr);
-    }
-
-    // 5.5. Clean up old unpublished news automatically (> 2 days)
-    let cleanupSummary = { deletedDrafts: 0, deletedNewsItems: 0 };
-    try {
-      const { runCleanupWorker } = await import('@/lib/ai/cleanupWorker');
-      cleanupSummary = await runCleanupWorker();
-    } catch (cleanErr) {
-      console.warn('[NEWS-CRON] Cleanup step skipped:', cleanErr);
-    }
-
-    // 6. Revalidate cache
-    try {
-      const { revalidateNewsCache } = await import('@/lib/revalidate');
-      revalidateNewsCache();
-    } catch (revErr) {
-      console.warn('[NEWS-CRON] Cache revalidation skipped:', revErr);
-    }
-
-    // 7. Print a single, human-readable summary block for easy debugging in logs
-    const finishedAt = new Date();
-    console.log(
-      [
-        '[Briefy.live CRON]',
-        `Finished: ${finishedAt.toISOString()}`,
-        `Sources checked: ${result.sourcesProcessed}`,
-        `Articles fetched: ${result.itemsFound}`,
-        `Stale filtered: ${result.staleFiltered}`,
-        `Duplicates skipped: ${result.duplicates}`,
-        `New articles: ${result.newItems}`,
-        `AI processed: ${aiSummary.processed}`,
-        `Drafts created: ${aiSummary.draftsCreated}`,
-        `Auto-published: ${autoPublishSummary.published}`,
-        `Failed sources: ${result.failedSources}`,
-        `Failed AI generations: ${aiSummary.errors.length}`,
-        `Cleaned Drafts: ${cleanupSummary.deletedDrafts}`,
-        `Cleaned Items: ${cleanupSummary.deletedNewsItems}`,
-        `Status: ${result.status}`,
-      ].join(' | ')
-    );
-
-    return NextResponse.json({
-      success: result.success,
-      jobId: result.jobId,
-      status: result.status,
-      collection: {
-        sourcesProcessed: result.sourcesProcessed,
-        newItems: result.newItems,
-        duplicates: result.duplicates,
-        staleFiltered: result.staleFiltered,
-        failedSources: result.failedSources,
-        durationMs: result.durationMs,
-      },
-      clustering: clusteringSummary,
-      aiGeneration: aiSummary,
-      queue: queueSummary,
-      autoPublish: autoPublishSummary,
-      cleanup: cleanupSummary,
-    });
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Internal Server Error';
-    console.error('[NEWS-CRON] Uncaught cron endpoint error:', message);
-    return NextResponse.json(
-      { success: false, error: 'News collection job failed' },
-      { status: 500 }
-    );
+    const result = await runAutomaticNewsUpdate({ trigger: 'cron' });
+    const status = result.skipped ? 200 : result.success ? 200 : 500;
+    return NextResponse.json(result, { status });
+  } catch (error) {
+    console.error('[NEWS-CRON] Pipeline failed:', error instanceof Error ? error.message : error);
+    return NextResponse.json({ success: false, error: 'News update failed' }, { status: 500 });
   }
 }

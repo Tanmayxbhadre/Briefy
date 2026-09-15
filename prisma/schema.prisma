@@ -338,6 +338,8 @@ model CollectionJobLock {
   jobName    String   @unique
   acquiredAt DateTime @default(now())
   expiresAt  DateTime
+  heartbeatAt DateTime @default(now())
+  ownerId    String?
 }
 
 model CollectionJob {
@@ -355,7 +357,13 @@ model CollectionJob {
   errorCount        Int       @default(0)
   durationMs        Int       @default(0)
   errorMessage      String?
-  sourceErrors      String?   // JSON string of { sourceId: string, sourceName: string, error: string }[]
+  sourceErrors       String?   // JSON string of { sourceId: string, sourceName: string, error: string }[]
+  downstreamStatus   String    @default("PENDING")
+  downstreamErrors   String?
+  clusterCount       Int       @default(0)
+  draftsCreated      Int       @default(0)
+  publishedCount     Int       @default(0)
+  cacheRevalidatedAt DateTime?
   createdAt         DateTime  @default(now())
 
   @@index([startedAt])
