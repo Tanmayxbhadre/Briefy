@@ -145,6 +145,14 @@ model ArticleDraft {
   featuredImage     String?
   imageAlt          String?
   status            String            @default("DRAFT") // DRAFT, REVIEW, APPROVED, PUBLISHED, REJECTED, ARCHIVED
+  seoWorkflowStatus String            @default("PENDING") // PENDING, PROCESSING, READY_TO_PUBLISH, SEO_REVIEW, SEO_FAILED
+  contentVersion    Int               @default(1)
+  seoVersion        Int               @default(0)
+  seoValidatedVersion Int?
+  seoValidation     String?
+  seoProcessingAt   DateTime?
+  seoLastError      String?
+  seoRetryCount     Int               @default(0)
   seoTitle          String?
   metaDescription   String?
   canonicalUrl      String?
@@ -196,8 +204,14 @@ model ArticleSEO {
   discoverabilityScore  Int?
   imageAltText          String?
   structuredData        String?
-  optimizationStatus    String       @default("PENDING")
-  lastOptimizedAt       DateTime?
+  optimizationStatus     String       @default("PENDING")
+  contentVersion         Int          @default(0)
+  validatedVersion       Int?
+  validationPayload      String?
+  processingAt           DateTime?
+  lastError              String?
+  retryCount             Int          @default(0)
+  lastOptimizedAt        DateTime?
   createdAt             DateTime     @default(now())
   updatedAt             DateTime     @updatedAt
 
