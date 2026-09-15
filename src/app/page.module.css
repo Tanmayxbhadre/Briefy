@@ -36,8 +36,16 @@
 
 @media (max-width: 767px) {
   .latestTrendingGrid {
-    padding-top: var(--space-6);
-    padding-bottom: var(--space-6);
+    padding-top: var(--space-5);
+    padding-bottom: var(--space-5);
     gap: var(--space-6);
+  }
+
+  .categorySections {
+    padding-bottom: var(--space-4);
+  }
+
+  .adRow {
+    padding-block: var(--space-1);
   }
 }

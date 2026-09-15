@@ -292,6 +292,7 @@
 
   .mainImageWrapper {
     aspect-ratio: 16 / 10;
+    border-radius: var(--radius-sm);
   }
 }
 
