@@ -18,9 +18,20 @@ export interface ParsedNewsItem {
   externalId?: string;
 }
 
+function isTransientError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase();
+  return /timeout|timed out|econnreset|socket|429|500|502|503|504|fetch failed/.test(message);
+}
+
+function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export async function fetchRssFeed(source: NewsSourceConfig): Promise<ParsedNewsItem[]> {
-  try {
-    const feed = await parser.parseURL(source.url);
+  let lastError: unknown;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      const feed = await parser.parseURL(source.url);
     const items: ParsedNewsItem[] = [];
 
     for (const item of feed.items) {
@@ -65,9 +76,13 @@ export async function fetchRssFeed(source: NewsSourceConfig): Promise<ParsedNews
     }
 
     return items;
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Unknown RSS fetch error';
-    console.error(`Failed to fetch RSS feed for ${source.id}:`, message);
-    throw error;
+    } catch (error: unknown) {
+      lastError = error;
+      const message = error instanceof Error ? error.message : 'Unknown RSS fetch error';
+      console.error(`Failed to fetch RSS feed for ${source.id} (attempt ${attempt + 1}/3):`, message);
+      if (!isTransientError(error) || attempt === 2) throw error;
+      await delay(250 * 2 ** attempt);
+    }
   }
+  throw lastError instanceof Error ? lastError : new Error('RSS fetch failed');
 }

@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto';
 import { prisma } from '../db';
 import { collectAllNews, CollectionSummary } from './collector';
 
@@ -18,184 +19,84 @@ export interface JobRunnerResult {
 }
 
 const JOB_LOCK_NAME = 'news-collection';
-const DEFAULT_LOCK_TTL_MS = 180_000; // 3 minutes TTL
+const DEFAULT_LOCK_TTL_MS = 180_000;
 
-/**
- * Attempts to acquire a durable database lock for the collection job.
- * Automatically purges expired locks to prevent deadlocks after unexpected crashes.
- */
-async function acquireCollectionLock(
-  jobName: string = JOB_LOCK_NAME,
-  ttlMs: number = DEFAULT_LOCK_TTL_MS
-): Promise<{ acquired: boolean; lockId?: string; reason?: string }> {
+async function acquireCollectionLock(jobName = JOB_LOCK_NAME, ttlMs = DEFAULT_LOCK_TTL_MS) {
   const now = new Date();
-
-  // 1. Clean up any expired locks
-  try {
-    await prisma.collectionJobLock.deleteMany({
-      where: {
-        jobName,
-        expiresAt: { lt: now },
-      },
-    });
-  } catch (err) {
-    console.error('[JOB-LOCK] Failed to clean expired locks:', err);
-  }
-
-  // 2. Try acquiring lock atomically
+  const ownerId = randomUUID();
+  await prisma.collectionJobLock.deleteMany({ where: { jobName, expiresAt: { lt: now } } }).catch(() => undefined);
   try {
     const lock = await prisma.collectionJobLock.create({
-      data: {
-        jobName,
-        acquiredAt: now,
-        expiresAt: new Date(now.getTime() + ttlMs),
-      },
+      data: { jobName, acquiredAt: now, expiresAt: new Date(now.getTime() + ttlMs), heartbeatAt: now, ownerId },
     });
-    return { acquired: true, lockId: lock.id };
+    return { acquired: true, lockId: lock.id, ownerId };
   } catch {
-    // Unique constraint error indicates active job is running
     return { acquired: false, reason: 'job_already_running' };
   }
 }
 
-/**
- * Releases the durable database lock.
- */
-async function releaseCollectionLock(jobName: string = JOB_LOCK_NAME): Promise<void> {
+async function releaseCollectionLock(jobName = JOB_LOCK_NAME, ownerId?: string) {
+  await prisma.collectionJobLock.deleteMany({ where: { jobName, ...(ownerId ? { ownerId } : {}) } }).catch((error) => {
+    console.error('[JOB-LOCK] Error releasing lock:', error);
+  });
+}
+
+export async function runNewsCollectionJob(options?: { trigger?: 'cron' | 'manual' | 'cli' | 'watch' | 'webhook' }): Promise<JobRunnerResult> {
+  const trigger = options?.trigger || 'cron';
+  const startTime = Date.now();
+  const lockResult = await acquireCollectionLock();
+  if (!lockResult.acquired) {
+    return { success: true, status: 'SKIPPED', skipped: true, reason: lockResult.reason, sourcesProcessed: 0, newItems: 0, duplicates: 0, staleFiltered: 0, failedSources: 0, itemsFound: 0, durationMs: Date.now() - startTime };
+  }
+
+  let jobRecord: { id: string } | null = null;
   try {
-    await prisma.collectionJobLock.deleteMany({
-      where: { jobName },
-    });
-  } catch (err) {
-    console.error('[JOB-LOCK] Error releasing lock:', err);
+    jobRecord = await prisma.collectionJob.create({ data: { trigger, startedAt: new Date(), status: 'RUNNING' } });
+  } catch (error) {
+    console.error('[NEWS-CRON] Failed to initialize CollectionJob record:', error);
+  }
+
+  const heartbeat = lockResult.ownerId ? setInterval(() => {
+    prisma.collectionJobLock.updateMany({
+      where: { jobName: JOB_LOCK_NAME, ownerId: lockResult.ownerId },
+      data: { heartbeatAt: new Date(), expiresAt: new Date(Date.now() + DEFAULT_LOCK_TTL_MS) },
+    }).catch(() => undefined);
+  }, Math.floor(DEFAULT_LOCK_TTL_MS / 3)) : undefined;
+
+  try {
+    const summary: CollectionSummary = await collectAllNews();
+    const durationMs = Date.now() - startTime;
+    const status: 'COMPLETED' | 'PARTIAL' | 'FAILED' = summary.failedSources > 0 && summary.successfulSources === 0 && summary.sourcesProcessed > 0 ? 'FAILED' : summary.failedSources > 0 ? 'PARTIAL' : 'COMPLETED';
+    if (jobRecord) {
+      await prisma.collectionJob.update({ where: { id: jobRecord.id }, data: {
+        completedAt: new Date(), status, sourcesProcessed: summary.sourcesProcessed, successfulSources: summary.successfulSources,
+        failedSources: summary.failedSources, itemsFound: summary.itemsFound, itemsInserted: summary.newItems, duplicates: summary.duplicates,
+        errorCount: summary.failedSources, durationMs, sourceErrors: summary.sourceErrors ? JSON.stringify(summary.sourceErrors) : null,
+      } });
+    }
+    return { success: status !== 'FAILED', jobId: jobRecord?.id, status, sourcesProcessed: summary.sourcesProcessed, newItems: summary.newItems, duplicates: summary.duplicates, staleFiltered: summary.staleFiltered, failedSources: summary.failedSources, itemsFound: summary.itemsFound, durationMs };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Fatal news collection exception';
+    const durationMs = Date.now() - startTime;
+    if (jobRecord) await prisma.collectionJob.update({ where: { id: jobRecord.id }, data: { completedAt: new Date(), status: 'FAILED', durationMs, errorMessage: message } });
+    return { success: false, jobId: jobRecord?.id, status: 'FAILED', errorMessage: message, sourcesProcessed: 0, newItems: 0, duplicates: 0, staleFiltered: 0, failedSources: 0, itemsFound: 0, durationMs };
+  } finally {
+    if (heartbeat) clearInterval(heartbeat);
+    await releaseCollectionLock(JOB_LOCK_NAME, lockResult.ownerId);
   }
 }
 
-/**
- * Main entry point for all news collection executions (Cron, Manual, CLI, Dev Watch).
- * Guarantees durable locking, job lifecycle auditing, source health tracking, and error safety.
- */
-export async function runNewsCollectionJob(options?: {
-  trigger?: 'cron' | 'manual' | 'cli' | 'watch' | 'webhook';
-}): Promise<JobRunnerResult> {
-  const trigger = options?.trigger || 'cron';
-  const startTime = Date.now();
-  console.log(`[NEWS-CRON] [${trigger.toUpperCase()}] Initiating collection job...`);
-
-  // 1. Acquire durable database lock
-  const lockResult = await acquireCollectionLock(JOB_LOCK_NAME);
-
-  if (!lockResult.acquired) {
-    console.warn(`[NEWS-CRON] [${trigger.toUpperCase()}] Collection skipped: ${lockResult.reason}`);
-    return {
-      success: true,
-      status: 'SKIPPED',
-      skipped: true,
-      reason: lockResult.reason,
-      sourcesProcessed: 0,
-      newItems: 0,
-      duplicates: 0,
-      staleFiltered: 0,
-      failedSources: 0,
-      itemsFound: 0,
-      durationMs: Date.now() - startTime,
-    };
-  }
-
-  // 2. Create running job record in DB
-  let jobRecord: { id: string } | null = null;
-  try {
-    jobRecord = await prisma.collectionJob.create({
-      data: {
-        trigger,
-        startedAt: new Date(),
-        status: 'RUNNING',
-      },
-    });
-  } catch (err) {
-    console.error('[NEWS-CRON] Failed to initialize CollectionJob record:', err);
-  }
-
-  let summary: CollectionSummary | null = null;
-  let fatalError: string | null = null;
-
-  try {
-    // 3. Execute collection
-    summary = await collectAllNews();
-
-    const durationMs = Date.now() - startTime;
-    const isPartial = summary.failedSources > 0 && summary.successfulSources > 0;
-    const isFailed = summary.failedSources > 0 && summary.successfulSources === 0 && summary.sourcesProcessed > 0;
-    const status: 'COMPLETED' | 'PARTIAL' | 'FAILED' = isFailed ? 'FAILED' : isPartial ? 'PARTIAL' : 'COMPLETED';
-
-    // 4. Update job record
-    if (jobRecord) {
-      await prisma.collectionJob.update({
-        where: { id: jobRecord.id },
-        data: {
-          completedAt: new Date(),
-          status,
-          sourcesProcessed: summary.sourcesProcessed,
-          successfulSources: summary.successfulSources,
-          failedSources: summary.failedSources,
-          itemsFound: summary.itemsFound,
-          itemsInserted: summary.newItems,
-          duplicates: summary.duplicates,
-          errorCount: summary.failedSources,
-          durationMs,
-          sourceErrors: summary.sourceErrors ? JSON.stringify(summary.sourceErrors) : null,
-        },
-      });
-    }
-
-    console.log(
-      `[NEWS-CRON] [${trigger.toUpperCase()}] Job ${status}: ${summary.newItems} new items, ${summary.duplicates} duplicates, ${summary.staleFiltered} stale-filtered from ${summary.successfulSources}/${summary.sourcesProcessed} sources in ${durationMs}ms.`
-    );
-
-    return {
-      success: status !== 'FAILED',
-      jobId: jobRecord?.id,
-      status,
-      sourcesProcessed: summary.sourcesProcessed,
-      newItems: summary.newItems,
-      duplicates: summary.duplicates,
-      staleFiltered: summary.staleFiltered,
-      failedSources: summary.failedSources,
-      itemsFound: summary.itemsFound,
-      durationMs,
-    };
-  } catch (err: unknown) {
-    fatalError = err instanceof Error ? err.message : 'Fatal news collection exception';
-    const durationMs = Date.now() - startTime;
-    console.error(`[NEWS-CRON] [${trigger.toUpperCase()}] Fatal error: ${fatalError}`);
-
-    if (jobRecord) {
-      await prisma.collectionJob.update({
-        where: { id: jobRecord.id },
-        data: {
-          completedAt: new Date(),
-          status: 'FAILED',
-          durationMs,
-          errorMessage: fatalError,
-        },
-      });
-    }
-
-    return {
-      success: false,
-      jobId: jobRecord?.id,
-      status: 'FAILED',
-      errorMessage: fatalError,
-      sourcesProcessed: 0,
-      newItems: 0,
-      duplicates: 0,
-      staleFiltered: 0,
-      failedSources: 0,
-      itemsFound: 0,
-      durationMs,
-    };
-  } finally {
-    // 5. Always release durable lock
-    await releaseCollectionLock(JOB_LOCK_NAME);
-  }
+export async function runAutomaticNewsUpdate(options?: { trigger?: 'cron' | 'manual' | 'cli' | 'watch' | 'webhook' }) {
+  const collection = await runNewsCollectionJob(options);
+  if (collection.skipped || !collection.success) return collection;
+  const downstreamErrors: string[] = [];
+  let clustering = { processed: 0, clustersCreated: 0 };
+  let aiGeneration = { processed: 0, draftsCreated: 0, errors: [] as Array<{ id: string; error: string }> };
+  let autoPublish = { swept: 0, published: 0, skipped: 0, errors: 0 };
+  try { clustering = await (await import('./clustering')).clusterUnassignedNewsItems(); } catch (error) { downstreamErrors.push(`clustering: ${error instanceof Error ? error.message : 'failed'}`); }
+  try { aiGeneration = await (await import('../ai/articleGenerationWorker')).runArticleGenerationWorker(); } catch (error) { downstreamErrors.push(`generation: ${error instanceof Error ? error.message : 'failed'}`); }
+  try { const result = await (await import('../ai/autoPublishWorker')).runAutoPublishWorker(100); autoPublish = { swept: result.swept, published: result.published, skipped: result.skipped, errors: result.errors.length }; } catch (error) { downstreamErrors.push(`publish: ${error instanceof Error ? error.message : 'failed'}`); }
+  try { await (await import('../cache/revalidateNews')).revalidateNewsPublication(); } catch (error) { downstreamErrors.push(`cache: ${error instanceof Error ? error.message : 'failed'}`); }
+  if (collection.jobId) await prisma.collectionJob.update({ where: { id: collection.jobId }, data: { downstreamStatus: downstreamErrors.length ? 'PARTIAL' : 'COMPLETED', downstreamErrors: downstreamErrors.length ? JSON.stringify(downstreamErrors) : null, clusterCount: clustering.clustersCreated, draftsCreated: aiGeneration.draftsCreated, publishedCount: autoPublish.published, cacheRevalidatedAt: downstreamErrors.some((item) => item.startsWith('cache:')) ? null : new Date() } });
+  return { ...collection, success: downstreamErrors.length === 0, status: downstreamErrors.length ? 'PARTIAL' as const : collection.status, downstream: { clustering, aiGeneration, autoPublish, errors: downstreamErrors } };
 }
