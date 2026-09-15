@@ -105,7 +105,6 @@ export default async function ArticlePage({ params }: Props) {
           {article.quickSummary && article.quickSummary.length > 0 && (
             <QuickSummary points={article.quickSummary} />
           )}
-
         </div>
 
         {/* Body Content */}
@@ -129,16 +128,17 @@ export default async function ArticlePage({ params }: Props) {
             <Timeline events={article.timeline} />
           </div>
         )}
+
+        {/* Related content stays inside the article flow, before references. */}
+        <div className="container" style={{ paddingBottom: '2rem' }}>
+          <RelatedStories articles={relatedArticles} />
+        </div>
+
+        {/* Sources are intentionally the final article section. */}
+        <div className="article-container">
+          <MultiSourceAttribution sources={article.sources} />
+        </div>
       </article>
-
-      {/* Related Stories */}
-      <div className="container" style={{ paddingBottom: '2rem' }}>
-        <RelatedStories articles={relatedArticles} />
-      </div>
-
-      <div className="article-container">
-        <MultiSourceAttribution sources={article.sources} />
-      </div>
     </>
   );
 }
