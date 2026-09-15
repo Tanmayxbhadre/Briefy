@@ -11,6 +11,10 @@ interface ArticleImageProps extends Omit<ImageProps, 'alt'> {
 export default function ArticleImage({
   alt,
   fallbackLabel = 'Briefy news',
+  fill,
+  priority,
+  sizes,
+  src,
   ...props
 }: ArticleImageProps) {
   const [failed, setFailed] = useState(false);
@@ -42,5 +46,27 @@ export default function ArticleImage({
     );
   }
 
-  return <Image {...props} alt={alt} onError={() => setFailed(true)} />;
+  // News sources use many different image CDNs. Render those URLs directly
+  // instead of sending them through Next's restricted image optimizer.
+  if (typeof src === 'string' && /^https?:\/\//i.test(src)) {
+    return (
+      /* eslint-disable-next-line @next/next/no-img-element */
+      <img
+        {...props}
+        src={src}
+        alt={alt}
+        loading={priority ? 'eager' : 'lazy'}
+        sizes={sizes}
+        onError={() => setFailed(true)}
+        style={{
+          ...props.style,
+          ...(fill
+            ? { position: 'absolute', inset: 0, width: '100%', height: '100%' }
+            : {}),
+        }}
+      />
+    );
+  }
+
+  return <Image {...props} src={src} fill={fill} priority={priority} sizes={sizes} alt={alt} onError={() => setFailed(true)} />;
 }

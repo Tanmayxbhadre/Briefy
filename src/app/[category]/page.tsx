@@ -1,11 +1,11 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
 import { getCategoryBySlug, getPublishedArticlesByCategory } from '@/lib/articles';
 import { formatRelativeTime, formatReadingTime } from '@/lib/utils';
 import { brandedTitle, SITE_NAME, SITE_URL } from '@/lib/site';
 import AdSlot from '@/components/shared/AdSlot';
+import ArticleImage from '@/components/shared/ArticleImage';
 import styles from './category.module.css';
 
 // ISR: edge-cached, revalidated on publish via revalidateNewsPublication().
@@ -73,7 +73,7 @@ export default async function CategoryPage({ params }: Props) {
             {/* Featured */}
             <article className={styles.featured}>
               <Link href={featuredUrl} className={styles.featuredImageWrapper} tabIndex={-1} aria-hidden="true">
-                <Image
+                <ArticleImage
                   src={featured.featuredImage}
                   alt={featured.imageAlt}
                   fill
@@ -114,7 +114,7 @@ export default async function CategoryPage({ params }: Props) {
                   return (
                     <article key={article.id} className={styles.card}>
                       <Link href={url} className={styles.cardImageWrapper} tabIndex={-1} aria-hidden="true">
-                        <Image
+                        <ArticleImage
                           src={article.featuredImage}
                           alt={article.imageAlt}
                           fill

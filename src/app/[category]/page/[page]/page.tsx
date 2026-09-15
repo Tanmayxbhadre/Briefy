@@ -1,11 +1,11 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
 import { getCategoryBySlug, getPublishedArticlesByCategory } from '@/lib/articles';
 import { formatRelativeTime, formatReadingTime } from '@/lib/utils';
 import { brandedTitle, SITE_URL } from '@/lib/site';
 import styles from '../../category.module.css';
+import ArticleImage from '@/components/shared/ArticleImage';
 
 // ISR: edge-cached, revalidated on publish.
 export const revalidate = 300;
@@ -68,7 +68,7 @@ export default async function CategoryArchivePage({ params }: Props) {
             return (
               <article key={article.id} className={styles.card}>
                 <Link href={url} className={styles.cardImageWrapper} tabIndex={-1} aria-hidden="true">
-                  <Image
+                  <ArticleImage
                     src={article.featuredImage}
                     alt={article.imageAlt}
                     fill

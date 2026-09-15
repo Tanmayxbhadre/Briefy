@@ -1,8 +1,8 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import { Article } from '@/lib/types';
 import { formatRelativeTime, formatReadingTime } from '@/lib/utils';
 import styles from './RelatedStories.module.css';
+import ArticleImage from '@/components/shared/ArticleImage';
 
 interface RelatedStoriesProps {
   articles: Article[];
@@ -21,7 +21,7 @@ export default function RelatedStories({ articles }: RelatedStoriesProps) {
           return (
             <article key={article.id} className={styles.card}>
               <Link href={url} className={styles.imageWrapper} tabIndex={-1} aria-hidden="true">
-                <Image
+                <ArticleImage
                   src={article.featuredImage}
                   alt={article.imageAlt}
                   fill

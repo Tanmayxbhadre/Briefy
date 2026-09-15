@@ -1,9 +1,9 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import { Article } from '@/lib/types';
 import { formatDate, formatReadingTime } from '@/lib/utils';
 import Breadcrumbs from './Breadcrumbs';
 import MultiSourceAttribution from './MultiSourceAttribution';
+import ArticleImage from '@/components/shared/ArticleImage';
 import styles from './ArticleHeader.module.css';
 
 interface ArticleHeaderProps {
@@ -55,7 +55,7 @@ export default function ArticleHeader({ article }: ArticleHeaderProps) {
 
       {/* Hero image — full width */}
       <div className={styles.heroImageWrapper}>
-        <Image
+        <ArticleImage
           src={article.featuredImage}
           alt={article.imageAlt}
           fill

@@ -25,18 +25,18 @@ const ogSvg = `
 </svg>`;
 
 const logoSvg = `
-<svg width="600" height="60" xmlns="http://www.w3.org/2000/svg">
-  <rect width="600" height="60" fill="${BG}"/>
-  <rect x="24" y="12" width="36" height="36" fill="${ACCENT}"/>
-  <text x="42" y="40" font-family="Georgia, 'Times New Roman', serif" font-size="30" font-weight="700" fill="#ffffff" text-anchor="middle">B</text>
-  <text x="76" y="42" font-family="Georgia, 'Times New Roman', serif" font-size="36" font-weight="700" fill="${TEXT}">Briefy<tspan fill="${ACCENT}">.</tspan></text>
-  <text x="222" y="42" font-family="Verdana, Geneva, sans-serif" font-size="24" fill="${MUTED}">live</text>
+<svg width="300" height="60" xmlns="http://www.w3.org/2000/svg">
+  <rect width="300" height="60" fill="${BG}"/>
+  <rect x="8" y="12" width="36" height="36" fill="${ACCENT}"/>
+  <text x="26" y="40" font-family="Georgia, 'Times New Roman', serif" font-size="30" font-weight="700" fill="#ffffff" text-anchor="middle">B</text>
+  <text x="52" y="42" font-family="Georgia, 'Times New Roman', serif" font-size="36" font-weight="700" fill="${TEXT}">Briefy<tspan fill="${ACCENT}">.</tspan></text>
+  <text x="198" y="42" font-family="Verdana, Geneva, sans-serif" font-size="24" fill="${MUTED}">live</text>
 </svg>`;
 
 async function main() {
   await sharp(Buffer.from(ogSvg)).png().toFile("public/og-image.png");
   await sharp(Buffer.from(logoSvg)).png().toFile("public/logo.png");
-  console.log("✓ Generated public/og-image.png (1200x630) and public/logo.png (600x60)");
+  console.log("✓ Generated public/og-image.png (1200x630) and public/logo.png (300x60)");
 }
 
 main().catch((err) => {
