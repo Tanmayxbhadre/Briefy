@@ -46,16 +46,6 @@
   font-size: 1.2rem;
 }
 
-.logo :global(.mark) {
-  width: 1.8rem;
-  height: 1.8rem;
-}
-
-.logo :global(.mark svg) {
-  width: 1.25rem;
-  height: 1.25rem;
-}
-
 /* ── Primary Navigation ── */
 
 .nav {
@@ -204,8 +194,4 @@
     font-size: 0.98rem;
   }
 
-  .logo :global(.mark) {
-    width: 1.65rem;
-    height: 1.65rem;
-  }
 }
