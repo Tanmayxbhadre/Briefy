@@ -56,16 +56,6 @@
   font-size: 1.08rem;
 }
 
-.menuTitle :global(.mark) {
-  width: 1.75rem;
-  height: 1.75rem;
-}
-
-.menuTitle :global(.mark svg) {
-  width: 1.15rem;
-  height: 1.15rem;
-}
-
 .closeBtn {
   display: flex;
   align-items: center;
