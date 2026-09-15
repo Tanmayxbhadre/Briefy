@@ -61,7 +61,7 @@
   --container-max: 1360px;
   --container-article: 740px;
   --header-height: 56px;
-  --header-height-mobile: 98px;
+  --header-height-mobile: 100px;
 
   /* Borders */
   --radius-sm: 2px;
@@ -313,11 +313,12 @@ h1, h2, h3, h4, h5, h6 {
 
 @media (max-width: 767px) {
   .main-content {
-    padding-top: 101px;
+    padding-top: var(--header-height-mobile);
   }
 
   .container {
-    padding-inline: 1rem;
+    padding-inline: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
   }
 
   .ad-slot {
