@@ -244,8 +244,9 @@
   }
 
   .mainHeadline {
-    font-size: clamp(1.4rem, 7vw, 2rem);
-    line-height: 1.22;
+    font-size: clamp(1.5rem, 7.4vw, 2rem);
+    line-height: 1.18;
+    letter-spacing: -0.012em;
   }
 
   .mainDescription {

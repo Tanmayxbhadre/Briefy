@@ -169,15 +169,21 @@
   .inner {
     min-height: 56px;
     gap: var(--space-3);
+    padding-top: env(safe-area-inset-top);
   }
 
   .logo {
-    min-width: 132px;
+    min-width: 0;
+    flex: 1;
   }
 
   .logoImage {
-    width: 132px;
-    height: 22px;
+    width: min(132px, 42vw);
+    height: auto;
+  }
+
+  .actions {
+    gap: 0;
   }
 }
 

@@ -43,7 +43,9 @@
     overflow-y: hidden;
     white-space: nowrap;
     -webkit-overflow-scrolling: touch;
-    padding: 6px var(--space-4);
+    gap: var(--space-1);
+    padding: 6px max(0.75rem, env(safe-area-inset-left)) 7px;
+    padding-right: max(0.75rem, env(safe-area-inset-right));
     scrollbar-width: none; /* Firefox */
   }
 
