@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getCategoryBySlug, getPublishedArticlesByCategory } from '@/lib/articles';
 import { formatRelativeTime, formatReadingTime } from '@/lib/utils';
-import { brandedTitle, SITE_NAME, SITE_URL } from '@/lib/site';
+import { categoryMetadata } from '@/lib/seo/metadata';
 import AdSlot from '@/components/shared/AdSlot';
 import ArticleImage from '@/components/shared/ArticleImage';
 import styles from './category.module.css';
@@ -23,20 +23,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const category = await getCategoryBySlug(slug);
   if (!category) return {};
 
-  const title = brandedTitle(category.seoTitle || `${category.name} News`);
-
-  return {
-    title: { absolute: title },
-    description: category.seoDescription || category.description,
-    alternates: { canonical: `${SITE_URL}/${slug}` },
-    openGraph: {
-      title,
-      siteName: SITE_NAME,
-      description: category.seoDescription || category.description,
-      url: `${SITE_URL}/${slug}`,
-      type: 'website',
-    },
-  };
+  const articles = await getPublishedArticlesByCategory(slug);
+  return categoryMetadata(category, articles.length > 0);
 }
 
 export default async function CategoryPage({ params }: Props) {
