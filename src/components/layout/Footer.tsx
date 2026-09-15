@@ -2,8 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import Image from 'next/image';
 import styles from './Footer.module.css';
+import BrandLogo from '@/components/shared/BrandLogo';
 
 const CATEGORIES = [
   { label: 'India', href: '/india' },
@@ -42,10 +42,7 @@ export default function Footer() {
         {/* Top: Brand + Links */}
         <div className={styles.grid}>
           <div className={styles.brand}>
-            <Link href="/" className={styles.logo} aria-label="Briefy.live — Home">
-              <Image src="/favicon-32x32.png" alt="" width={32} height={32} />
-              <span>Briefy<span className={styles.logoDot}>.</span>live</span>
-            </Link>
+            <BrandLogo className={styles.logo} />
             <p className={styles.tagline}>
               Serious Journalism for the Modern Reader
             </p>

@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Search, Menu, X } from 'lucide-react';
 import MobileMenu from './MobileMenu';
 import MobileCategoryBar from './MobileCategoryBar';
+import BrandLogo from '@/components/shared/BrandLogo';
 import styles from './Header.module.css';
 
 const NAV_LINKS = [
@@ -70,16 +70,7 @@ export default function Header() {
         <div className={`container ${styles.inner}`}>
 
           {/* Logo */}
-          <Link href="/" className={styles.logo} aria-label="Briefy.live — Home">
-            <Image
-              src="/logo.png"
-              alt="Briefy.live"
-              width={180}
-              height={18}
-              priority
-              className={styles.logoImage}
-            />
-          </Link>
+          <BrandLogo className={styles.logo} />
 
           {/* Desktop Navigation */}
           <nav className={styles.nav} aria-label="Primary navigation">
