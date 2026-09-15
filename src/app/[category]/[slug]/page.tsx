@@ -12,7 +12,8 @@ import AdSlot from '@/components/shared/AdSlot';
 import SchemaOrg from '@/components/seo/SchemaOrg';
 import SocialShare from '@/components/article/SocialShare';
 import ReadingProgressBar from '@/components/article/ReadingProgressBar';
-import { brandedTitle, SITE_NAME, SITE_URL } from '@/lib/site';
+import { SITE_URL } from '@/lib/site';
+import { articleMetadata } from '@/lib/seo/metadata';
 
 // ISR: edge-cached and revalidated on publish via revalidateNewsPublication().
 // Previously force-dynamic: every crawler hit re-ran the full DB pipeline.
@@ -28,45 +29,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const article = await getPublishedArticleBySlug(slug);
   if (!article) return {};
 
-  const url = article.canonicalUrl || `${SITE_URL}/${article.category.slug}/${article.slug}`;
-
-  // Prefer the SEO-optimizer output (seoTitle/metaDescription) when present;
-  // the AI pipeline's SEO work previously never reached crawlers.
-  const title = brandedTitle(article.seoTitle || article.title);
-  const description = article.metaDescription || article.description;
-
-  return {
-    title: { absolute: title },
-    description,
-    authors: [{ name: article.author.name }],
-    alternates: { canonical: url },
-    openGraph: {
-      title,
-      siteName: SITE_NAME,
-      description,
-      url,
-      type: 'article',
-      publishedTime: article.publishedAt,
-      modifiedTime: article.updatedAt,
-      authors: [article.author.name],
-      section: article.category.name,
-      tags: article.tags,
-      images: [
-        {
-          url: article.featuredImage,
-          width: 1200,
-          height: 675,
-          alt: article.imageAlt,
-        },
-      ],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-      images: [article.featuredImage],
-    },
-  };
+  return articleMetadata(article);
 }
 
 export default async function ArticlePage({ params }: Props) {

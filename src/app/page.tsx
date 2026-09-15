@@ -54,9 +54,18 @@ export default async function HomePage() {
       {breakingItem && <BreakingNewsBar item={breakingItem} />}
 
       {/* Hero Section */}
-      <section aria-label="Today's top stories">
-        <HeroSection featured={featured} secondary={secondary} />
-      </section>
+      {featured ? (
+        <section aria-label="Today's top stories">
+          <HeroSection featured={featured} secondary={secondary} />
+        </section>
+      ) : (
+        <section className="container" aria-labelledby="empty-home-heading">
+          <div className="empty-state">
+            <h1 id="empty-home-heading">Briefy.live news desk</h1>
+            <p>New coverage is being prepared. Please check back soon.</p>
+          </div>
+        </section>
+      )}
 
       {/* Ad slot — after hero */}
       <div className="container">

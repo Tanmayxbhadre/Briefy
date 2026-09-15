@@ -19,20 +19,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // from each category's newest article rather than `new Date()` — a moving
   // timestamp on every crawl is a meaningless freshness signal.
   const categorySlugs = await getAllCategorySlugs();
-  const categoryEntries: MetadataRoute.Sitemap = await Promise.all(
-    categorySlugs.map(async (slug) => {
+  const categoryEntries: MetadataRoute.Sitemap = categorySlugs
+    .map((slug) => {
       const catArticles = articles.filter((a) => a.category.slug === slug);
       const newest = catArticles[0];
+      if (!newest) return null;
       return {
         url: `${SITE_URL}/${slug}`,
-        lastModified: newest
-          ? new Date(newest.updatedAt || newest.publishedAt)
-          : new Date('2026-01-01'),
+        lastModified: new Date(newest.updatedAt || newest.publishedAt),
         changeFrequency: 'hourly' as const,
         priority: 0.8,
       };
     })
-  );
+    .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry));
 
   return [
     {
