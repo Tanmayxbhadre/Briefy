@@ -174,7 +174,8 @@
   }
 
   .horizontal .imageWrapper {
-    width: clamp(92px, 27vw, 112px);
+    width: clamp(96px, 28vw, 116px);
+    aspect-ratio: 4 / 3;
   }
 
   .horizontal .headline {
