@@ -49,6 +49,20 @@
   border-color: var(--brand-accent);
 }
 
+.dark {
+  color: #ffffff;
+}
+
+.dark .live {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.dark .mark {
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.12);
+}
+
 .compact .mark {
   width: 2.25rem;
   height: 2.25rem;
