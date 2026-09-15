@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import StaticPage from '@/components/pages/StaticPage';
 
 export const metadata: Metadata = {
-  title: 'Contact Briefy.live',
+  title: 'Contact',
   description:
     'Reach the Briefy.live newsroom: story tips, corrections, advertising, and general enquiries.',
   alternates: { canonical: '/contact' },

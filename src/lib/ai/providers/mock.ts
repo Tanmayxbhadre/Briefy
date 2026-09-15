@@ -70,8 +70,8 @@ export class MockAIProvider extends BaseAIProvider {
       suggestedCategory: req.categorySlug || 'technology',
       subcategory: req.subcategory,
       tags: [req.categorySlug || 'Technology', req.primarySource.name, 'Editorial', 'Analysis'],
-      seoTitle: `${cleanTitle.slice(0, 45)} — BRIEFY`,
-      metaDescription: `Read BRIEFY's comprehensive analysis on ${cleanTitle.toLowerCase()}. Facts, timeline, and industry implications explained.`.slice(
+      seoTitle: cleanTitle.slice(0, 60),
+      metaDescription: `Read Briefy.live's comprehensive analysis on ${cleanTitle.toLowerCase()}. Facts, timeline, and industry implications explained.`.slice(
         0,
         155
       ),
@@ -151,8 +151,8 @@ export class MockAIProvider extends BaseAIProvider {
         return {
           action: 'seo',
           result: {
-            seoTitle: `${base} — BRIEFY`,
-            metaDescription: `Discover key facts, analysis, and implications regarding ${base.toLowerCase()}. Serious journalism by BRIEFY.`.slice(
+            seoTitle: base,
+            metaDescription: `Discover key facts, analysis, and implications regarding ${base.toLowerCase()}. Serious journalism by Briefy.live.`.slice(
               0,
               155
             ),

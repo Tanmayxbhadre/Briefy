@@ -81,7 +81,7 @@ export function ArticleEditor({ initialDraft, categories }: ArticleEditorProps) 
   const [excerpt, setExcerpt] = useState(initialDraft.excerpt || '');
   const [content, setContent] = useState(initialDraft.content || '');
   const [categoryId, setCategoryId] = useState(initialDraft.categoryId || '');
-  const [authorName, setAuthorName] = useState(initialDraft.authorName || 'BRIEFY Editorial Team');
+  const [authorName, setAuthorName] = useState(initialDraft.authorName || 'Briefy.live Editorial Team');
   const [featuredImage, setFeaturedImage] = useState(initialDraft.featuredImage || '');
   const [imageAlt, setImageAlt] = useState(initialDraft.imageAlt || '');
   const [readingTime, setReadingTime] = useState(initialDraft.readingTime || 3);
@@ -201,7 +201,7 @@ export function ArticleEditor({ initialDraft, categories }: ArticleEditorProps) 
       setSlug(generated);
     }
     if (!seoTitle || seoTitle.startsWith(initialDraft.title)) {
-      setSeoTitle(`${newTitle} — BRIEFY`);
+      setSeoTitle(newTitle);
     }
   };
 
@@ -600,7 +600,7 @@ export function ArticleEditor({ initialDraft, categories }: ArticleEditorProps) 
     content: content.trim() || 'Article body content...',
     author: {
       id: 'author-1',
-      name: authorName.trim() || 'BRIEFY Editorial Team',
+      name: authorName.trim() || 'Briefy.live Editorial Team',
       slug: slugify(authorName.trim() || 'briefylive', { lower: true }),
     },
     category: {

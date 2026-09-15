@@ -9,7 +9,7 @@ import styles from './daily-news.module.css';
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: 'The Daily Brief — Your 5-Minute News Briefing',
+  title: 'The Daily Brief | Your 5-Minute News Briefing',
   description:
     'Synthesized, authoritative morning and evening intelligence briefing. Key developments across Technology, AI, India, Business, Science, and World — in 5 minutes.',
   alternates: { canonical: '/daily-news' },

@@ -43,8 +43,8 @@ export async function POST(request: Request) {
         name,
         slug,
         description: description || `Latest ${name} news and analysis.`,
-        seoTitle: seoTitle || `${name} News — BRIEFY`,
-        seoDescription: seoDescription || `Read the latest ${name} news, updates, and analysis on BRIEFY.`,
+        seoTitle: seoTitle || `${name} News`,
+        seoDescription: seoDescription || `Read the latest ${name} news, updates, and analysis on Briefy.live.`,
       },
     });
 

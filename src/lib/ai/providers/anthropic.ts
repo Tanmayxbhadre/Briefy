@@ -173,7 +173,7 @@ export class AnthropicProvider extends BaseAIProvider {
     }
 
     const { content, model, usage } = await this.callMessages(
-      'You are an authoritative editor for BRIEFY. Return strictly JSON.',
+      'You are an authoritative editor for Briefy.live. Return strictly JSON.',
       prompt
     );
 

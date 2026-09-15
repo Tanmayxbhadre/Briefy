@@ -32,8 +32,8 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: 'Briefy.live — Serious Journalism for the Modern Reader',
-    template: '%s — Briefy.live',
+    default: 'Briefy.live | Serious Journalism for the Modern Reader',
+    template: '%s | Briefy.live',
   },
   description:
     'Briefy.live delivers clear, concise, and trustworthy news across India, World, Technology, AI, Business, and Science.',
@@ -87,7 +87,7 @@ export const metadata: Metadata = {
     locale: 'en_IN',
     url: SITE_URL,
     siteName: SITE_NAME,
-    title: 'Briefy.live — Serious Journalism for the Modern Reader',
+    title: 'Briefy.live | Serious Journalism for the Modern Reader',
     description:
       'Clear, concise news across India, World, Technology, AI, Business, and Science.',
     images: [
@@ -103,7 +103,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     site: '@briefylive',
     creator: '@briefylive',
-    title: 'Briefy.live — Serious Journalism for the Modern Reader',
+    title: 'Briefy.live | Serious Journalism for the Modern Reader',
     description:
       'Clear, concise, and trustworthy news across India, World, Technology, AI, Business, and Science.',
     images: [`${SITE_URL}/og-image.png`],

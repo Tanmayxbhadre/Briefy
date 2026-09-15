@@ -1,5 +1,5 @@
 export function buildSummaryPrompt(title: string, content: string): string {
-  return `You are an Executive Editor at BRIEFY (briefy.live).
+  return `You are an Executive Editor at Briefy.live (briefy.live).
 Generate a concise, factual Quick Summary (2 to 4 bullet points) for the following story.
 
 ARTICLE TITLE: ${title}

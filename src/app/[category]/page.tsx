@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { getCategoryBySlug, getPublishedArticlesByCategory } from '@/lib/articles';
 import { formatRelativeTime, formatReadingTime } from '@/lib/utils';
-import { SITE_URL } from '@/lib/site';
+import { brandedTitle, SITE_NAME, SITE_URL } from '@/lib/site';
 import AdSlot from '@/components/shared/AdSlot';
 import styles from './category.module.css';
 
@@ -23,19 +23,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const category = await getCategoryBySlug(slug);
   if (!category) return {};
 
-  // Category seoTitle values like "Technology News — BRIEFY" previously got
-  // the root template appended, rendering "Technology News — BRIEFY —
-  // Briefy.live". absolute prevents the double brand.
-  const title = category.seoTitle
-    ? { absolute: category.seoTitle }
-    : `${category.name} News`;
+  const title = brandedTitle(category.seoTitle || `${category.name} News`);
 
   return {
-    title,
+    title: { absolute: title },
     description: category.seoDescription || category.description,
     alternates: { canonical: `${SITE_URL}/${slug}` },
     openGraph: {
-      title: category.seoTitle || `${category.name} News`,
+      title,
+      siteName: SITE_NAME,
       description: category.seoDescription || category.description,
       url: `${SITE_URL}/${slug}`,
       type: 'website',

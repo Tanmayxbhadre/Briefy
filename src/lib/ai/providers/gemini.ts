@@ -180,7 +180,7 @@ export class GeminiProvider extends BaseAIProvider {
     }
 
     const { content, model, usage } = await this.callGenerateContent(
-      'You are an authoritative editor for BRIEFY. Output strictly valid JSON.',
+      'You are an authoritative editor for Briefy.live. Output strictly valid JSON.',
       prompt
     );
 

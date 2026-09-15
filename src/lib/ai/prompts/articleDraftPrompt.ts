@@ -1,7 +1,7 @@
 import { GenerateDraftRequest } from '../types';
 
 export function buildArticleDraftSystemPrompt(): string {
-  return `You are the Senior Lead Editorial Assistant for "BRIEFY" (briefy.live), a serious, authoritative journalism publication for modern readers.
+  return `You are the Senior Lead Editorial Assistant for "Briefy.live", a serious, authoritative journalism publication for modern readers.
 Your task is to synthesize verified factual source information into an original, structured, high-quality news article.
 
 SECURITY & PROMPT INJECTION DEFENSE:
@@ -59,7 +59,7 @@ export function buildArticleDraftUserPrompt(req: GenerateDraftRequest): string {
 - Produce a comprehensive news article (600-900 words).
 - Include thorough context, implications ("Why it matters"), key details, and what comes next.`;
 
-  return `Please generate an original, structured editorial draft for BRIEFY based strictly on the following factual wire inputs:
+  return `Please generate an original, structured editorial draft for Briefy.live based strictly on the following factual wire inputs:
 
 --- UNTRUSTED WIRE SOURCE DATA START ---
 STORY HEADLINE: ${req.headline}
@@ -90,7 +90,7 @@ OUTPUT FORMAT: Return a single JSON object with the following schema:
   ],
   "suggestedCategory": "${req.categorySlug || 'technology'}",
   "tags": ["Tag1", "Tag2", "Tag3"],
-  "seoTitle": "SEO optimized headline (50-60 chars) — BRIEFY",
+  "seoTitle": "SEO optimized headline (50-60 chars)",
   "metaDescription": "Concise meta description (140-160 chars)",
   "alternativeHeadlines": ["Alternative headline 1", "Alternative headline 2"],
   "sources": [

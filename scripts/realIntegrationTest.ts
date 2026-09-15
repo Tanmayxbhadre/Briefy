@@ -7,7 +7,7 @@ import { StructuredArticleDraftSchema } from '../src/lib/ai/schemas';
 
 async function main() {
   console.log('==================================================');
-  console.log('BRIEFYLIVE — REAL GEMINI + RSS END-TO-END TEST');
+  console.log('Briefy.live — REAL GEMINI + RSS END-TO-END TEST');
   console.log('==================================================\n');
 
   let geminiPass = false;

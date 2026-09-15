@@ -4,7 +4,7 @@ import StaticPage from '@/components/pages/StaticPage';
 import { SITE_NAME } from '@/lib/site';
 
 export const metadata: Metadata = {
-  title: 'About Briefy.live',
+  title: 'About',
   description:
     'Briefy.live is an independent digital newsroom delivering clear, concise, verified news across India, World, Technology, AI, Business, and Science.',
   alternates: { canonical: '/about' },

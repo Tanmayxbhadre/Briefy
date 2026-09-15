@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { getCategoryBySlug, getPublishedArticlesByCategory } from '@/lib/articles';
 import { formatRelativeTime, formatReadingTime } from '@/lib/utils';
-import { SITE_URL } from '@/lib/site';
+import { brandedTitle, SITE_URL } from '@/lib/site';
 import styles from '../../category.module.css';
 
 // ISR: edge-cached, revalidated on publish.
@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   return {
     // Archive pages must NOT duplicate the canonical category page.
-    title: `${category.name} News — Page ${pageNum}`,
+    title: { absolute: brandedTitle(`${category.name} News | Page ${pageNum}`) },
     description: `Archive of ${category.name} news from Briefy.live, page ${pageNum}.`,
     // Rel canonical points to the page-1 category URL; page 2+ is marked
     // noindex (indexed archives of thin, duplicated listings dilute quality).

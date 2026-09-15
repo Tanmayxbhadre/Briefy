@@ -12,6 +12,22 @@ export const SITE_URL = (
 export const SITE_NAME = "Briefy.live";
 
 /**
+ * Format a page title with the canonical brand suffix.
+ *
+ * Stored SEO titles may come from older generators and can already contain a
+ * brand suffix. Normalize those values before adding the current format so
+ * pages never expose duplicate or outdated branding.
+ */
+export function brandedTitle(title: string): string {
+  const normalized = title
+    .trim()
+    .replace(/\s*(?:[|—-]\s*)?(?:b(?:r(?:ienfy|iefy))(?:\.live)?)\s*$/i, '')
+    .trim();
+
+  return `${normalized || SITE_NAME} | ${SITE_NAME}`;
+}
+
+/**
  * Production mode gate.
  *
  * Mock articles in src/lib/mock-data.ts are FICTIONAL placeholder stories.

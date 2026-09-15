@@ -2,7 +2,7 @@ import { runNewsCollectionJob } from '../src/lib/news/jobRunner';
 
 async function main() {
   console.log('==================================================');
-  console.log('BRIEFYLIVE NEWS COLLECTION (MANUAL CLI TRIGGER)');
+  console.log('Briefy.live NEWS COLLECTION (MANUAL CLI TRIGGER)');
   console.log('==================================================\n');
 
   try {

@@ -130,7 +130,7 @@ async function handleCronRequest(request: Request) {
     const finishedAt = new Date();
     console.log(
       [
-        '[BRIEFYLIVE CRON]',
+        '[Briefy.live CRON]',
         `Finished: ${finishedAt.toISOString()}`,
         `Sources checked: ${result.sourcesProcessed}`,
         `Articles fetched: ${result.itemsFound}`,

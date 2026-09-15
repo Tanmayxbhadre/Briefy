@@ -1,5 +1,5 @@
 export function buildHeadlinePrompt(currentTitle: string, content?: string): string {
-  return `You are a Senior Editor at BRIEFY (briefy.live).
+  return `You are a Senior Editor at Briefy.live (briefy.live).
 Generate a compelling, accurate, non-clickbait primary headline and 3 alternative headlines for the following article.
 
 ARTICLE CURRENT TITLE: ${currentTitle}

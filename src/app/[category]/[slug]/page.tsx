@@ -11,7 +11,7 @@ import AdSlot from '@/components/shared/AdSlot';
 import SchemaOrg from '@/components/seo/SchemaOrg';
 import SocialShare from '@/components/article/SocialShare';
 import ReadingProgressBar from '@/components/article/ReadingProgressBar';
-import { SITE_URL } from '@/lib/site';
+import { brandedTitle, SITE_NAME, SITE_URL } from '@/lib/site';
 
 // ISR: edge-cached and revalidated on publish via revalidateNewsPublication().
 // Previously force-dynamic: every crawler hit re-ran the full DB pipeline.
@@ -31,16 +31,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   // Prefer the SEO-optimizer output (seoTitle/metaDescription) when present;
   // the AI pipeline's SEO work previously never reached crawlers.
-  const title = article.seoTitle || article.title;
+  const title = brandedTitle(article.seoTitle || article.title);
   const description = article.metaDescription || article.description;
 
   return {
-    title,
+    title: { absolute: title },
     description,
     authors: [{ name: article.author.name }],
     alternates: { canonical: url },
     openGraph: {
       title,
+      siteName: SITE_NAME,
       description,
       url,
       type: 'article',

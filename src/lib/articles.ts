@@ -74,7 +74,7 @@ export function draftToArticle(draft: DraftWithCategory): Article {
     content: draft.content || '',
     author: {
       id: draft.authorId || 'admin-author',
-      name: draft.authorName || 'BRIEFY Editorial Team',
+      name: draft.authorName || 'Briefy.live Editorial Team',
       slug: slugify(draft.authorName || 'briefylive', { lower: true }),
     },
     category: {

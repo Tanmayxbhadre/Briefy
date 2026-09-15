@@ -28,7 +28,7 @@ function assert(condition: boolean, testName: string) {
 
 async function runAllTests() {
   console.log('==================================================');
-  console.log('BRIEFYLIVE PHASE 6 — COMPREHENSIVE TEST SUITE');
+  console.log('Briefy.live PHASE 6 — COMPREHENSIVE TEST SUITE');
   console.log('==================================================\n');
 
   // ----------------------------------------------------
@@ -57,7 +57,7 @@ async function runAllTests() {
     ],
     suggestedCategory: 'technology',
     tags: ['NVIDIA', 'AI', 'Hardware', 'Semiconductors'],
-    seoTitle: 'NVIDIA Announces Blackwell Ultra GPUs — BRIEFY',
+    seoTitle: 'NVIDIA Announces Blackwell Ultra GPUs',
     metaDescription: 'Read the comprehensive breakdown of NVIDIA Blackwell Ultra specifications, efficiency gains, and release schedule.',
     sources: [{ name: 'NVIDIA Newsroom', url: 'https://nvidianews.nvidia.com' }],
     reviewFlags: { needsVerification: false, verificationNotes: [] },
@@ -89,7 +89,7 @@ async function runAllTests() {
   assert(summaryResult.success, 'Summary improvement schema validation passes');
 
   const seoResult = SeoImprovementSchema.safeParse({
-    seoTitle: 'Optimized Title Here — BRIEFY',
+    seoTitle: 'Optimized Title Here',
     metaDescription: 'A long enough meta description that passes the length requirement easily.',
   });
   assert(seoResult.success, 'SEO metadata schema validation passes');
@@ -591,7 +591,7 @@ async function runAllTests() {
 
   // CASE 3b: a genuinely SINGLE-SOURCE story (sourceCount = 1) from a highly reliable
   // outlet, with strong AI quality, still qualifies for AUTO_PUBLISH. This is the
-  // core hourly-automation behavior — BRIEFY must not wait for a second outlet
+  // core hourly-automation behavior — Briefy.live must not wait for a second outlet
   // to report the same story before publishing.
   const case3b = calcPubConf({
     aiQualityScore: 90,
@@ -716,7 +716,7 @@ async function runAllTests() {
       content: 'Test content body for editorial workflow testing.',
       categoryId: testCat16.id,
       authorName: 'Test Author',
-      seoTitle: 'Test Article Suite 16 — BRIEFY',
+      seoTitle: 'Test Article Suite 16',
       metaDescription: 'Test meta description for editorial workflow suite',
       sources: JSON.stringify([{ name: 'Test Source 16', url: 'https://test16.example.com' }]),
       status: 'DRAFT',

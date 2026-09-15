@@ -1,7 +1,7 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import { Article } from '@/lib/types';
 import { formatRelativeTime, formatReadingTime } from '@/lib/utils';
+import ArticleImage from './ArticleImage';
 import styles from './NewsCard.module.css';
 
 interface NewsCardProps {
@@ -23,7 +23,7 @@ export default function NewsCard({
     <article className={`${styles.card} ${styles[variant]}`}>
       {/* Image */}
       <Link href={articleUrl} className={styles.imageWrapper} tabIndex={-1} aria-hidden="true">
-        <Image
+        <ArticleImage
           src={article.featuredImage}
           alt={article.imageAlt}
           fill

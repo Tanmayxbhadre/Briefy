@@ -45,7 +45,7 @@ export function optimizeArticleSeo(article: ArticleForAudit): OptimizedSeoFields
     const lastSpace = trimmed.lastIndexOf(' ');
     metaDescription = (lastSpace > 100 ? trimmed.slice(0, lastSpace) : trimmed) + '...';
   } else if (metaDescription.length < 90 && rawTitle) {
-    metaDescription = `${rawTitle}. Complete reporting and key takeaways on BRIEFY.`;
+    metaDescription = `${rawTitle}. Complete reporting and key takeaways on Briefy.live.`;
   }
 
   // 3. Format Canonical URL
@@ -54,7 +54,7 @@ export function optimizeArticleSeo(article: ArticleForAudit): OptimizedSeoFields
   // 4. Optimize Image Alt Text
   let imageAlt = (article.imageAlt || '').trim();
   if (!imageAlt || imageAlt.length < 6) {
-    imageAlt = `${rawTitle} - News coverage by BRIEFY`;
+    imageAlt = `${rawTitle} - News coverage by Briefy.live`;
   }
 
   // 5. Standardize Tags

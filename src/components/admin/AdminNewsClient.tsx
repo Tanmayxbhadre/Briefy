@@ -53,7 +53,7 @@ export function AdminNewsClient({ initialItems, categories }: AdminNewsClientPro
     <div className="flex flex-col h-screen overflow-hidden bg-gray-50 dark:bg-gray-950">
       {/* Header */}
       <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 p-6 shrink-0">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">BRIEFYLIVE NEWS DESK</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Briefy.live News Desk</h1>
         
         <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
           <div className="relative w-full md:w-96">

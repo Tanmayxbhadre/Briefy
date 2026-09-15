@@ -46,7 +46,7 @@ function LoginForm() {
       <div className={styles.card}>
         <div className={styles.header}>
           <div className={styles.badge}>Editorial Desk</div>
-          <div className={styles.logo}>BRIEFY</div>
+          <div className={styles.logo}>Briefy.live</div>
           <h1 className={styles.title}>Newsroom Login</h1>
           <p className={styles.subtitle}>Sign in to manage news, review drafts, and publish stories.</p>
         </div>
@@ -91,7 +91,7 @@ function LoginForm() {
         </form>
 
         <div className={styles.footer}>
-          BRIEFY Internal Editorial System · Restricted Access
+          Briefy.live Internal Editorial System · Restricted Access
         </div>
       </div>
     </div>

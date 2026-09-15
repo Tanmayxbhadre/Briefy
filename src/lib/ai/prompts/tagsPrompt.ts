@@ -1,5 +1,5 @@
 export function buildTagsPrompt(title: string, category?: string, content?: string): string {
-  return `You are a Senior Taxonomist at BRIEFY (briefy.live).
+  return `You are a Senior Taxonomist at Briefy.live (briefy.live).
 Generate 3 to 8 specific, high-relevance topic tags for the following news story.
 
 TITLE: ${title}

@@ -41,12 +41,12 @@
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  min-width: 120px;
+  min-width: 148px;
 }
 
 .logoImage {
-  width: 120px;
-  height: 20px;
+  width: 148px;
+  height: 24px;
   object-fit: contain;
   object-position: left center;
 }
@@ -172,12 +172,12 @@
   }
 
   .logo {
-    min-width: 104px;
+    min-width: 132px;
   }
 
   .logoImage {
-    width: 104px;
-    height: 18px;
+    width: 132px;
+    height: 22px;
   }
 }
 
@@ -187,11 +187,11 @@
   }
 
   .logo {
-    min-width: 96px;
+    min-width: 116px;
   }
 
   .logoImage {
-    width: 96px;
-    height: 18px;
+    width: 116px;
+    height: 20px;
   }
 }

@@ -127,7 +127,7 @@ export class OpenAIProvider extends BaseAIProvider {
     }
 
     const { content, usage } = await this.callChatCompletion([
-      { role: 'system', content: 'You are an authoritative editor for BRIEFY. Return strictly JSON.' },
+      { role: 'system', content: 'You are an authoritative editor for Briefy.live. Return strictly JSON.' },
       { role: 'user', content: prompt },
     ]);
 

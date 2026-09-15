@@ -10,8 +10,7 @@ interface SchemaOrgProps {
  * JSON-LD structured data.
  *
  * Notes:
- * - Brand name is unified to "Briefy.live" everywhere (previously "BRIEFY" in
- *   JSON-LD vs "Briefy.live" in metadata vs "BRIEFY" in RSS).
+ * - Brand name is unified to "Briefy.live" everywhere.
  * - Article images ship in all three ratios Google Top Stories accepts
  *   (16:9, 4:3, 1:1) instead of a single one.
  * - speakable selectors target stable, real selectors — the previous

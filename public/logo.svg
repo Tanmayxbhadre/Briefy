@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 100" role="img" aria-labelledby="title desc">
-  <title id="title">BRIEFY</title>
-  <desc id="desc">BRIEFY news logo</desc>
+  <title id="title">Briefy.live</title>
+  <desc id="desc">Briefy.live news logo</desc>
   <rect width="600" height="100" fill="#fafaf8"/>
-  <text x="12" y="76" fill="#111111" font-family="Georgia, Times New Roman, serif" font-size="76" font-weight="700" letter-spacing="-4">BRIEFY</text>
+  <text x="12" y="76" fill="#111111" font-family="Georgia, Times New Roman, serif" font-size="76" font-weight="700" letter-spacing="-4">Briefy.live</text>
   <circle cx="564" cy="73" r="10" fill="#ed1c24"/>
 </svg>

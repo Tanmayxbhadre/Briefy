@@ -8,7 +8,7 @@ export function buildRewritePrompt(text: string, tone: RewriteTone = 'clarity'):
     grammar: 'Fix all typographical, grammatical, punctuation, and style issues while keeping phrasing intact.',
   };
 
-  return `You are a Line Editor at BRIEFY (briefy.live).
+  return `You are a Line Editor at Briefy.live (briefy.live).
 Rewrite the following excerpt according to this objective: "${instructionsByTone[tone]}".
 
 CRITICAL INSTRUCTIONS:

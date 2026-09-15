@@ -70,12 +70,12 @@ export default function Header() {
         <div className={`container ${styles.inner}`}>
 
           {/* Logo */}
-          <Link href="/" className={styles.logo} aria-label="BRIEFY — Home">
+          <Link href="/" className={styles.logo} aria-label="Briefy.live — Home">
             <Image
               src="/logo.png"
-              alt="BRIEFY"
-              width={120}
-              height={20}
+              alt="Briefy.live"
+              width={180}
+              height={18}
               priority
               className={styles.logoImage}
             />

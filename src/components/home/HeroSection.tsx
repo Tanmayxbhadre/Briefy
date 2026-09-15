@@ -1,7 +1,7 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import { Article } from '@/lib/types';
 import { formatDate, formatReadingTime } from '@/lib/utils';
+import ArticleImage from '@/components/shared/ArticleImage';
 import styles from './HeroSection.module.css';
 
 interface HeroSectionProps {
@@ -19,7 +19,7 @@ export default function HeroSection({ featured, secondary }: HeroSectionProps) {
         {/* Main featured story */}
         <article className={styles.main}>
           <Link href={featuredUrl} className={styles.mainImageWrapper} aria-hidden="true" tabIndex={-1}>
-            <Image
+            <ArticleImage
               src={featured.featuredImage}
               alt={featured.imageAlt}
               fill
@@ -75,7 +75,7 @@ export default function HeroSection({ featured, secondary }: HeroSectionProps) {
                     </div>
                   </div>
                   <Link href={url} className={styles.secondaryImageWrapper} tabIndex={-1} aria-hidden="true">
-                    <Image
+                    <ArticleImage
                       src={article.featuredImage}
                       alt={article.imageAlt}
                       fill

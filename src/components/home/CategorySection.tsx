@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import Image from 'next/image';
 import { Article } from '@/lib/types';
 import { formatDate, formatReadingTime } from '@/lib/utils';
+import ArticleImage from '@/components/shared/ArticleImage';
 import styles from './CategorySection.module.css';
 
 interface CategorySectionProps {
@@ -27,7 +27,7 @@ export default function CategorySection({ categoryName, categorySlug, articles }
         {/* Primary story */}
         <article className={styles.primary}>
           <Link href={primaryUrl} className={styles.imageWrapper} tabIndex={-1} aria-hidden="true">
-            <Image
+            <ArticleImage
               src={primary.featuredImage}
               alt={primary.imageAlt}
               fill
@@ -71,7 +71,7 @@ export default function CategorySection({ categoryName, categorySlug, articles }
                     </div>
                   </div>
                   <Link href={url} className={styles.secondaryImageWrapper} tabIndex={-1} aria-hidden="true">
-                    <Image
+                    <ArticleImage
                       src={article.featuredImage}
                       alt={article.imageAlt}
                       fill

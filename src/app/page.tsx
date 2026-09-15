@@ -16,10 +16,10 @@ import styles from './page.module.css';
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  // absolute: prevents the root layout template from appending "— Briefy.live"
-  // a second time (previously rendered "...Modern Reader — Briefy.live").
+  // absolute: prevents the root layout template from appending the brand
+  // suffix a second time.
   title: {
-    absolute: 'Briefy.live — Serious Journalism for the Modern Reader',
+    absolute: 'Briefy.live | Serious Journalism for the Modern Reader',
   },
   description:
     "India's most trusted source for clear, concise news across Technology, AI, Business, India, World, and Science.",
