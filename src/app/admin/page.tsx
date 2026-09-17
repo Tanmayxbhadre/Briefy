@@ -51,7 +51,7 @@ export default async function AdminDashboardPage() {
       where: { status: { in: ['DRAFT', 'REVIEW'] } },
       include: {
         category: true,
-        cluster: { include: { items: true } },
+        cluster: { select: { id: true, title: true, sourceCount: true } },
       },
       orderBy: { createdAt: 'desc' },
       take: 6,
@@ -162,7 +162,7 @@ export default async function AdminDashboardPage() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1rem', padding: '1rem' }}>
               {pendingDrafts.map((draft) => {
                 let reason = 'Requires editorial verification';
-                let sourceCount = draft.cluster?.items.length || 1;
+                let sourceCount = draft.cluster?.sourceCount || 1;
                 try {
                   if (draft.internalNotes) {
                     const parsed = JSON.parse(draft.internalNotes);
