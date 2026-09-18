@@ -198,7 +198,7 @@ async function main() {
 
     console.log(`- Synthesizing Cluster: "${targetCluster.canonicalTitle}" (${targetCluster.items.length} wire reports)`);
 
-    const draftId = await generateDraftForCluster(targetCluster.id, 'Real Gemini Test');
+    const { id: draftId } = await generateDraftForCluster(targetCluster.id, 'Real Gemini Test');
     geminiGenerations++;
     draftsCreated++;
 

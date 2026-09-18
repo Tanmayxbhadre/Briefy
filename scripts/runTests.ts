@@ -456,7 +456,7 @@ async function runAllTests() {
   });
   assert(confidenceEval.publishConfidence >= 80, 'Multi-source verified draft earns high publish confidence');
 
-  const clusterDraftId = await generateDraftForCluster(clusterId1, 'Automated Test');
+  const { id: clusterDraftId } = await generateDraftForCluster(clusterId1, 'Automated Test');
   assert(Boolean(clusterDraftId), 'Multi-source cluster generates synthesized ArticleDraft');
 
   const createdClusterDraft = await prisma.articleDraft.findUnique({
