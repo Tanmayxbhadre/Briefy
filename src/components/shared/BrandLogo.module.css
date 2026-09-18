@@ -1,5 +1,5 @@
 .logo {
-  --brand-accent: #3b82f6;
+  --brand-accent: #2d55cc;
   display: inline-flex;
   align-items: center;
   color: var(--color-text);
@@ -7,14 +7,23 @@
   line-height: 1;
   text-decoration: none;
   white-space: nowrap;
+  transition: opacity var(--transition-fast);
+}
+
+.logo:hover {
+  opacity: 0.85;
 }
 
 .wordmark {
-  letter-spacing: -0.025em;
+  letter-spacing: -0.03em;
   font-size: 1.32rem;
 }
 
 .dot {
+  background: var(--gradient-accent);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
   color: var(--brand-accent);
 }
 
@@ -22,8 +31,9 @@
   color: var(--color-text-secondary);
   font-family: var(--font-sans);
   font-size: 0.72em;
-  font-weight: 600;
-  letter-spacing: 0.015em;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: none;
 }
 
 .dark {
@@ -31,7 +41,14 @@
 }
 
 .dark .live {
-  color: rgba(255, 255, 255, 0.72);
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.dark .dot {
+  background: linear-gradient(135deg, #93b4f8 0%, #60a5fa 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 @media (max-width: 420px) {

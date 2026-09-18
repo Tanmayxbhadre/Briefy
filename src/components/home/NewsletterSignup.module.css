@@ -1,10 +1,22 @@
 /* NewsletterSignup.module.css */
 
 .section {
-  background: var(--color-bg-secondary);
-  border-top: 1px solid var(--color-border);
-  border-bottom: 1px solid var(--color-border);
-  padding: var(--space-10) 0;
+  background: var(--gradient-newsletter);
+  border-top: none;
+  border-bottom: none;
+  padding: var(--space-12) 0;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle texture pattern overlay */
+.section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.05) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 50%, rgba(255,255,255,0.04) 0%, transparent 50%);
+  pointer-events: none;
 }
 
 .inner {
@@ -12,25 +24,29 @@
   align-items: center;
   gap: var(--space-12);
   justify-content: space-between;
+  position: relative;
+  z-index: 1;
 }
 
 /* ── Content ── */
 
 .content {
-  max-width: 440px;
+  max-width: 460px;
 }
 
 .heading {
   font-family: var(--font-serif);
-  font-size: var(--text-3xl);
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
   font-weight: 400;
-  color: var(--color-text);
+  color: #ffffff;
   margin-bottom: var(--space-3);
+  letter-spacing: -0.01em;
+  line-height: 1.2;
 }
 
 .subtext {
   font-size: var(--text-base);
-  color: var(--color-text-secondary);
+  color: rgba(255, 255, 255, 0.72);
   line-height: var(--leading-relaxed);
 }
 
@@ -38,7 +54,7 @@
 
 .form {
   flex: 1;
-  max-width: 440px;
+  max-width: 460px;
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
@@ -51,56 +67,62 @@
 
 .input {
   flex: 1;
-  padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-5);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-pill);
   font-size: var(--text-base);
-  color: var(--color-text);
-  background: var(--color-bg);
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
   outline: none;
-  transition: border-color var(--transition-fast);
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+  backdrop-filter: blur(8px);
 }
 
 .input::placeholder {
-  color: var(--color-text-muted);
+  color: rgba(255, 255, 255, 0.45);
 }
 
 .input:focus {
-  border-color: var(--color-accent);
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .inputError {
-  border-color: var(--color-live);
+  border-color: #fca5a5;
 }
 
 .btn {
   flex-shrink: 0;
   padding: var(--space-3) var(--space-6);
-  background: var(--color-accent);
-  color: #fff;
+  background: #ffffff;
+  color: var(--color-accent);
   font-size: var(--text-sm);
-  font-weight: 600;
-  border-radius: var(--radius-md);
-  transition: background var(--transition-fast);
+  font-weight: 800;
+  border-radius: var(--radius-pill);
+  transition: all var(--transition-fast);
   white-space: nowrap;
+  letter-spacing: 0.01em;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
 }
 
 .btn:hover {
-  background: var(--color-accent-dark);
+  background: #f0f3ff;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
 }
 
 .error {
   font-size: var(--text-xs);
-  color: var(--color-live);
+  color: #fca5a5;
 }
 
 .privacy {
   font-size: var(--text-xs);
-  color: var(--color-text-muted);
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .privacy a {
-  color: var(--color-accent);
+  color: rgba(255, 255, 255, 0.75);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
@@ -112,21 +134,22 @@
   align-items: center;
   gap: var(--space-3);
   flex: 1;
-  max-width: 440px;
+  max-width: 460px;
   padding: var(--space-4) var(--space-5);
-  background: var(--color-accent-light);
-  border: 1px solid var(--color-accent);
-  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.15);
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(8px);
 }
 
 .successMsg span {
   font-size: var(--text-lg);
-  color: var(--color-accent);
+  color: #ffffff;
 }
 
 .successMsg p {
   font-size: var(--text-sm);
-  color: var(--color-text-secondary);
+  color: rgba(255, 255, 255, 0.85);
 }
 
 /* ── Responsive ── */
@@ -152,5 +175,13 @@
 @media (max-width: 480px) {
   .inputGroup {
     flex-direction: column;
+  }
+
+  .input {
+    border-radius: var(--radius-md);
+  }
+
+  .btn {
+    border-radius: var(--radius-md);
   }
 }

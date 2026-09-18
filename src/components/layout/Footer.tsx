@@ -1,94 +1,257 @@
 'use client';
 
+import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import {
+  ArrowUp,
+  Rss,
+  Newspaper,
+  ShieldCheck,
+  Search,
+  Sparkles,
+  ExternalLink,
+  Radio,
+} from 'lucide-react';
 import styles from './Footer.module.css';
 import BrandLogo from '@/components/shared/BrandLogo';
 
-const CATEGORIES = [
+const CATEGORIES_PRIMARY = [
   { label: 'India', href: '/india' },
   { label: 'World', href: '/world' },
   { label: 'Technology', href: '/technology' },
-  { label: 'AI', href: '/ai' },
+  { label: 'Artificial Intelligence', href: '/ai' },
   { label: 'Business', href: '/business' },
-  { label: 'Finance', href: '/finance' },
-  { label: 'Startups', href: '/startups' },
-  { label: 'Science', href: '/science' },
+];
+
+const CATEGORIES_SECONDARY = [
+  { label: 'Finance & Markets', href: '/finance' },
+  { label: 'Startups & VC', href: '/startups' },
+  { label: 'Science & Discovery', href: '/science' },
   { label: 'Sports', href: '/sports' },
   { label: 'Gaming', href: '/gaming' },
 ];
 
-const COMPANY = [
-  { label: 'About', href: '/about' },
-  { label: 'Contact', href: '/contact' },
+const EDITORIAL_LINKS = [
+  { label: 'About Briefy', href: '/about' },
   { label: 'Editorial Policy', href: '/editorial-policy' },
+  { label: 'Daily Briefing', href: '/daily-news' },
+  { label: 'Global Search', href: '/search' },
+  { label: 'Contact & Newsroom', href: '/contact' },
+];
+
+const LEGAL_LINKS = [
   { label: 'Privacy Policy', href: '/privacy' },
-  { label: 'Terms of Use', href: '/terms' },
-  { label: 'Sitemap', href: '/sitemap.xml' },
+  { label: 'Terms of Service', href: '/terms' },
+  { label: 'Editorial Guidelines', href: '/editorial-policy' },
+  { label: 'Sitemap Index', href: '/sitemap.xml' },
+  { label: 'Google News Feed', href: '/sitemap-news.xml' },
+];
+
+const SOCIAL_LINKS = [
+  { label: 'X (Twitter)', href: 'https://twitter.com/briefylive', isExternal: true },
+  { label: 'Instagram', href: 'https://instagram.com/briefylive', isExternal: true },
+  { label: 'LinkedIn', href: 'https://linkedin.com/company/briefylive', isExternal: true },
+  { label: 'RSS 2.0 Feed', href: '/rss.xml', isExternal: false, icon: Rss },
 ];
 
 export default function Footer() {
   const pathname = usePathname();
-  const year = new Date().getFullYear();
+  const currentYear = new Date().getFullYear();
 
   if (pathname?.startsWith('/admin')) {
     return null;
   }
 
-  return (
-    <footer className={styles.footer} role="contentinfo">
-      <div className={`container ${styles.inner}`}>
+  const scrollToTop = () => {
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
 
-        {/* Top: Brand + Links */}
-        <div className={styles.grid}>
-          <div className={styles.brand}>
-            <BrandLogo className={styles.logo} />
-            <p className={styles.tagline}>
-              Serious Journalism for the Modern Reader
+  return (
+    <footer className={styles.footer} role="contentinfo" aria-label="Site Footer">
+      <div className={`container ${styles.container}`}>
+        
+        {/* Top Feature Bar / Live Newsroom Banner */}
+        <div className={styles.topBar}>
+          <div className={styles.topBarContent}>
+            <div className={styles.liveStatusBadge}>
+              <span className={styles.livePulseDot} aria-hidden="true" />
+              <span className={styles.liveStatusText}>Continuous News Stream</span>
+            </div>
+            <p className={styles.topBarHeadline}>
+              Multi-source synthesis &amp; verified real-time journalism updated every 15 minutes.
             </p>
           </div>
 
-          <div className={styles.linkGroup}>
-            <h3 className={styles.groupLabel}>News</h3>
-            <ul>
-              {CATEGORIES.map((c) => (
-                <li key={c.href}>
-                  <Link href={c.href} className={styles.footerLink}>{c.label}</Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className={styles.linkGroup}>
-            <h3 className={styles.groupLabel}>Company</h3>
-            <ul>
-              {COMPANY.map((c) => (
-                <li key={c.href}>
-                  <Link href={c.href} className={styles.footerLink}>{c.label}</Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className={styles.linkGroup}>
-            <h3 className={styles.groupLabel}>Follow</h3>
-            <ul>
-              <li><a href="https://twitter.com/briefylive" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>X (Twitter)</a></li>
-              <li><a href="https://instagram.com/briefylive" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>Instagram</a></li>
-              <li><a href="https://linkedin.com/company/briefylive" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>LinkedIn</a></li>
-              <li><Link href="/rss.xml" className={styles.footerLink}>RSS Feed</Link></li>
-            </ul>
+          <div className={styles.topBarActions}>
+            <Link href="/daily-news" className={styles.briefActionBtn}>
+              <Newspaper size={15} aria-hidden="true" />
+              <span>Read Today&apos;s Brief</span>
+            </Link>
+            <button
+              onClick={scrollToTop}
+              className={styles.backToTopBtn}
+              aria-label="Scroll back to top of page"
+              type="button"
+            >
+              <span>Back to top</span>
+              <ArrowUp size={15} aria-hidden="true" />
+            </button>
           </div>
         </div>
 
-        {/* Bottom: Copyright */}
-        <div className={styles.bottom}>
-          <p className={styles.copyright}>
-            © {year} Briefy.live. All rights reserved.
+        {/* Main Footer Directory Grid */}
+        <div className={styles.grid}>
+          
+          {/* Brand & Editorial Mission Column */}
+          <div className={styles.brandCol}>
+            <div className={styles.brandHeader}>
+              <BrandLogo className={styles.logo} />
+              <span className={styles.brandBadge}>Newsroom 2.0</span>
+            </div>
+            <p className={styles.brandBio}>
+              Briefy is an independent, real-time news intelligence publication delivering verified reporting, multi-source context, and essential analysis without clutter or sensationalism.
+            </p>
+
+            <div className={styles.trustBadges}>
+              <div className={styles.trustItem}>
+                <ShieldCheck size={16} className={styles.trustIcon} aria-hidden="true" />
+                <span>Multi-Source Verified</span>
+              </div>
+              <div className={styles.trustItem}>
+                <Sparkles size={16} className={styles.trustIcon} aria-hidden="true" />
+                <span>AI-Assisted Editorial Oversight</span>
+              </div>
+            </div>
+
+            <div className={styles.quickSearchLink}>
+              <Link href="/search" className={styles.searchPrompt}>
+                <Search size={14} aria-hidden="true" />
+                <span>Search full news archive...</span>
+              </Link>
+            </div>
+          </div>
+
+          {/* Section 1: Topics (Part 1) */}
+          <div className={styles.navCol}>
+            <h3 className={styles.colTitle}>News Topics</h3>
+            <ul className={styles.linkList}>
+              {CATEGORIES_PRIMARY.map((cat) => (
+                <li key={cat.href}>
+                  <Link href={cat.href} className={styles.navLink}>
+                    {cat.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Section 2: Topics (Part 2) */}
+          <div className={styles.navCol}>
+            <h3 className={styles.colTitle}>Coverage</h3>
+            <ul className={styles.linkList}>
+              {CATEGORIES_SECONDARY.map((cat) => (
+                <li key={cat.href}>
+                  <Link href={cat.href} className={styles.navLink}>
+                    {cat.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Section 3: Editorial & Company */}
+          <div className={styles.navCol}>
+            <h3 className={styles.colTitle}>Editorial</h3>
+            <ul className={styles.linkList}>
+              {EDITORIAL_LINKS.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className={styles.navLink}>
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Section 4: Feeds & Connect */}
+          <div className={styles.navCol}>
+            <h3 className={styles.colTitle}>Connect &amp; Feeds</h3>
+            <ul className={styles.linkList}>
+              {SOCIAL_LINKS.map((social) => {
+                const IconComponent = social.icon;
+                if (social.isExternal) {
+                  return (
+                    <li key={social.label}>
+                      <a
+                        href={social.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.navLink}
+                      >
+                        <span>{social.label}</span>
+                        <ExternalLink size={12} className={styles.extIcon} aria-hidden="true" />
+                      </a>
+                    </li>
+                  );
+                }
+                return (
+                  <li key={social.label}>
+                    <Link href={social.href} className={styles.navLink}>
+                      {IconComponent && <IconComponent size={13} aria-hidden="true" />}
+                      <span>{social.label}</span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+
+        </div>
+
+        {/* Mobile Quick Category Rail */}
+        <div className={styles.mobileCategoryRail} aria-label="Quick Category Access">
+          <div className={styles.railLabel}>
+            <Radio size={12} aria-hidden="true" />
+            <span>Popular Sections</span>
+          </div>
+          <div className={styles.railChips}>
+            {[...CATEGORIES_PRIMARY, ...CATEGORIES_SECONDARY].map((c) => (
+              <Link key={c.href} href={c.href} className={styles.railChip}>
+                {c.label}
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        {/* Legal and Disclaimer Bar */}
+        <div className={styles.legalSection}>
+          <div className={styles.legalLinks}>
+            {LEGAL_LINKS.map((item) => (
+              <Link key={item.label} href={item.href} className={styles.legalLink}>
+                {item.label}
+              </Link>
+            ))}
+          </div>
+          <p className={styles.disclaimerText}>
+            Briefy operates an automated editorial intelligence platform that monitors and synthesizes news from global sources. Content is generated for informational purposes. All rights and trademarks belong to their respective copyright holders.
           </p>
-          <p className={styles.disclaimer}>
-            Content is for informational purposes. We are not responsible for external links.
-          </p>
+        </div>
+
+        {/* Bottom Bar: Copyright and Metadata */}
+        <div className={styles.bottomBar}>
+          <div className={styles.copyrightNotice}>
+            © {currentYear} <span className={styles.brandHighlight}>Briefy.live</span>. All rights reserved.
+          </div>
+          <div className={styles.techInfo}>
+            <span>Global Edition</span>
+            <span className={styles.divider} aria-hidden="true">·</span>
+            <span>Real-time RSS 2.0</span>
+            <span className={styles.divider} aria-hidden="true">·</span>
+            <span>Fast &amp; Privacy First</span>
+          </div>
         </div>
 
       </div>
