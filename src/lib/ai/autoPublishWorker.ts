@@ -1,5 +1,5 @@
 import { prisma } from '../db';
-import { isSensitiveContent } from './articleGenerationWorker';
+import { isSensitiveContent, isDealContent } from './articleGenerationWorker';
 import { revalidateNewsPublication } from '../cache/revalidateNews';
 import { enhanceArticleSEO, assertPublishableArticle } from '../seo/publishGate';
 
@@ -66,6 +66,14 @@ export async function runAutoPublishWorker(limit = 20): Promise<AutoPublishResul
 
       if (isSensitiveContent(combinedText, categorySlug)) {
         console.log(`[AUTO-PUBLISH] Skipped "${draft.title}" — sensitive content.`);
+        result.skipped++;
+        continue;
+      }
+
+      // Block deal/coupon/affiliate content from auto-publishing under
+      // editorial categories (e.g. /technology/, /business/).
+      if (isDealContent(combinedText)) {
+        console.log(`[AUTO-PUBLISH] Skipped "${draft.title}" — detected as deal/affiliate content.`);
         result.skipped++;
         continue;
       }

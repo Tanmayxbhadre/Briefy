@@ -46,6 +46,20 @@ export function isSensitiveContent(text: string, category: string): boolean {
 }
 
 /**
+ * Patterns that identify off-topic affiliate / deal content that should NOT
+ * be auto-published under editorial categories like /technology/.
+ */
+export const DEAL_CONTENT_PATTERNS = [
+  /\b(coupon|coupons|promo code|discount code|voucher|cashback|deal of the day)\b/i,
+  /\b(% off|percent off|flat \d+ off|save \$|save ₹|buy now|shop now|limited.time offer)\b/i,
+  /\b(affiliate|sponsored deal|best deals|price drop|lowest price|checkout code)\b/i,
+];
+
+export function isDealContent(text: string): boolean {
+  return DEAL_CONTENT_PATTERNS.some((pattern) => pattern.test(text));
+}
+
+/**
  * Evaluates the quality of a generated structured article draft (0–100)
  */
 export function calculateAiQualityScore(
@@ -122,6 +136,16 @@ export function calculateAiQualityScore(
   if (draft.reviewFlags?.needsVerification) {
     score -= 10;
     notes.push('AI flagged claims needing human verification');
+  }
+
+  // 6. Penalty for thin/boilerplate stock-ticker content — mostly template
+  // financial data (price, market cap, volume) with minimal original analysis.
+  const stockPatterns = /\b(market cap|pe ratio|52.week|share price|stock price|nse|bse|sensex|nifty|eps|dividend yield)\b/gi;
+  const stockMatches = (draft.content || '').match(stockPatterns) || [];
+  const plainWords = (draft.content || '').replace(/[^a-zA-Z\s]/g, '').split(/\s+/).filter(Boolean);
+  if (stockMatches.length >= 5 && plainWords.length < 200) {
+    score = Math.min(score, 40);
+    notes.push('Thin stock-ticker content — mostly boilerplate financial data');
   }
 
   const qualityScore = Math.min(100, Math.max(0, score));
@@ -274,6 +298,17 @@ export async function generateDraftForCluster(
     throw new Error(`Cluster ${clusterId} not found or contains no news items`);
   }
 
+  // Guard: skip generation if this cluster already has a PUBLISHED draft.
+  // This prevents duplicate articles for the same story.
+  const existingPublished = await prisma.articleDraft.findFirst({
+    where: { clusterId, status: 'PUBLISHED' },
+    select: { id: true, slug: true },
+  });
+  if (existingPublished) {
+    console.log(`[AI-WORKER] Cluster ${clusterId} already has published draft ${existingPublished.slug} — skipping.`);
+    return { id: existingPublished.id, autoPublished: false };
+  }
+
   // Identify primary source (highest reliability/priority) and additional sources
   const sortedItems = [...cluster.items].sort((a, b) => {
     const relA = a.source?.reliabilityScore || 85;
@@ -351,11 +386,25 @@ export async function generateDraftForCluster(
     ? 'APPROVED'
     : 'DRAFT';
 
-  // Ensure unique slug
+  // Ensure unique slug — deterministic collision handling.
+  // If the slug already exists as a PUBLISHED article, this cluster is a
+  // duplicate that slipped through the clustering similarity check; skip it.
   let uniqueSlug = draftData.suggestedSlug;
-  const existingSlug = await prisma.articleDraft.findUnique({ where: { slug: uniqueSlug } });
+  const existingSlug = await prisma.articleDraft.findFirst({
+    where: { slug: uniqueSlug },
+    select: { id: true, status: true },
+  });
   if (existingSlug) {
-    uniqueSlug = `${uniqueSlug}-${Date.now().toString().slice(-4)}`;
+    if (existingSlug.status === 'PUBLISHED') {
+      console.log(`[AI-WORKER] Slug "${uniqueSlug}" already published — skipping duplicate.`);
+      return { id: existingSlug.id, autoPublished: false };
+    }
+    // Genuinely different story with same slug → append -2, -3, etc.
+    let suffix = 2;
+    while (await prisma.articleDraft.findUnique({ where: { slug: `${uniqueSlug}-${suffix}` } })) {
+      suffix++;
+    }
+    uniqueSlug = `${uniqueSlug}-${suffix}`;
   }
 
   // Run Automated SEO Optimizer

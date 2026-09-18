@@ -18,6 +18,17 @@ const nextConfig: NextConfig = {
       fallback: [],
     };
   },
+  async redirects() {
+    return [
+      // Canonical non-www → www redirect (SEO Phase 2)
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'briefy.live' }],
+        destination: 'https://www.briefy.live/:path*',
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {

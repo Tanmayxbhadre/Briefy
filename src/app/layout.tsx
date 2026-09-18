@@ -91,7 +91,7 @@ export const metadata: Metadata = {
       'Clear, concise news across India, World, Technology, AI, Business, and Science.',
     images: [
       {
-        url: '/og-image.png',
+        url: '/briefy-logo.png',
         width: 1200,
         height: 630,
         alt: 'Briefy.live — Serious Journalism for the Modern Reader',
@@ -105,7 +105,7 @@ export const metadata: Metadata = {
     title: 'Briefy.live | Serious Journalism for the Modern Reader',
     description:
       'Clear, concise, and trustworthy news across India, World, Technology, AI, Business, and Science.',
-    images: [`${SITE_URL}/og-image.png`],
+    images: [`${SITE_URL}/briefy-logo.png`],
   },
 };
 

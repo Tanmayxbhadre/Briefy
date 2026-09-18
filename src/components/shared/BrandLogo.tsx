@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import styles from './BrandLogo.module.css';
 
 interface BrandLogoProps {
@@ -19,9 +20,14 @@ export default function BrandLogo({
   const label = 'Briefy.live — Home';
   const content = (
     <span className={`${styles.logo} ${compact ? styles.compact : ''} ${theme === 'dark' ? styles.dark : ''} ${className}`}>
-      <span className={styles.wordmark} aria-hidden={compact ? 'true' : undefined}>
-        Briefy<span className={styles.dot}>.</span><span className={styles.live}>live</span>
-      </span>
+      <Image
+        src="/briefy-logo.png"
+        alt="Briefy.live"
+        width={120}
+        height={40}
+        className={`${styles.logoImage} ${theme === 'dark' ? styles.logoImageDark : ''}`}
+        priority
+      />
       {compact && <span className="sr-only">{label}</span>}
     </span>
   );

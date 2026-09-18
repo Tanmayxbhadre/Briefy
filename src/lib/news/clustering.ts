@@ -142,12 +142,15 @@ export async function assignItemToCluster(newsItemId: string): Promise<string> {
 
   if (!item) throw new Error(`NewsItem ${newsItemId} not found`);
 
-  // Look for active clusters created/updated within the last 48 hours
-  const twoDaysAgo = new Date(Date.now() - 48 * 60 * 60 * 1000);
+  // Look for clusters created/updated within the last 72 hours.
+  // Include DRAFTED and PUBLISHED clusters so items about a story that was
+  // already published merge into the existing cluster instead of spawning a
+  // duplicate.
+  const threeDaysAgo = new Date(Date.now() - 72 * 60 * 60 * 1000);
   const candidateClusters = await prisma.storyCluster.findMany({
     where: {
-      lastSeenAt: { gte: twoDaysAgo },
-      status: { in: ['PENDING', 'ACTIVE'] },
+      lastSeenAt: { gte: threeDaysAgo },
+      status: { in: ['PENDING', 'ACTIVE', 'DRAFTED', 'PUBLISHED'] },
     },
     include: {
       items: {
@@ -215,16 +218,24 @@ export async function assignItemToCluster(newsItemId: string): Promise<string> {
     return bestClusterId;
   }
 
-  // Create new seed cluster
+  // Create new seed cluster — deterministic slug without random suffix.
+  // If the slug already exists (genuinely different story with similar title),
+  // append -2, -3, etc. until unique.
   const cleanTitle = item.title.trim();
-  let baseSlug = slugify(cleanTitle, { lower: true, strict: true, trim: true }) || 'story-cluster';
-  baseSlug = `${baseSlug.slice(0, 60)}-${Math.floor(1000 + Math.random() * 9000)}`;
+  const baseSlug = slugify(cleanTitle, { lower: true, strict: true, trim: true }).slice(0, 80) || 'story-cluster';
+
+  let uniqueSlug = baseSlug;
+  let slugSuffix = 1;
+  while (await prisma.storyCluster.findUnique({ where: { slug: uniqueSlug } })) {
+    slugSuffix++;
+    uniqueSlug = `${baseSlug}-${slugSuffix}`;
+  }
 
   const newCluster = await prisma.storyCluster.create({
     data: {
       title: cleanTitle,
       canonicalTitle: cleanTitle,
-      slug: baseSlug,
+      slug: uniqueSlug,
       summary: item.description || cleanTitle,
       categoryId: item.categoryId,
       status: 'PENDING',

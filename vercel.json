@@ -1,5 +1,13 @@
 {
   "regions": ["bom1"],
+  "redirects": [
+    {
+      "source": "/:path(.*)",
+      "has": [{ "type": "host", "value": "briefy.live" }],
+      "destination": "https://www.briefy.live/:path",
+      "permanent": true
+    }
+  ],
   "crons": [
     {
       "path": "/api/cron/news",
