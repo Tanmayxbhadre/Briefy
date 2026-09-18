@@ -130,6 +130,11 @@ export async function collectAllNews(): Promise<CollectionSummary> {
           defaultCategory: categoryName,
         });
 
+        // Automatically drop items with low impact/importance score
+        if (intelligence.importanceScore < 50) {
+          continue;
+        }
+
         // Insert new item safely with intelligence
         try {
           const created = await prisma.newsItem.create({
