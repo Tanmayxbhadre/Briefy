@@ -62,7 +62,35 @@ export function AdminNewsQueue({ initialCategories, initialSources }: AdminNewsQ
     label: string;
   } | null>(null);
   const [processing, setProcessing] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
+
+  const handleAutoPublishAll = async () => {
+    if (isPublishing || processing) return;
+    setIsPublishing(true);
+    setFeedback(null);
+
+    try {
+      const res = await fetch('/api/admin/automation/publish-all', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ limit: 100 }),
+      });
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        showFeedback(data.count > 0 ? `✓ Published ${data.count} news items!` : 'No pending drafts to publish.');
+        if (data.count > 0) notifyNewsPublished();
+        fetchItems();
+      } else {
+        showFeedback(data.error || 'Failed to auto-publish news.');
+      }
+    } catch {
+      showFeedback('Network error while publishing.');
+    } finally {
+      setIsPublishing(false);
+    }
+  };
 
   const fetchItems = useCallback(async () => {
     setLoading(true);
@@ -185,20 +213,39 @@ export function AdminNewsQueue({ initialCategories, initialSources }: AdminNewsQ
           </p>
         </div>
 
-        {feedback && (
-          <div
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          {feedback && (
+            <div
+              style={{
+                padding: '0.4rem 0.8rem',
+                backgroundColor: '#e8edf8',
+                color: 'var(--color-accent, #1a3a8b)',
+                fontSize: '0.8rem',
+                fontWeight: 600,
+                borderRadius: '4px',
+              }}
+            >
+              {feedback}
+            </div>
+          )}
+          <button
+            onClick={handleAutoPublishAll}
+            disabled={isPublishing || processing}
             style={{
-              padding: '0.4rem 0.8rem',
-              backgroundColor: '#e8edf8',
-              color: 'var(--color-accent, #1a3a8b)',
-              fontSize: '0.8rem',
+              padding: '0.6rem 1.2rem',
+              backgroundColor: 'var(--accent)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
               fontWeight: 600,
-              borderRadius: '4px',
+              cursor: isPublishing || processing ? 'not-allowed' : 'pointer',
+              opacity: isPublishing || processing ? 0.7 : 1,
+              whiteSpace: 'nowrap',
             }}
           >
-            {feedback}
-          </div>
-        )}
+            {isPublishing ? 'Publishing...' : 'Auto-Publish All News'}
+          </button>
+        </div>
       </div>
 
       {/* Filter and Search Controls */}
