@@ -11,7 +11,7 @@ interface DraftProps {
   content: string;
   seoTitle?: string | null;
   metaDescription?: string | null;
-  tags?: string[] | string;
+  tags?: string[] | string | null;
   category?: { name: string } | null;
 }
 
