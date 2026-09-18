@@ -60,6 +60,9 @@ export function AdminSidebar({ isOpen, onClose, user = 'Editor', counts }: Admin
   const [isPipelineRunning, setIsPipelineRunning] = useState(false);
   const [feedback, setFeedback] = useState<{ text: string; isError: boolean } | null>(null);
 
+  const [nextPublishMins, setNextPublishMins] = useState<number | null>(null);
+  const [lastActionTime, setLastActionTime] = useState<number>(Date.now());
+
   const fetchAutomationStatus = useCallback(async () => {
     try {
       const res = await fetch('/api/admin/automation/status', { cache: 'no-store' });
@@ -79,6 +82,11 @@ export function AdminSidebar({ isOpen, onClose, user = 'Editor', counts }: Admin
           totalPendingEditorial: data.totalPendingEditorial ?? 0,
           runsLast24h: data.runsLast24h ?? 0,
         });
+
+        if (data.lastRun) {
+          const runTime = new Date(data.lastRun).getTime();
+          setLastActionTime((prev) => Math.max(prev, runTime));
+        }
       }
     } catch {
       // Fallback silently if offline or unauthenticated
@@ -90,6 +98,21 @@ export function AdminSidebar({ isOpen, onClose, user = 'Editor', counts }: Admin
     const interval = setInterval(fetchAutomationStatus, 30000); // 30s auto-refresh
     return () => clearInterval(interval);
   }, [fetchAutomationStatus]);
+
+  useEffect(() => {
+    const calcNextPublish = () => {
+      const now = Date.now();
+      const diffMins = Math.floor((now - lastActionTime) / 60000);
+      let remaining = 60 - diffMins;
+      if (remaining <= 0) {
+        remaining = 60 - (Math.abs(diffMins) % 60);
+      }
+      setNextPublishMins(remaining === 60 ? 0 : remaining); // 0 means 'now' or just rolled over
+    };
+    calcNextPublish();
+    const timer = setInterval(calcNextPublish, 60000);
+    return () => clearInterval(timer);
+  }, [lastActionTime]);
 
   const handleAutoPublishAll = async () => {
     if (isPublishing || isPipelineRunning) return;
@@ -109,6 +132,7 @@ export function AdminSidebar({ isOpen, onClose, user = 'Editor', counts }: Admin
           text: data.count > 0 ? `✓ Published ${data.count} news items!` : 'No pending drafts to publish.',
           isError: false,
         });
+        setLastActionTime(Date.now());
         await fetchAutomationStatus();
         router.refresh();
       } else {
@@ -142,6 +166,7 @@ export function AdminSidebar({ isOpen, onClose, user = 'Editor', counts }: Admin
           text: '✓ News pipeline completed successfully!',
           isError: false,
         });
+        setLastActionTime(Date.now());
         await fetchAutomationStatus();
         router.refresh();
       } else {
@@ -297,6 +322,15 @@ export function AdminSidebar({ isOpen, onClose, user = 'Editor', counts }: Admin
                 title={automation?.lastRun ? new Date(automation.lastRun).toLocaleString() : 'Never'}
               >
                 {automation?.lastRun ? formatRelativeTime(automation.lastRun) : 'Never run'}
+              </span>
+            </div>
+
+            <div className={styles.automationDataRow}>
+              <span className={styles.dataLabel}>Next Publish:</span>
+              <span className={styles.dataValue}>
+                {nextPublishMins !== null
+                  ? `in ${nextPublishMins} min${nextPublishMins !== 1 ? 's' : ''}`
+                  : '—'}
               </span>
             </div>
 

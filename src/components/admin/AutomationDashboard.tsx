@@ -69,6 +69,8 @@ export function AutomationDashboard() {
   const [isPipelineRunning, setIsPipelineRunning] = useState(false);
   const [isFetchingFeeds, setIsFetchingFeeds] = useState(false);
   const [feedback, setFeedback] = useState<{ text: string; isError: boolean } | null>(null);
+  const [nextPublishMins, setNextPublishMins] = useState<number | null>(null);
+  const [lastActionTime, setLastActionTime] = useState<number>(Date.now());
 
   const fetchStatus = useCallback(async () => {
     try {
@@ -76,6 +78,11 @@ export function AutomationDashboard() {
       if (res.ok) {
         const payload = await res.json();
         setData(payload);
+
+        if (payload.lastRun) {
+          const runTime = new Date(payload.lastRun).getTime();
+          setLastActionTime((prev) => Math.max(prev, runTime));
+        }
       }
     } catch (err) {
       console.error('Failed to fetch automation status:', err);
@@ -89,6 +96,21 @@ export function AutomationDashboard() {
     const interval = setInterval(fetchStatus, 15000);
     return () => clearInterval(interval);
   }, [fetchStatus]);
+
+  useEffect(() => {
+    const calcNextPublish = () => {
+      const now = Date.now();
+      const diffMins = Math.floor((now - lastActionTime) / 60000);
+      let remaining = 60 - diffMins;
+      if (remaining <= 0) {
+        remaining = 60 - (Math.abs(diffMins) % 60);
+      }
+      setNextPublishMins(remaining === 60 ? 0 : remaining);
+    };
+    calcNextPublish();
+    const timer = setInterval(calcNextPublish, 60000);
+    return () => clearInterval(timer);
+  }, [lastActionTime]);
 
   const handleAutoPublishAll = async () => {
     if (isPublishing || isPipelineRunning) return;
@@ -108,26 +130,27 @@ export function AutomationDashboard() {
           text:
             result.count > 0
               ? `✓ Successfully published ${result.count} articles to Briefy.live!`
-              : 'All drafts already up to date.',
+              : 'No eligible drafts found to publish.',
           isError: false,
         });
+        setLastActionTime(Date.now());
         await fetchStatus();
       } else {
         setFeedback({
-          text: result.error || 'Failed to auto-publish news.',
+          text: result.error || 'Failed to auto-publish',
           isError: true,
         });
       }
-    } catch {
-      setFeedback({ text: 'Error connecting to auto-publish service.', isError: true });
+    } catch (err) {
+      setFeedback({ text: 'Network error occurred', isError: true });
     } finally {
       setIsPublishing(false);
-      setTimeout(() => setFeedback(null), 6000);
+      setTimeout(() => setFeedback(null), 5000);
     }
   };
 
   const handleTriggerPipeline = async () => {
-    if (isPublishing || isPipelineRunning) return;
+    if (isPublishing || isPipelineRunning || isFetchingFeeds) return;
     setIsPipelineRunning(true);
     setFeedback(null);
 
@@ -137,47 +160,52 @@ export function AutomationDashboard() {
 
       if (res.ok && result.success) {
         setFeedback({
-          text: '✓ Full automated pipeline completed! Feeds gathered and news published.',
+          text: '✓ Full pipeline completed successfully!',
           isError: false,
         });
+        setLastActionTime(Date.now());
         await fetchStatus();
       } else {
         setFeedback({
-          text: result.error || 'Pipeline execution encountered errors.',
+          text: result.error || 'Pipeline execution failed',
           isError: true,
         });
       }
-    } catch {
-      setFeedback({ text: 'Pipeline trigger request failed.', isError: true });
+    } catch (err) {
+      setFeedback({ text: 'Network error occurred', isError: true });
     } finally {
       setIsPipelineRunning(false);
-      setTimeout(() => setFeedback(null), 6000);
+      setTimeout(() => setFeedback(null), 5000);
     }
   };
 
   const handleFetchFeedsOnly = async () => {
-    if (isFetchingFeeds || isPipelineRunning) return;
+    if (isPublishing || isPipelineRunning || isFetchingFeeds) return;
     setIsFetchingFeeds(true);
     setFeedback(null);
 
     try {
-      const res = await fetch('/api/admin/news/collect', { method: 'POST' });
+      const res = await fetch('/api/admin/collection/fetch', { method: 'POST' });
       const result = await res.json();
 
       if (res.ok && result.success) {
         setFeedback({
-          text: `✓ Feeds updated: ${result.data?.newItems ?? 0} new stories found.`,
+          text: `✓ Fetched ${result.totalInserted} new items from ${result.totalSources} sources`,
           isError: false,
         });
+        setLastActionTime(Date.now());
         await fetchStatus();
       } else {
-        setFeedback({ text: result.error || 'Failed to collect feeds.', isError: true });
+        setFeedback({
+          text: result.error || 'Fetch operation failed',
+          isError: true,
+        });
       }
-    } catch {
-      setFeedback({ text: 'Error connecting to news collector.', isError: true });
+    } catch (err) {
+      setFeedback({ text: 'Network error occurred', isError: true });
     } finally {
       setIsFetchingFeeds(false);
-      setTimeout(() => setFeedback(null), 6000);
+      setTimeout(() => setFeedback(null), 5000);
     }
   };
 
@@ -282,6 +310,9 @@ export function AutomationDashboard() {
               ? `${data.itemsInserted} fetched · ${data.publishedLastRun} published`
               : 'Waiting for initial run'}
           </span>
+          <div style={{ marginTop: '0.75rem', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+            Next publish: <strong>{nextPublishMins !== null ? `in ${nextPublishMins} min${nextPublishMins !== 1 ? 's' : ''}` : '—'}</strong>
+          </div>
         </div>
 
         <div className={styles.statCard}>
