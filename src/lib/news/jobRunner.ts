@@ -91,13 +91,15 @@ export async function runAutomaticNewsUpdate(options?: { trigger?: 'cron' | 'man
   if (collection.skipped || !collection.success) return collection;
   const downstreamErrors: string[] = [];
   let clustering = { processed: 0, clustersCreated: 0 };
-  let aiGeneration = { processed: 0, draftsCreated: 0, errors: [] as Array<{ id: string; error: string }> };
+  let aiGeneration = { processed: 0, draftsCreated: 0, autoPublishedCount: 0, errors: [] as Array<{ id: string; error: string }> };
   let autoPublish = { swept: 0, published: 0, skipped: 0, errors: 0 };
   try { clustering = await (await import('./clustering')).clusterUnassignedNewsItems(); } catch (error) { downstreamErrors.push(`clustering: ${error instanceof Error ? error.message : 'failed'}`); }
   try { aiGeneration = await (await import('../ai/articleGenerationWorker')).runArticleGenerationWorker(); } catch (error) { downstreamErrors.push(`generation: ${error instanceof Error ? error.message : 'failed'}`); }
   try { const result = await (await import('../ai/autoPublishWorker')).runAutoPublishWorker(100); autoPublish = { swept: result.swept, published: result.published, skipped: result.skipped, errors: result.errors.length }; } catch (error) { downstreamErrors.push(`publish: ${error instanceof Error ? error.message : 'failed'}`); }
   try { await (await import('../cache/revalidateNews')).revalidateNewsPublication(); } catch (error) { downstreamErrors.push(`cache: ${error instanceof Error ? error.message : 'failed'}`); }
   try { await (await import('../ai/cleanupWorker')).runCleanupWorker(); } catch (error) { downstreamErrors.push(`cleanup: ${error instanceof Error ? error.message : 'failed'}`); }
-  if (collection.jobId) await prisma.collectionJob.update({ where: { id: collection.jobId }, data: { downstreamStatus: downstreamErrors.length ? 'PARTIAL' : 'COMPLETED', downstreamErrors: downstreamErrors.length ? JSON.stringify(downstreamErrors) : null, clusterCount: clustering.clustersCreated, draftsCreated: aiGeneration.draftsCreated, publishedCount: autoPublish.published, cacheRevalidatedAt: downstreamErrors.some((item) => item.startsWith('cache:')) ? null : new Date() } });
+  
+  const totalPublishedCount = autoPublish.published + aiGeneration.autoPublishedCount;
+  if (collection.jobId) await prisma.collectionJob.update({ where: { id: collection.jobId }, data: { downstreamStatus: downstreamErrors.length ? 'PARTIAL' : 'COMPLETED', downstreamErrors: downstreamErrors.length ? JSON.stringify(downstreamErrors) : null, clusterCount: clustering.clustersCreated, draftsCreated: aiGeneration.draftsCreated, publishedCount: totalPublishedCount, cacheRevalidatedAt: downstreamErrors.some((item) => item.startsWith('cache:')) ? null : new Date() } });
   return { ...collection, success: downstreamErrors.length === 0, status: downstreamErrors.length ? 'PARTIAL' as const : collection.status, downstream: { clustering, aiGeneration, autoPublish, errors: downstreamErrors } };
 }

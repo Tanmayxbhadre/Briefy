@@ -258,7 +258,7 @@ export function calculatePublishConfidence(options: {
 export async function generateDraftForCluster(
   clusterId: string,
   user = 'Autonomous AI Newsroom'
-): Promise<string> {
+): Promise<{ id: string; autoPublished: boolean }> {
   const cluster = await prisma.storyCluster.findUnique({
     where: { id: clusterId },
     include: {
@@ -472,7 +472,7 @@ export async function generateDraftForCluster(
     });
   }
 
-  return createdDraft.id;
+  return { id: createdDraft.id, autoPublished: shouldAutoPublish };
 }
 
 /**
@@ -481,10 +481,12 @@ export async function generateDraftForCluster(
 export async function runArticleGenerationWorker(multiSourceLimit?: number): Promise<{
   processed: number;
   draftsCreated: number;
+  autoPublishedCount: number;
   errors: Array<{ id: string; error: string }>;
 }> {
   const errors: Array<{ id: string; error: string }> = [];
   let draftsCreated = 0;
+  let autoPublishedCount = 0;
 
   const resolvedMultiLimit =
     multiSourceLimit ?? parseInt(process.env.NEWS_MAX_MULTI_SOURCE_DRAFTS_PER_RUN || '5', 10);
@@ -503,8 +505,9 @@ export async function runArticleGenerationWorker(multiSourceLimit?: number): Pro
 
   for (const cluster of candidateClusters) {
     try {
-      await generateDraftForCluster(cluster.id);
+      const result = await generateDraftForCluster(cluster.id);
       draftsCreated++;
+      if (result.autoPublished) autoPublishedCount++;
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Unknown error';
       errors.push({ id: cluster.id, error: msg });
@@ -528,8 +531,9 @@ export async function runArticleGenerationWorker(multiSourceLimit?: number): Pro
 
   for (const cluster of singleSourceClusters) {
     try {
-      await generateDraftForCluster(cluster.id);
+      const result = await generateDraftForCluster(cluster.id);
       draftsCreated++;
+      if (result.autoPublished) autoPublishedCount++;
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Unknown error';
       errors.push({ id: cluster.id, error: msg });
@@ -540,6 +544,7 @@ export async function runArticleGenerationWorker(multiSourceLimit?: number): Pro
   return {
     processed: candidateClusters.length + singleSourceClusters.length,
     draftsCreated,
+    autoPublishedCount,
     errors,
   };
 }
