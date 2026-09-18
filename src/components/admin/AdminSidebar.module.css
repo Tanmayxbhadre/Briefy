@@ -116,6 +116,249 @@
   color: var(--color-accent, #1a3a8b);
 }
 
+.badgeAutomation {
+  background-color: #eef2ff;
+  color: #4338ca;
+  font-weight: 600;
+}
+
+/* Automation Sidebar Widget */
+.automationCard {
+  margin: 0.35rem 0.25rem 0.85rem;
+  padding: 0.75rem 0.65rem;
+  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.automationCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.statusIndicatorRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.statusDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.statusDotHealthy {
+  background-color: #10b981;
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
+}
+
+.statusDotRunning {
+  background-color: #3b82f6;
+  box-shadow: 0 0 6px rgba(59, 130, 246, 0.7);
+  animation: pulse-dot 1.2s ease-in-out infinite alternate;
+}
+
+.statusDotFailed {
+  background-color: #ef4444;
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.6);
+}
+
+@keyframes pulse-dot {
+  from {
+    transform: scale(0.9);
+    opacity: 0.7;
+  }
+  to {
+    transform: scale(1.3);
+    opacity: 1;
+  }
+}
+
+.automationHeading {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #334155;
+}
+
+.statusPill {
+  font-size: 0.625rem;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.statusPillActive {
+  background-color: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+}
+
+.statusPillRunning {
+  background-color: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+}
+
+.statusPillFailed {
+  background-color: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.automationDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0.5rem;
+  background-color: #ffffff;
+  border-radius: 4px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 0.6rem;
+}
+
+.automationDataRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.675rem;
+  line-height: 1.3;
+}
+
+.dataLabel {
+  color: #64748b;
+  font-weight: 500;
+}
+
+.dataValue {
+  color: #0f172a;
+  font-weight: 600;
+  text-align: right;
+  max-width: 130px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.feedbackBanner {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.675rem;
+  font-weight: 500;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+  animation: fadeIn 0.2s ease;
+}
+
+.feedbackBannerSuccess {
+  background-color: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #166534;
+}
+
+.feedbackBannerError {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.automationActionGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.autoPublishBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: 100%;
+  padding: 0.45rem 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #ffffff;
+  background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(37, 99, 235, 0.25);
+  transition: all 0.15s ease;
+}
+
+.autoPublishBtn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #172554 0%, #1d4ed8 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(37, 99, 235, 0.35);
+}
+
+.autoPublishBtn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.runPipelineBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: 100%;
+  padding: 0.32rem 0.5rem;
+  font-size: 0.675rem;
+  font-weight: 500;
+  color: #475569;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.runPipelineBtn:hover:not(:disabled) {
+  background-color: #f8fafc;
+  border-color: #94a3b8;
+  color: #1e293b;
+}
+
+.runPipelineBtn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.spinIcon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .footer {
   padding: 1rem 1.25rem;
   border-top: 1px solid var(--color-border, #e6e6e3);

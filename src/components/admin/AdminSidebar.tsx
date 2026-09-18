@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
@@ -17,7 +17,12 @@ import {
   X,
   ExternalLink,
   Activity,
+  Zap,
+  RefreshCw,
+  CheckCircle2,
+  AlertTriangle,
 } from 'lucide-react';
+import { formatRelativeTime } from '@/lib/utils';
 import styles from './AdminSidebar.module.css';
 
 interface AdminSidebarProps {
@@ -31,9 +36,130 @@ interface AdminSidebarProps {
   };
 }
 
+interface AutomationSummary {
+  status: 'HEALTHY' | 'RUNNING' | 'WARNING' | 'FAILED' | 'IDLE';
+  lastRun: string | null;
+  lastRunStatus: string | null;
+  itemsInserted: number;
+  publishedLastRun: number;
+  publishedLast24h: number;
+  autoPublishedLast24h: number;
+  totalPublished: number;
+  pendingDraftsCount: number;
+  approvedDraftsCount: number;
+  totalPendingEditorial: number;
+  runsLast24h: number;
+}
+
 export function AdminSidebar({ isOpen, onClose, user = 'Editor', counts }: AdminSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
+
+  const [automation, setAutomation] = useState<AutomationSummary | null>(null);
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [isPipelineRunning, setIsPipelineRunning] = useState(false);
+  const [feedback, setFeedback] = useState<{ text: string; isError: boolean } | null>(null);
+
+  const fetchAutomationStatus = useCallback(async () => {
+    try {
+      const res = await fetch('/api/admin/automation/status', { cache: 'no-store' });
+      if (res.ok) {
+        const data = await res.json();
+        setAutomation({
+          status: data.status,
+          lastRun: data.lastRun,
+          lastRunStatus: data.lastRunStatus,
+          itemsInserted: data.itemsInserted ?? 0,
+          publishedLastRun: data.publishedLastRun ?? 0,
+          publishedLast24h: data.publishedLast24h ?? 0,
+          autoPublishedLast24h: data.autoPublishedLast24h ?? 0,
+          totalPublished: data.totalPublished ?? 0,
+          pendingDraftsCount: data.pendingDraftsCount ?? 0,
+          approvedDraftsCount: data.approvedDraftsCount ?? 0,
+          totalPendingEditorial: data.totalPendingEditorial ?? 0,
+          runsLast24h: data.runsLast24h ?? 0,
+        });
+      }
+    } catch {
+      // Fallback silently if offline or unauthenticated
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchAutomationStatus();
+    const interval = setInterval(fetchAutomationStatus, 30000); // 30s auto-refresh
+    return () => clearInterval(interval);
+  }, [fetchAutomationStatus]);
+
+  const handleAutoPublishAll = async () => {
+    if (isPublishing || isPipelineRunning) return;
+    setIsPublishing(true);
+    setFeedback(null);
+
+    try {
+      const res = await fetch('/api/admin/automation/publish-all', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ limit: 100 }),
+      });
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        setFeedback({
+          text: data.count > 0 ? `✓ Published ${data.count} news items!` : 'No pending drafts to publish.',
+          isError: false,
+        });
+        await fetchAutomationStatus();
+        router.refresh();
+      } else {
+        setFeedback({
+          text: data.error || 'Failed to auto-publish news.',
+          isError: true,
+        });
+      }
+    } catch {
+      setFeedback({
+        text: 'Network error while publishing.',
+        isError: true,
+      });
+    } finally {
+      setIsPublishing(false);
+      setTimeout(() => setFeedback(null), 5000);
+    }
+  };
+
+  const handleTriggerPipeline = async () => {
+    if (isPublishing || isPipelineRunning) return;
+    setIsPipelineRunning(true);
+    setFeedback(null);
+
+    try {
+      const res = await fetch('/api/admin/automation/trigger-pipeline', { method: 'POST' });
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        setFeedback({
+          text: '✓ News pipeline completed successfully!',
+          isError: false,
+        });
+        await fetchAutomationStatus();
+        router.refresh();
+      } else {
+        setFeedback({
+          text: data.error || 'Pipeline run failed.',
+          isError: true,
+        });
+      }
+    } catch {
+      setFeedback({
+        text: 'Pipeline connection error.',
+        isError: true,
+      });
+    } finally {
+      setIsPipelineRunning(false);
+      setTimeout(() => setFeedback(null), 5000);
+    }
+  };
 
   const handleLogout = async () => {
     try {
@@ -45,11 +171,22 @@ export function AdminSidebar({ isOpen, onClose, user = 'Editor', counts }: Admin
     }
   };
 
-  const navItems = [
+  interface NavItem {
+    label: string;
+    href: string;
+    icon: React.ComponentType<{ size?: number; strokeWidth?: number; className?: string }>;
+    exact?: boolean;
+    count?: number;
+  }
+
+  const editorialItems: NavItem[] = [
     { label: 'Dashboard', href: '/admin', icon: LayoutDashboard, exact: true },
     { label: 'News Queue', href: '/admin/news', icon: Newspaper, count: counts?.discovered },
     { label: 'Story Clusters', href: '/admin/clusters', icon: Layers, count: counts?.clusters },
     { label: 'Drafts', href: '/admin/drafts', icon: FileEdit, count: counts?.drafts },
+  ];
+
+  const systemItems: NavItem[] = [
     { label: 'Published', href: '/admin/articles', icon: Globe },
     { label: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
     { label: 'News Collection', href: '/admin/collection', icon: Activity },
@@ -62,6 +199,8 @@ export function AdminSidebar({ isOpen, onClose, user = 'Editor', counts }: Admin
     if (exact) return pathname === href;
     return pathname === href || pathname.startsWith(href + '/');
   };
+
+  const isAnyRunning = isPublishing || isPipelineRunning || automation?.status === 'RUNNING';
 
   return (
     <aside className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ''}`}>
@@ -80,9 +219,9 @@ export function AdminSidebar({ isOpen, onClose, user = 'Editor', counts }: Admin
       </div>
 
       <nav className={styles.nav}>
+        {/* EDITORIAL */}
         <div className={styles.navSectionLabel}>Editorial</div>
-
-        {navItems.slice(0, 4).map((item) => {
+        {editorialItems.map((item) => {
           const active = isLinkActive(item.href, item.exact);
           const Icon = item.icon;
           return (
@@ -103,11 +242,124 @@ export function AdminSidebar({ isOpen, onClose, user = 'Editor', counts }: Admin
           );
         })}
 
-        <div className={styles.navSectionLabel} style={{ marginTop: '0.75rem' }}>
-          System
+        {/* AUTOMATION SECTION */}
+        <div className={styles.navSectionLabel} style={{ marginTop: '0.85rem' }}>
+          Automation
         </div>
 
-        {navItems.slice(4).map((item) => {
+        <Link
+          href="/admin/automation"
+          onClick={onClose}
+          className={`${styles.navLink} ${isLinkActive('/admin/automation') ? styles.navLinkActive : ''}`}
+        >
+          <Zap size={17} strokeWidth={isLinkActive('/admin/automation') ? 2.2 : 1.75} />
+          <span>Automation Hub</span>
+          {automation && automation.totalPendingEditorial > 0 && (
+            <span className={`${styles.badge} ${styles.badgeAutomation}`}>
+              {automation.totalPendingEditorial} ready
+            </span>
+          )}
+        </Link>
+
+        {/* AUTOMATION LIVE WIDGET */}
+        <div className={styles.automationCard}>
+          <div className={styles.automationCardHeader}>
+            <div className={styles.statusIndicatorRow}>
+              <span
+                className={`${styles.statusDot} ${
+                  isAnyRunning
+                    ? styles.statusDotRunning
+                    : automation?.status === 'FAILED'
+                    ? styles.statusDotFailed
+                    : styles.statusDotHealthy
+                }`}
+              />
+              <span className={styles.automationHeading}>Auto News Pipeline</span>
+            </div>
+            <span
+              className={`${styles.statusPill} ${
+                isAnyRunning
+                  ? styles.statusPillRunning
+                  : automation?.status === 'FAILED'
+                  ? styles.statusPillFailed
+                  : styles.statusPillActive
+              }`}
+            >
+              {isAnyRunning ? 'Running' : automation?.status === 'FAILED' ? 'Failed' : 'Hourly'}
+            </span>
+          </div>
+
+          <div className={styles.automationDetails}>
+            <div className={styles.automationDataRow}>
+              <span className={styles.dataLabel}>Last Automation:</span>
+              <span
+                className={styles.dataValue}
+                title={automation?.lastRun ? new Date(automation.lastRun).toLocaleString() : 'Never'}
+              >
+                {automation?.lastRun ? formatRelativeTime(automation.lastRun) : 'Never run'}
+              </span>
+            </div>
+
+            <div className={styles.automationDataRow}>
+              <span className={styles.dataLabel}>Last Run Stats:</span>
+              <span className={styles.dataValue}>
+                {automation
+                  ? `${automation.itemsInserted} fetched · ${automation.publishedLastRun} pub`
+                  : '—'}
+              </span>
+            </div>
+
+            <div className={styles.automationDataRow}>
+              <span className={styles.dataLabel}>24h Activity:</span>
+              <span className={styles.dataValue}>
+                {automation
+                  ? `${automation.runsLast24h} runs · ${automation.publishedLast24h} pub`
+                  : '—'}
+              </span>
+            </div>
+          </div>
+
+          {/* Inline Feedback Message */}
+          {feedback && (
+            <div
+              className={`${styles.feedbackBanner} ${
+                feedback.isError ? styles.feedbackBannerError : styles.feedbackBannerSuccess
+              }`}
+            >
+              {feedback.isError ? <AlertTriangle size={12} /> : <CheckCircle2 size={12} />}
+              <span>{feedback.text}</span>
+            </div>
+          )}
+
+          {/* Action Buttons */}
+          <div className={styles.automationActionGroup}>
+            <button
+              onClick={handleAutoPublishAll}
+              disabled={isAnyRunning}
+              className={styles.autoPublishBtn}
+              title="Automatically publish all ready and pending news drafts"
+            >
+              <Zap size={13} className={isPublishing ? styles.spinIcon : ''} />
+              <span>{isPublishing ? 'Publishing News...' : 'Auto-Publish All News'}</span>
+            </button>
+
+            <button
+              onClick={handleTriggerPipeline}
+              disabled={isAnyRunning}
+              className={styles.runPipelineBtn}
+              title="Trigger end-to-end news collection, clustering, and auto-publishing"
+            >
+              <RefreshCw size={12} className={isPipelineRunning ? styles.spinIcon : ''} />
+              <span>{isPipelineRunning ? 'Running Pipeline...' : 'Run Full Pipeline'}</span>
+            </button>
+          </div>
+        </div>
+
+        {/* SYSTEM */}
+        <div className={styles.navSectionLabel} style={{ marginTop: '0.85rem' }}>
+          System
+        </div>
+        {systemItems.map((item) => {
           const active = isLinkActive(item.href, item.exact);
           const Icon = item.icon;
           return (

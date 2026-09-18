@@ -70,7 +70,12 @@ export async function runAutoPublishWorker(limit = 20): Promise<AutoPublishResul
         continue;
       }
 
-      await enhanceArticleSEO(draft.id);
+      const validation = await enhanceArticleSEO(draft.id);
+      if (validation.errors.length > 0) {
+        console.log(`[AUTO-PUBLISH] Skipped "${draft.title}" — requires SEO review (${validation.errors.join(', ')}).`);
+        result.skipped++;
+        continue;
+      }
       await assertPublishableArticle(draft.id);
 
       await prisma.articleDraft.update({

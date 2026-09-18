@@ -31,6 +31,7 @@ export function AdminLayoutClient({ children, user = 'Editor', counts }: AdminLa
     if (pathname === '/admin/sources') return 'Sources & Health';
     if (pathname === '/admin/categories') return 'Category Directory';
     if (pathname === '/admin/settings') return 'System Settings';
+    if (pathname === '/admin/automation') return 'Automation & Auto-Publish Engine';
     return 'Newsroom';
   };
 
