@@ -61,7 +61,7 @@ export function AdminSidebar({ isOpen, onClose, user = 'Editor', counts }: Admin
   const [feedback, setFeedback] = useState<{ text: string; isError: boolean } | null>(null);
 
   const [nextPublishMins, setNextPublishMins] = useState<number | null>(null);
-  const [lastActionTime, setLastActionTime] = useState<number>(Date.now());
+  const [lastActionTime, setLastActionTime] = useState<number>(() => Date.now());
 
   const fetchAutomationStatus = useCallback(async () => {
     try {
@@ -94,9 +94,16 @@ export function AdminSidebar({ isOpen, onClose, user = 'Editor', counts }: Admin
   }, []);
 
   useEffect(() => {
-    fetchAutomationStatus();
-    const interval = setInterval(fetchAutomationStatus, 30000); // 30s auto-refresh
-    return () => clearInterval(interval);
+    let isMounted = true;
+    const doFetch = async () => {
+      if (isMounted) await fetchAutomationStatus();
+    };
+    doFetch();
+    const interval = setInterval(doFetch, 30000); // 30s auto-refresh
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
   }, [fetchAutomationStatus]);
 
   useEffect(() => {

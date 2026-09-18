@@ -88,7 +88,7 @@ Respond strictly with a JSON object in the following format, with no markdown fo
     let seoData;
     try {
       seoData = JSON.parse(resultText);
-    } catch (e) {
+    } catch {
       console.error('[SEO_FIX] JSON Parse Error:', resultText);
       return NextResponse.json({ error: 'Failed to parse AI response as JSON' }, { status: 500 });
     }
@@ -123,8 +123,8 @@ Respond strictly with a JSON object in the following format, with no markdown fo
       }
     });
 
-  } catch (error: any) {
+  } catch (error) {
     console.error('[SEO_FIX] Error:', error);
-    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'Internal server error' }, { status: 500 });
   }
 }

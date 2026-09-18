@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Bot, Zap, CheckCircle, AlertTriangle, AlertCircle, Search, RefreshCw } from 'lucide-react';
+import { Zap, CheckCircle, AlertTriangle, AlertCircle, Search, RefreshCw } from 'lucide-react';
 import { auditArticleSeo, SeoAuditResult, ArticleForAudit } from '@/lib/seo/audit';
 
 interface DraftProps {
@@ -11,7 +11,7 @@ interface DraftProps {
   content: string;
   seoTitle?: string | null;
   metaDescription?: string | null;
-  tags?: any;
+  tags?: string[] | string;
   category?: { name: string } | null;
 }
 
@@ -51,7 +51,7 @@ export function SeoStudio({ initialDrafts }: { initialDrafts: DraftProps[] }) {
       } else {
         setFeedback({ type: 'error', message: result.error || 'Failed to apply AI SEO fix.' });
       }
-    } catch (err) {
+    } catch {
       setFeedback({ type: 'error', message: 'Network error while contacting AI service.' });
     } finally {
       setFixingId(null);

@@ -18,8 +18,8 @@ async function main() {
         console.log(`Unlocking schema for table "${table_name}"...`);
         await prisma.$executeRawUnsafe(`ALTER TABLE "${table_name}" SET (schema_locked = false);`);
         console.log(`Successfully unlocked "${table_name}".`);
-      } catch (err: any) {
-        console.warn(`Could not unlock "${table_name}": ${err.message}`);
+      } catch (err) {
+        console.warn(`Could not unlock "${table_name}": ${err instanceof Error ? err.message : String(err)}`);
       }
     }
 

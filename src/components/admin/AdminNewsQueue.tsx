@@ -463,6 +463,7 @@ export function AdminNewsQueue({ initialCategories, initialSources }: AdminNewsQ
                     <td className={styles.td}>
                       <div className={styles.storyHeadlineCell}>
                         {item.imageUrl ? (
+                          /* eslint-disable-next-line @next/next/no-img-element */
                           <img src={item.imageUrl} alt="" className={styles.thumbnail} />
                         ) : (
                           <div

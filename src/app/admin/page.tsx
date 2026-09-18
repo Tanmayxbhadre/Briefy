@@ -250,6 +250,7 @@ export default async function AdminDashboardPage() {
               recentStories.map((story) => (
                 <div key={story.id} className={styles.storyItem}>
                   {story.imageUrl ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
                     <img
                       src={story.imageUrl}
                       alt=""

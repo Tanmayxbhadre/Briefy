@@ -10,11 +10,9 @@ import {
   Radio,
   FileCheck,
   Send,
-  Layers,
   Sparkles,
   Server,
   Activity,
-  ArrowRight,
 } from 'lucide-react';
 import { formatRelativeTime, formatDate } from '@/lib/utils';
 import styles from './AutomationDashboard.module.css';
@@ -70,7 +68,7 @@ export function AutomationDashboard() {
   const [isFetchingFeeds, setIsFetchingFeeds] = useState(false);
   const [feedback, setFeedback] = useState<{ text: string; isError: boolean } | null>(null);
   const [nextPublishMins, setNextPublishMins] = useState<number | null>(null);
-  const [lastActionTime, setLastActionTime] = useState<number>(Date.now());
+  const [lastActionTime, setLastActionTime] = useState<number>(() => Date.now());
 
   const fetchStatus = useCallback(async () => {
     try {
@@ -84,17 +82,24 @@ export function AutomationDashboard() {
           setLastActionTime((prev) => Math.max(prev, runTime));
         }
       }
-    } catch (err) {
-      console.error('Failed to fetch automation status:', err);
+    } catch {
+      console.error('Failed to fetch automation status');
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchStatus();
-    const interval = setInterval(fetchStatus, 15000);
-    return () => clearInterval(interval);
+    let isMounted = true;
+    const doFetch = async () => {
+      if (isMounted) await fetchStatus();
+    };
+    doFetch();
+    const interval = setInterval(doFetch, 15000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
   }, [fetchStatus]);
 
   useEffect(() => {

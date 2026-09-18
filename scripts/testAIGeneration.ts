@@ -33,8 +33,8 @@ async function testGemini() {
     console.log('\n--- Article Content Preview ---');
     console.log(res.draft.content.slice(0, 300) + '...\n');
     console.log('SUCCESS: AI Generation works perfectly with Gemini!');
-  } catch (error: any) {
-    console.error('AI Service Error:', error.message);
+  } catch (error) {
+    console.error('AI Service Error:', error instanceof Error ? error.message : String(error));
   }
 }
 
