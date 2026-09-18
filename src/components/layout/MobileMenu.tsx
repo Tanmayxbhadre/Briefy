@@ -2,36 +2,22 @@
 
 import { useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { X, Search } from 'lucide-react';
+import { X, Search, Sparkles, Newspaper, Compass } from 'lucide-react';
 import BrandLogo from '@/components/shared/BrandLogo';
+import { SITE_CATEGORIES } from '@/lib/categories';
 import styles from './MobileMenu.module.css';
 
 interface MobileMenuProps {
   id: string;
   isOpen: boolean;
   onClose: () => void;
-  links: { label: string; href: string }[];
   currentPath?: string;
 }
 
-const ALL_CATEGORIES = [
-  { label: 'India', href: '/india' },
-  { label: 'World', href: '/world' },
-  { label: 'Technology', href: '/technology' },
-  { label: 'AI', href: '/ai' },
-  { label: 'Business', href: '/business' },
-  { label: 'Finance', href: '/finance' },
-  { label: 'Startups', href: '/startups' },
-  { label: 'Science', href: '/science' },
-  { label: 'Sports', href: '/sports' },
-  { label: 'Gaming', href: '/gaming' },
-  { label: 'Entertainment', href: '/entertainment' },
-];
-
-export default function MobileMenu({ id, isOpen, onClose, links, currentPath }: MobileMenuProps) {
+export default function MobileMenu({ id, isOpen, onClose, currentPath }: MobileMenuProps) {
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Close on Escape
+  // Close on Escape key
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -72,6 +58,8 @@ export default function MobileMenu({ id, isOpen, onClose, links, currentPath }: 
         role="dialog"
         aria-modal="true"
         aria-label="Navigation menu"
+        aria-hidden={!isOpen}
+        inert={!isOpen ? true : undefined}
         className={`${styles.menu} ${isOpen ? styles.menuOpen : ''}`}
       >
         <div className={styles.menuHeader}>
@@ -84,37 +72,46 @@ export default function MobileMenu({ id, isOpen, onClose, links, currentPath }: 
         <div className={styles.searchRow}>
           <Link href="/search" className={styles.searchLink} onClick={onClose}>
             <Search size={16} strokeWidth={1.75} />
-            <span>Search news…</span>
+            <span>Search news archive…</span>
           </Link>
         </div>
 
-        <nav aria-label="Mobile navigation">
-          <p className={styles.navSection}>Browse</p>
-          <ul className={styles.navList}>
-            {links.map((link) => (
-              <li key={link.href}>
-                <Link
-                  href={link.href}
-                  className={`${styles.navItem} ${isActive(link.href) ? styles.navItemActive : ''}`}
-                  onClick={onClose}
-                  aria-current={isActive(link.href) ? 'page' : undefined}
-                >
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
+        <nav className={styles.navContainer} aria-label="Mobile navigation">
+          {/* Quick Hubs */}
+          <div className={styles.quickHubs}>
+            <Link
+              href="/daily-news"
+              className={`${styles.hubLink} ${isActive('/daily-news') ? styles.hubLinkActive : ''}`}
+              onClick={onClose}
+            >
+              <Newspaper size={16} />
+              <span>Today&apos;s Brief</span>
+            </Link>
+            <Link
+              href="/editorial-policy"
+              className={`${styles.hubLink} ${isActive('/editorial-policy') ? styles.hubLinkActive : ''}`}
+              onClick={onClose}
+            >
+              <Sparkles size={16} className={styles.aiIcon} />
+              <span>Editorial Policy</span>
+            </Link>
+          </div>
 
-          <p className={styles.navSection}>All Categories</p>
+          {/* Unified Category Taxonomy */}
+          <div className={styles.categorySectionHeader}>
+            <Compass size={14} aria-hidden="true" />
+            <p className={styles.navSection}>News Sections</p>
+          </div>
+
           <ul className={styles.categoryList}>
-            {ALL_CATEGORIES.map((cat) => (
-              <li key={cat.href}>
+            {SITE_CATEGORIES.map((cat) => (
+              <li key={cat.slug}>
                 <Link
-                  href={cat.href}
-                  className={`${styles.categoryItem} ${isActive(cat.href) ? styles.categoryItemActive : ''}`}
+                  href={`/${cat.slug}`}
+                  className={`${styles.categoryItem} ${isActive(`/${cat.slug}`) ? styles.categoryItemActive : ''}`}
                   onClick={onClose}
                 >
-                  {cat.label}
+                  {cat.name}
                 </Link>
               </li>
             ))}
@@ -125,6 +122,7 @@ export default function MobileMenu({ id, isOpen, onClose, links, currentPath }: 
           <Link href="/about" onClick={onClose}>About</Link>
           <Link href="/contact" onClick={onClose}>Contact</Link>
           <Link href="/privacy" onClick={onClose}>Privacy</Link>
+          <Link href="/editorial-policy" onClick={onClose}>Standards</Link>
         </div>
       </div>
     </>

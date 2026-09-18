@@ -11,18 +11,14 @@ import { getHomepageData } from '@/lib/news/homepage';
 import styles from './page.module.css';
 
 // ISR: edge-cached with 60s freshness, plus instant revalidation on publish
-// via revalidateNewsPublication(). Previously force-dynamic: every request
-// (including every crawler hit) re-ran the full homepage data pipeline.
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  // absolute: prevents the root layout template from appending the brand
-  // suffix a second time.
   title: {
     absolute: 'Briefy.live | Serious Journalism for the Modern Reader',
   },
   description:
-    "India's most trusted source for clear, concise news across Technology, AI, Business, India, World, and Science.",
+    "India's most trusted source for clear, concise news across Technology, AI, Business, India, World, Science, Finance, and Sports.",
   alternates: {
     canonical: '/',
   },
@@ -43,8 +39,10 @@ export default async function HomePage() {
   const worldArticles = categoryArticles['world'] || [];
   const aiArticles = categoryArticles['ai'] || [];
   const businessArticles = categoryArticles['business'] || [];
+  const financeArticles = categoryArticles['finance'] || [];
   const scienceArticles = categoryArticles['science'] || [];
   const startupsArticles = categoryArticles['startups'] || [];
+  const sportsArticles = categoryArticles['sports'] || [];
   const gamingArticles = categoryArticles['gaming'] || [];
   const entertainmentArticles = categoryArticles['entertainment'] || [];
 
@@ -53,7 +51,7 @@ export default async function HomePage() {
       {/* Dynamic Breaking News Bar */}
       {breakingItem && <BreakingNewsBar item={breakingItem} />}
 
-      {/* Hero Section */}
+      {/* Hero Section — single unambiguous lead story */}
       {featured ? (
         <section aria-label="Today's top stories">
           <HeroSection featured={featured} secondary={secondary} />
@@ -74,7 +72,7 @@ export default async function HomePage() {
         </div>
       </div>
 
-      {/* Latest + Trending side by side */}
+      {/* Continuous Live Feed + Trending Tracker */}
       <div className="container">
         <div className={styles.latestTrendingGrid}>
           <LatestNewsFeed articles={latestArticles} />
@@ -129,6 +127,14 @@ export default async function HomePage() {
           />
         )}
 
+        {financeArticles.length > 0 && (
+          <CategorySection
+            categoryName="Finance & Markets"
+            categorySlug="finance"
+            articles={financeArticles}
+          />
+        )}
+
         {scienceArticles.length > 0 && (
           <CategorySection
             categoryName="Science"
@@ -142,6 +148,14 @@ export default async function HomePage() {
             categoryName="Startups & Venture"
             categorySlug="startups"
             articles={startupsArticles}
+          />
+        )}
+
+        {sportsArticles.length > 0 && (
+          <CategorySection
+            categoryName="Sports"
+            categorySlug="sports"
+            articles={sportsArticles}
           />
         )}
 

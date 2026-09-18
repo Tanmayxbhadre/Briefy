@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import { Article } from '@/lib/types';
+import { deduplicateArticles } from '@/lib/utils';
+import { TrendingUp } from 'lucide-react';
 import styles from './TrendingSection.module.css';
 
 interface TrendingSectionProps {
@@ -7,12 +9,17 @@ interface TrendingSectionProps {
 }
 
 export default function TrendingSection({ articles }: TrendingSectionProps) {
+  const uniqueArticles = deduplicateArticles(articles).slice(0, 5);
+
   return (
-    <section className={styles.section} aria-label="Trending stories">
-      <h2 className="section-heading">Trending Now</h2>
+    <aside className={styles.section} aria-label="Trending stories">
+      <div className={styles.header}>
+        <TrendingUp size={16} className={styles.headerIcon} aria-hidden="true" />
+        <h2 className={styles.title}>Trending Now</h2>
+      </div>
 
       <ol className={styles.list}>
-        {articles.slice(0, 5).map((article, i) => {
+        {uniqueArticles.map((article, i) => {
           const url = `/${article.category.slug}/${article.slug}`;
           const num = String(i + 1).padStart(2, '0');
 
@@ -24,13 +31,15 @@ export default function TrendingSection({ articles }: TrendingSectionProps) {
                   {article.category.name}
                 </Link>
                 <h3 className={styles.headline}>
-                  <Link href={url}>{article.title}</Link>
+                  <Link href={url} className={styles.headlineLink}>
+                    {article.title}
+                  </Link>
                 </h3>
               </div>
             </li>
           );
         })}
       </ol>
-    </section>
+    </aside>
   );
 }

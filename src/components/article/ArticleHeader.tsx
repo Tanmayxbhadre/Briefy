@@ -3,6 +3,7 @@ import { Article } from '@/lib/types';
 import { formatDate, formatReadingTime } from '@/lib/utils';
 import Breadcrumbs from './Breadcrumbs';
 import ArticleImage from '@/components/shared/ArticleImage';
+import { Sparkles } from 'lucide-react';
 import styles from './ArticleHeader.module.css';
 
 interface ArticleHeaderProps {
@@ -21,9 +22,20 @@ export default function ArticleHeader({ article }: ArticleHeaderProps) {
       <div className="article-container">
         <Breadcrumbs items={breadcrumbs} />
 
-        <Link href={`/${article.category.slug}`} className={`category-tag ${styles.category}`}>
-          {article.category.name}
-        </Link>
+        <div className={styles.tagGroup}>
+          <Link href={`/${article.category.slug}`} className={`category-tag ${styles.category}`}>
+            {article.category.name}
+          </Link>
+          <Link
+            href="/editorial-policy"
+            className={styles.aiBadge}
+            title="Multi-source synthesis produced with AI assistance under strict editorial oversight"
+            aria-label="Editorial Oversight: AI-Assisted"
+          >
+            <Sparkles size={12} className={styles.sparkleIcon} aria-hidden="true" />
+            <span>AI-Assisted · Editorial Oversight</span>
+          </Link>
+        </div>
 
         <h1 className={styles.headline}>{article.title}</h1>
 
@@ -55,6 +67,7 @@ export default function ArticleHeader({ article }: ArticleHeaderProps) {
         <ArticleImage
           src={article.featuredImage}
           alt={article.imageAlt}
+          category={article.category.name}
           fill
           priority
           sizes="100vw"

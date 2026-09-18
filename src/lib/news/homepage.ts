@@ -109,6 +109,8 @@ export async function getHomepageData(): Promise<HomepageData> {
       },
       include: {
         category: true,
+        newsItem: true,
+        cluster: true,
       },
       orderBy: {
         publishedAt: 'desc',
@@ -134,8 +136,14 @@ export async function getHomepageData(): Promise<HomepageData> {
     const breakingCandidate = dbDrafts.find((d) => d.breaking);
 
     if (breakingCandidate) {
+      const resolvedDate =
+        breakingCandidate.newsItem?.publishedAt ||
+        breakingCandidate.cluster?.firstSeenAt ||
+        breakingCandidate.publishedAt ||
+        breakingCandidate.createdAt;
+
       const ageHours =
-        (Date.now() - new Date(breakingCandidate.publishedAt || breakingCandidate.createdAt).getTime()) /
+        (Date.now() - new Date(resolvedDate).getTime()) /
         (1000 * 60 * 60);
 
       if (ageHours <= 48) {
@@ -143,8 +151,8 @@ export async function getHomepageData(): Promise<HomepageData> {
           id: breakingCandidate.id,
           headline: breakingCandidate.title,
           url: `/${breakingCandidate.category?.slug || 'news'}/${breakingCandidate.slug}`,
-          time: breakingCandidate.publishedAt
-            ? new Date(breakingCandidate.publishedAt).toLocaleTimeString([], {
+          time: resolvedDate
+            ? new Date(resolvedDate).toLocaleTimeString([], {
                 hour: '2-digit',
                 minute: '2-digit',
               })
@@ -171,20 +179,26 @@ export async function getHomepageData(): Promise<HomepageData> {
 
     // ── Global Identity Tracker ──────────────────────────────────────────────
     const usedIds = new Set<string>();
+    const usedSlugs = new Set<string>();
 
     function isExactDuplicate(article: Article): boolean {
+      if (!article || !article.slug) return true;
+      const canonicalSlug = article.slug.trim().toLowerCase();
       if (usedIds.has(article.id)) return true;
-      if (usedIds.has(`slug:${article.slug}`)) return true;
-      if (usedIds.has(`path:${article.category.slug}/${article.slug}`)) return true;
+      if (usedSlugs.has(canonicalSlug)) return true;
+      if (usedIds.has(`path:${article.category.slug.toLowerCase()}/${canonicalSlug}`)) return true;
       const clusterId = (article as { storyClusterId?: string }).storyClusterId;
       if (clusterId && usedIds.has(`cluster:${clusterId}`)) return true;
       return false;
     }
 
     function markUsed(article: Article) {
+      if (!article || !article.slug) return;
+      const canonicalSlug = article.slug.trim().toLowerCase();
       usedIds.add(article.id);
-      usedIds.add(`slug:${article.slug}`);
-      usedIds.add(`path:${article.category.slug}/${article.slug}`);
+      usedSlugs.add(canonicalSlug);
+      usedIds.add(`slug:${canonicalSlug}`);
+      usedIds.add(`path:${article.category.slug.toLowerCase()}/${canonicalSlug}`);
       const clusterId = (article as { storyClusterId?: string }).storyClusterId;
       if (clusterId) usedIds.add(`cluster:${clusterId}`);
     }

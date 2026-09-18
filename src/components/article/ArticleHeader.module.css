@@ -5,11 +5,46 @@
   padding-bottom: var(--space-8);
 }
 
-/* ── Category ── */
+/* ── Category & Trust Badge ── */
+
+.tagGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  flex-wrap: wrap;
+}
 
 .category {
   display: inline-block;
-  margin-bottom: var(--space-4);
+  margin-bottom: 0;
+}
+
+.aiBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  letter-spacing: 0.02em;
+  transition: all var(--transition-fast);
+}
+
+.aiBadge:hover {
+  background: var(--color-accent-light);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.sparkleIcon {
+  color: #3b82f6;
 }
 
 /* ── Headline ── */

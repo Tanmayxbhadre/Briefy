@@ -84,11 +84,46 @@ export function slugify(text: string): string {
 }
 
 /**
- * Truncate a string to a maximum length with ellipsis.
+ * Truncate a string on word boundaries with an ellipsis.
+ * Prevents mid-word cuts (e.g. "ac...", "we...").
  */
-export function truncate(text: string, maxLength: number): string {
-  if (text.length <= maxLength) return text;
-  return text.slice(0, maxLength).trim() + '…';
+export function truncate(text: string | null | undefined, maxLength: number): string {
+  if (!text) return '';
+  const clean = text.replace(/\s+/g, ' ').trim();
+  if (clean.length <= maxLength) return clean;
+
+  const sliced = clean.slice(0, maxLength);
+  const lastSpace = sliced.lastIndexOf(' ');
+
+  // Cut at last space if it covers at least 50% of maxLength
+  const cut = lastSpace > maxLength * 0.5 ? sliced.slice(0, lastSpace) : sliced;
+  // Clean trailing punctuation
+  const trimmed = cut.replace(/[\s,;:.!?-]+$/, '');
+  return `${trimmed}…`;
+}
+
+/**
+ * Deduplicate items (articles) by canonical slug and id.
+ */
+export function deduplicateArticles<T extends { slug: string; id?: string }>(articles: T[]): T[] {
+  const seenSlugs = new Set<string>();
+  const seenIds = new Set<string>();
+  const result: T[] = [];
+
+  for (const article of articles) {
+    if (!article || !article.slug) continue;
+    const canonicalSlug = article.slug.trim().toLowerCase();
+    const id = article.id;
+
+    if (seenSlugs.has(canonicalSlug)) continue;
+    if (id && seenIds.has(id)) continue;
+
+    seenSlugs.add(canonicalSlug);
+    if (id) seenIds.add(id);
+    result.push(article);
+  }
+
+  return result;
 }
 
 /**

@@ -3,24 +3,12 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Search, Menu, X } from 'lucide-react';
+import { Search, Menu, X, Sparkles } from 'lucide-react';
 import MobileMenu from './MobileMenu';
 import MobileCategoryBar from './MobileCategoryBar';
 import BrandLogo from '@/components/shared/BrandLogo';
+import { HEADER_NAV_LINKS } from '@/lib/categories';
 import styles from './Header.module.css';
-
-const NAV_LINKS = [
-  { label: 'Latest', href: '/daily-news' },
-  { label: 'India', href: '/india' },
-  { label: 'World', href: '/world' },
-  { label: 'Technology', href: '/technology' },
-  { label: 'AI', href: '/ai' },
-  { label: 'Business', href: '/business' },
-  { label: 'Finance', href: '/finance' },
-  { label: 'Science', href: '/science' },
-  { label: 'Sports', href: '/sports' },
-  { label: 'Startups', href: '/startups' },
-];
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -69,12 +57,23 @@ export default function Header() {
       >
         <div className={`container ${styles.inner}`}>
 
-          {/* Logo */}
-          <BrandLogo className={styles.logo} />
+          {/* Logo & Masthead Trust Badge */}
+          <div className={styles.logoGroup}>
+            <BrandLogo className={styles.logo} />
+            <Link
+              href="/editorial-policy"
+              className={styles.mastheadTrustBadge}
+              title="Verified newsroom with AI-assisted research & editorial oversight"
+              aria-label="Editorial policy: AI-assisted research with editorial oversight"
+            >
+              <Sparkles size={11} className={styles.trustSparkle} aria-hidden="true" />
+              <span>AI-Assisted Oversight</span>
+            </Link>
+          </div>
 
           {/* Desktop Navigation */}
           <nav className={styles.nav} aria-label="Primary navigation">
-            {NAV_LINKS.map((link) => (
+            {HEADER_NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -120,7 +119,6 @@ export default function Header() {
         id="mobile-menu"
         isOpen={menuOpen}
         onClose={() => setMenuOpen(false)}
-        links={NAV_LINKS}
         currentPath={pathname}
       />
     </>

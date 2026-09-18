@@ -1,0 +1,93 @@
+/* BrandedPlaceholder.module.css */
+.container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: linear-gradient(135deg, #0d1527 0%, #172445 50%, #0a1120 100%);
+  color: #ffffff;
+  user-select: none;
+}
+
+.patternOverlay {
+  position: absolute;
+  inset: 0;
+  opacity: 0.08;
+  background-image: radial-gradient(#ffffff 1px, transparent 1px);
+  background-size: 16px 16px;
+  pointer-events: none;
+}
+
+.glowOrb {
+  position: absolute;
+  width: 140px;
+  height: 140px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.75rem;
+  text-align: center;
+}
+
+.logoBadge {
+  font-family: var(--font-serif, Georgia, serif);
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: -0.01em;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.dot {
+  color: #3b82f6;
+}
+
+.live {
+  color: #60a5fa;
+  font-size: 0.75rem;
+  font-family: var(--font-sans, sans-serif);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: rgba(59, 130, 246, 0.2);
+  padding: 1px 4px;
+  border-radius: 3px;
+  margin-left: 2px;
+}
+
+.categoryTag {
+  font-family: var(--font-sans, sans-serif);
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.small .logoBadge {
+  font-size: 0.75rem;
+}
+
+.small .live {
+  display: none;
+}
+
+.small .categoryTag {
+  font-size: 0.55rem;
+}

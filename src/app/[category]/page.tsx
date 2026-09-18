@@ -2,10 +2,11 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getCategoryBySlug, getPublishedArticlesByCategory } from '@/lib/articles';
-import { formatRelativeTime, formatReadingTime } from '@/lib/utils';
+import { formatRelativeTime, formatReadingTime, truncate, deduplicateArticles } from '@/lib/utils';
 import { categoryMetadata } from '@/lib/seo/metadata';
 import AdSlot from '@/components/shared/AdSlot';
 import ArticleImage from '@/components/shared/ArticleImage';
+import { ArrowRight } from 'lucide-react';
 import styles from './category.module.css';
 
 // ISR: edge-cached, revalidated on publish via revalidateNewsPublication().
@@ -32,10 +33,9 @@ export default async function CategoryPage({ params }: Props) {
   const category = await getCategoryBySlug(slug);
   if (!category) notFound();
 
-  const categoryArticles = await getPublishedArticlesByCategory(slug);
+  const rawArticles = await getPublishedArticlesByCategory(slug);
+  const categoryArticles = deduplicateArticles(rawArticles);
 
-  // An admin-created category with no published articles yet should render
-  // (not 404) — it becomes indexable as soon as its first story publishes.
   const [featured, ...rest] = categoryArticles;
   const featuredUrl = featured ? `/${featured.category.slug}/${featured.slug}` : '';
 
@@ -64,6 +64,7 @@ export default async function CategoryPage({ params }: Props) {
                 <ArticleImage
                   src={featured.featuredImage}
                   alt={featured.imageAlt}
+                  category={category.name}
                   fill
                   priority
                   sizes="(max-width: 767px) 100vw, 60vw"
@@ -77,7 +78,9 @@ export default async function CategoryPage({ params }: Props) {
                 <h2 className={styles.featuredHeadline}>
                   <Link href={featuredUrl}>{featured.title}</Link>
                 </h2>
-                <p className={styles.featuredDesc}>{featured.description}</p>
+                {featured.description && (
+                  <p className={styles.featuredDesc}>{truncate(featured.description, 180)}</p>
+                )}
                 <div className={styles.featuredMeta}>
                   <span>{featured.author.name}</span>
                   <span>·</span>
@@ -93,7 +96,7 @@ export default async function CategoryPage({ params }: Props) {
               <AdSlot id={`ad-category-${slug}`} width={728} height={90} />
             </div>
 
-            {/* Article Grid (page 1 slice; archives at /[category]/page/[n]) */}
+            {/* Article Grid */}
             <section aria-label={`All ${category.name} articles`}>
               <h2 className="section-heading">Latest in {category.name}</h2>
               <div className={styles.grid}>
@@ -105,6 +108,7 @@ export default async function CategoryPage({ params }: Props) {
                         <ArticleImage
                           src={article.featuredImage}
                           alt={article.imageAlt}
+                          category={category.name}
                           fill
                           sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 33vw"
                           style={{ objectFit: 'cover' }}
@@ -115,11 +119,27 @@ export default async function CategoryPage({ params }: Props) {
                         <h3 className={styles.cardHeadline}>
                           <Link href={url}>{article.title}</Link>
                         </h3>
-                        <p className={styles.cardDesc}>{article.description}</p>
+                        {article.description && (
+                          <p className={styles.cardDesc}>{truncate(article.description, 120)}</p>
+                        )}
                         <div className={styles.cardMeta}>
                           <time dateTime={article.publishedAt}>{formatRelativeTime(article.publishedAt)}</time>
                           <span>·</span>
                           <span>{formatReadingTime(article.readingTime)}</span>
+                        </div>
+                        <div style={{ marginTop: 'auto', paddingTop: '0.5rem' }}>
+                          <Link href={url} className="read-brief-cta" style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            fontSize: '0.75rem',
+                            fontWeight: 700,
+                            color: 'var(--color-accent)',
+                            minHeight: '36px',
+                          }}>
+                            <span>Read Story</span>
+                            <ArrowRight size={12} aria-hidden="true" />
+                          </Link>
                         </div>
                       </div>
                     </article>

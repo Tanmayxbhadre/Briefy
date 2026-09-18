@@ -40,13 +40,54 @@
 
 /* ── Logo / Masthead ── */
 
+.logoGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-shrink: 0;
+}
+
 .logo {
   flex-shrink: 0;
-  min-width: 148px;
+  min-width: 140px;
 }
 
 .logo :global(.wordmark) {
   font-size: 1.2rem;
+}
+
+.mastheadTrustBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 9999px;
+  font-family: var(--font-sans);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.mastheadTrustBadge:hover {
+  background: var(--color-accent-light);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.trustSparkle {
+  color: #3b82f6;
+}
+
+@media (max-width: 767px) {
+  .mastheadTrustBadge {
+    display: none;
+  }
 }
 
 /* ── Primary Navigation ── */

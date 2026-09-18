@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { Article } from '@/lib/types';
-import { formatRelativeTime, formatReadingTime } from '@/lib/utils';
+import { formatRelativeTime, formatReadingTime, truncate } from '@/lib/utils';
 import ArticleImage from './ArticleImage';
+import { ArrowRight } from 'lucide-react';
 import styles from './NewsCard.module.css';
 
 interface NewsCardProps {
@@ -26,6 +27,7 @@ export default function NewsCard({
         <ArticleImage
           src={article.featuredImage}
           alt={article.imageAlt}
+          category={article.category.name}
           fill
           sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 33vw"
           className={styles.image}
@@ -52,20 +54,27 @@ export default function NewsCard({
           </Link>
         </h2>
 
-        {showDescription && (
-          <p className={styles.description}>{article.description}</p>
+        {showDescription && article.description && (
+          <p className={styles.description}>{truncate(article.description, 140)}</p>
         )}
 
-        <div className={styles.meta}>
-          {showAuthor && (
-            <span className={styles.author}>{article.author.name}</span>
-          )}
-          {showAuthor && <span className={styles.dot} aria-hidden="true">·</span>}
-          <time dateTime={article.publishedAt} className={styles.time}>
-            {formatRelativeTime(article.publishedAt)}
-          </time>
-          <span className={styles.dot} aria-hidden="true">·</span>
-          <span className={styles.readTime}>{formatReadingTime(article.readingTime)}</span>
+        <div className={styles.footerRow}>
+          <div className={styles.meta}>
+            {showAuthor && (
+              <span className={styles.author}>{article.author.name}</span>
+            )}
+            {showAuthor && <span className={styles.dot} aria-hidden="true">·</span>}
+            <time dateTime={article.publishedAt} className={styles.time}>
+              {formatRelativeTime(article.publishedAt)}
+            </time>
+            <span className={styles.dot} aria-hidden="true">·</span>
+            <span className={styles.readTime}>{formatReadingTime(article.readingTime)}</span>
+          </div>
+
+          <Link href={articleUrl} className={styles.cardCta} aria-label={`Read story: ${article.title}`}>
+            <span>Read</span>
+            <ArrowRight size={12} aria-hidden="true" />
+          </Link>
         </div>
       </div>
     </article>

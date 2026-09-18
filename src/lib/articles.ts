@@ -3,33 +3,18 @@ import { Article, Source, TimelineEvent, WhatYouNeedToKnow } from './types';
 import { articles as mockArticles } from './mock-data';
 import { categories as mockCategories } from './mock-data';
 import { IS_PRODUCTION } from './site';
+import { SITE_CATEGORIES, CATEGORY_BY_SLUG } from './categories';
+import { deduplicateArticles } from './utils';
 import slugify from 'slugify';
-import { ArticleDraft, Category as PrismaCategory } from '@prisma/client';
+import { ArticleDraft, Category as PrismaCategory, NewsItem, StoryCluster } from '@prisma/client';
 
-type DraftWithCategory = ArticleDraft & {
-  category: PrismaCategory | null;
+type DraftWithRelations = ArticleDraft & {
+  category?: PrismaCategory | null;
+  newsItem?: NewsItem | null;
+  cluster?: StoryCluster | null;
 };
 
-const DEFAULT_IMAGES = [
-  'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&h=675&fit=crop',
-  'https://images.unsplash.com/photo-1495020689067-958852a7765e?w=1200&h=675&fit=crop',
-  'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=1200&h=675&fit=crop',
-  'https://images.unsplash.com/photo-1444653614773-995cb1ef9efa?w=1200&h=675&fit=crop',
-  'https://images.unsplash.com/photo-1557428894-56bcc97113fe?w=1200&h=675&fit=crop',
-  'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=1200&h=675&fit=crop',
-  'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=1200&h=675&fit=crop',
-  'https://images.unsplash.com/photo-1586339949916-3e9457bef6d3?w=1200&h=675&fit=crop'
-];
-
-function getFallbackImage(seed: string) {
-  let hash = 0;
-  for (let i = 0; i < seed.length; i++) {
-    hash = seed.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return DEFAULT_IMAGES[Math.abs(hash) % DEFAULT_IMAGES.length];
-}
-
-export function draftToArticle(draft: DraftWithCategory): Article {
+export function draftToArticle(draft: DraftWithRelations): Article {
   let sources: Source[] = [];
   try {
     if (draft.sources) sources = typeof draft.sources === 'string' ? JSON.parse(draft.sources) : draft.sources;
@@ -66,6 +51,27 @@ export function draftToArticle(draft: DraftWithCategory): Article {
     }
   } catch {}
 
+  // Resolve true story publication time: prefer original source timestamp over batch publishing moment
+  const resolvedDate =
+    draft.newsItem?.publishedAt ||
+    draft.cluster?.firstSeenAt ||
+    draft.publishedAt ||
+    draft.createdAt;
+
+  const publishedAtIso = resolvedDate
+    ? new Date(resolvedDate).toISOString()
+    : new Date().toISOString();
+
+  // Prefer true image, else empty string which triggers branded placeholder component
+  const featuredImage =
+    draft.featuredImage ||
+    draft.cluster?.leadImageUrl ||
+    draft.newsItem?.imageUrl ||
+    '';
+
+  const categorySlug = draft.category?.slug || 'news';
+  const categoryMeta = CATEGORY_BY_SLUG.get(categorySlug);
+
   return {
     id: draft.id,
     title: draft.title,
@@ -78,19 +84,16 @@ export function draftToArticle(draft: DraftWithCategory): Article {
       slug: slugify(draft.authorName || 'briefylive', { lower: true }),
     },
     category: {
-      id: draft.category?.id || 'c1',
-      name: draft.category?.name || 'General',
-      slug: draft.category?.slug || 'news',
-      description: draft.category?.description || '',
-      seoTitle: draft.category?.seoTitle || '',
-      seoDescription: draft.category?.seoDescription || '',
+      id: draft.category?.id || categoryMeta?.id || 'c1',
+      name: draft.category?.name || categoryMeta?.name || 'General',
+      slug: categorySlug,
+      description: draft.category?.description || categoryMeta?.description || '',
+      seoTitle: draft.category?.seoTitle || categoryMeta?.seoTitle || '',
+      seoDescription: draft.category?.seoDescription || categoryMeta?.seoDescription || '',
     },
-    publishedAt: draft.publishedAt
-      ? new Date(draft.publishedAt).toISOString()
-      : new Date(draft.createdAt).toISOString(),
+    publishedAt: publishedAtIso,
     updatedAt: draft.updatedAt ? new Date(draft.updatedAt).toISOString() : undefined,
-    featuredImage:
-      draft.featuredImage || getFallbackImage(draft.id),
+    featuredImage,
     imageAlt: draft.imageAlt || draft.title,
     tags,
     readingTime: draft.readingTime || 3,
@@ -100,8 +103,6 @@ export function draftToArticle(draft: DraftWithCategory): Article {
     timeline: timeline.length > 0 ? timeline : undefined,
     featured: draft.featured,
     breaking: draft.breaking,
-    // SEO-optimized fields from src/lib/seo/optimizer.ts — previously computed
-    // and stored but never surfaced to crawlers. Metadata now prefers them.
     seoTitle: draft.seoTitle || undefined,
     metaDescription: draft.metaDescription || undefined,
     canonicalUrl: draft.canonicalUrl || undefined,
@@ -129,6 +130,8 @@ export async function getPublishedArticleBySlug(slug: string): Promise<Article |
       },
       include: {
         category: true,
+        newsItem: true,
+        cluster: true,
       },
     });
 
@@ -144,7 +147,7 @@ export async function getPublishedArticleBySlug(slug: string): Promise<Article |
 }
 
 /**
- * Get all published articles merged with mock articles
+ * Get all published articles merged with mock articles (deduplicated by canonical slug)
  */
 export async function getAllPublishedArticles(): Promise<Article[]> {
   const mock = getMockArticles();
@@ -156,22 +159,24 @@ export async function getAllPublishedArticles(): Promise<Article[]> {
       },
       include: {
         category: true,
+        newsItem: true,
+        cluster: true,
       },
       orderBy: {
         publishedAt: 'desc',
       },
     });
 
-    const dbArticles = dbDrafts.map(draftToArticle);
-    const existingSlugs = new Set(dbArticles.map((a) => a.slug));
-    const nonDupeMocks = mock.filter((a) => !existingSlugs.has(a.slug));
+    const dbArticles = deduplicateArticles(dbDrafts.map(draftToArticle));
+    const existingSlugs = new Set(dbArticles.map((a) => a.slug.toLowerCase()));
+    const nonDupeMocks = mock.filter((a) => !existingSlugs.has(a.slug.toLowerCase()));
 
     // Real published articles from database take priority, followed by baseline mock items
-    return [...dbArticles, ...nonDupeMocks];
+    return deduplicateArticles([...dbArticles, ...nonDupeMocks]);
   } catch (err) {
     console.error('Error fetching all published articles:', err);
     // In production an empty list is correct: never serve fictional content.
-    return mock;
+    return deduplicateArticles(mock);
   }
 }
 
@@ -183,8 +188,10 @@ export async function getPublishedArticlesByCategory(
   limit?: number
 ): Promise<Article[]> {
   const all = await getAllPublishedArticles();
-  const filtered = all.filter((a) => a.category.slug === categorySlug);
-  return limit ? filtered.slice(0, limit) : filtered;
+  const normalizedSlug = categorySlug.toLowerCase();
+  const filtered = all.filter((a) => a.category.slug.toLowerCase() === normalizedSlug);
+  const deduped = deduplicateArticles(filtered);
+  return limit ? deduped.slice(0, limit) : deduped;
 }
 
 /**
@@ -192,7 +199,7 @@ export async function getPublishedArticlesByCategory(
  */
 export async function getLatestPublishedArticles(limit = 10): Promise<Article[]> {
   const all = await getAllPublishedArticles();
-  return all.slice(0, limit);
+  return deduplicateArticles(all).slice(0, limit);
 }
 
 /**
@@ -201,14 +208,15 @@ export async function getLatestPublishedArticles(limit = 10): Promise<Article[]>
  */
 export async function searchPublishedArticles(query: string): Promise<Article[]> {
   const all = await getAllPublishedArticles();
-  const q = query.toLowerCase();
-  return all.filter(
+  const q = query.toLowerCase().trim();
+  const filtered = all.filter(
     (a) =>
       a.title.toLowerCase().includes(q) ||
       a.description.toLowerCase().includes(q) ||
       a.tags.some((t) => t.toLowerCase().includes(q)) ||
       a.category.name.toLowerCase().includes(q)
   );
+  return deduplicateArticles(filtered);
 }
 
 /**
@@ -221,25 +229,24 @@ export async function getRelatedArticles(
 ): Promise<Article[]> {
   const all = await getAllPublishedArticles();
   const sameCategory = all.filter(
-    (a) => a.id !== article.id && a.category.slug === article.category.slug
+    (a) => a.id !== article.id && a.category.slug.toLowerCase() === article.category.slug.toLowerCase()
   );
   const others = all.filter(
-    (a) => a.id !== article.id && a.category.slug !== article.category.slug
+    (a) => a.id !== article.id && a.category.slug.toLowerCase() !== article.category.slug.toLowerCase()
   );
-  return [...sameCategory, ...others].slice(0, count);
+  return deduplicateArticles([...sameCategory, ...others]).slice(0, count);
 }
 
 /**
- * Resolve a category by slug from the database, falling back to the mock
- * catalog. Previously only mock categories were recognized, so categories
- * created in the admin panel led to 404s even with published articles.
+ * Resolve a category by slug from database, unified categories, or mock catalog.
  */
 export async function getCategoryBySlug(
   slug: string
 ): Promise<(typeof mockCategories)[number] | undefined> {
+  const normalizedSlug = slug.toLowerCase();
   try {
     const dbCategory = await prisma.category.findUnique({
-      where: { slug },
+      where: { slug: normalizedSlug },
     });
 
     if (dbCategory) {
@@ -256,26 +263,38 @@ export async function getCategoryBySlug(
     console.error('Error resolving category by slug:', err);
   }
 
-  return mockCategories.find((c) => c.slug === slug);
+  const unified = CATEGORY_BY_SLUG.get(normalizedSlug);
+  if (unified) {
+    return {
+      id: unified.id,
+      name: unified.name,
+      slug: unified.slug,
+      description: unified.description,
+      seoTitle: unified.seoTitle,
+      seoDescription: unified.seoDescription,
+    };
+  }
+
+  return mockCategories.find((c) => c.slug.toLowerCase() === normalizedSlug);
 }
 
 /**
- * List all category slugs: database first, then any mock-only categories
- * (development). Used by the sitemap and revalidation layer so newly created
- * categories are always discoverable.
+ * List all category slugs: database first, then unified catalog, then mock categories.
  */
 export async function getAllCategorySlugs(): Promise<string[]> {
   const slugs = new Set<string>();
 
   try {
     const dbCategories = await prisma.category.findMany({ select: { slug: true } });
-    for (const c of dbCategories) slugs.add(c.slug);
+    for (const c of dbCategories) slugs.add(c.slug.toLowerCase());
   } catch (err) {
     console.error('Error listing categories:', err);
   }
 
+  for (const c of SITE_CATEGORIES) slugs.add(c.slug.toLowerCase());
+
   if (!IS_PRODUCTION) {
-    for (const c of mockCategories) slugs.add(c.slug);
+    for (const c of mockCategories) slugs.add(c.slug.toLowerCase());
   }
 
   return [...slugs];
@@ -291,17 +310,22 @@ export async function getDynamicBreakingNews(): Promise<import('./types').Breaki
         status: 'PUBLISHED',
         breaking: true,
       },
-      include: { category: true },
+      include: { category: true, newsItem: true, cluster: true },
       orderBy: { publishedAt: 'desc' },
     });
 
     if (breakingDraft) {
+      const resolvedDate =
+        breakingDraft.newsItem?.publishedAt ||
+        breakingDraft.cluster?.firstSeenAt ||
+        breakingDraft.publishedAt;
+
       return {
         id: breakingDraft.id,
         headline: breakingDraft.title,
-        url: `/${breakingDraft.category?.slug || 'technology'}/${breakingDraft.slug}`,
-        time: breakingDraft.publishedAt
-          ? new Date(breakingDraft.publishedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        url: `/${breakingDraft.category?.slug || 'news'}/${breakingDraft.slug}`,
+        time: resolvedDate
+          ? new Date(resolvedDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
           : 'Live',
       };
     }

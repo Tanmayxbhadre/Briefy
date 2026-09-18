@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Article } from '@/lib/types';
-import { formatRelativeTime, formatReadingTime } from '@/lib/utils';
+import { formatRelativeTime, formatReadingTime, deduplicateArticles } from '@/lib/utils';
 import styles from './RelatedStories.module.css';
 import ArticleImage from '@/components/shared/ArticleImage';
 
@@ -9,14 +9,15 @@ interface RelatedStoriesProps {
 }
 
 export default function RelatedStories({ articles }: RelatedStoriesProps) {
-  if (!articles.length) return null;
+  const uniqueArticles = deduplicateArticles(articles);
+  if (!uniqueArticles.length) return null;
 
   return (
     <section className={styles.section} aria-label="Related stories">
       <h2 className="section-heading">Related Stories</h2>
 
       <div className={styles.grid}>
-        {articles.slice(0, 4).map((article) => {
+        {uniqueArticles.slice(0, 4).map((article) => {
           const url = `/${article.category.slug}/${article.slug}`;
           return (
             <article key={article.id} className={styles.card}>
@@ -24,6 +25,7 @@ export default function RelatedStories({ articles }: RelatedStoriesProps) {
                 <ArticleImage
                   src={article.featuredImage}
                   alt={article.imageAlt}
+                  category={article.category.name}
                   fill
                   sizes="(max-width: 767px) 100vw, 25vw"
                   className={styles.image}

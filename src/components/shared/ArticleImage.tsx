@@ -3,14 +3,19 @@
 import Image, { ImageProps } from 'next/image';
 import { useState } from 'react';
 
-interface ArticleImageProps extends Omit<ImageProps, 'alt'> {
+import BrandedPlaceholder from './BrandedPlaceholder';
+
+interface ArticleImageProps extends Omit<ImageProps, 'alt' | 'src'> {
+  src?: string | null;
   alt: string;
   fallbackLabel?: string;
+  category?: string;
 }
 
 export default function ArticleImage({
   alt,
-  fallbackLabel = 'Briefy news',
+  fallbackLabel,
+  category,
   fill,
   priority,
   sizes,
@@ -19,30 +24,13 @@ export default function ArticleImage({
 }: ArticleImageProps) {
   const [failed, setFailed] = useState(false);
 
-  if (failed) {
+  if (!src || failed) {
     return (
-      <div
-        role="img"
-        aria-label={alt}
-        style={{
-          width: '100%',
-          height: '100%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '1rem',
-          background: 'linear-gradient(135deg, #e8edf8, #f5f5f2)',
-          color: '#1a3a8b',
-          fontFamily: 'var(--font-sans)',
-          fontSize: '0.7rem',
-          fontWeight: 700,
-          letterSpacing: '0.08em',
-          textAlign: 'center',
-          textTransform: 'uppercase',
-        }}
-      >
-        {fallbackLabel}
-      </div>
+      <BrandedPlaceholder
+        label={alt || fallbackLabel || 'Briefy News'}
+        category={category}
+        className={props.className}
+      />
     );
   }
 

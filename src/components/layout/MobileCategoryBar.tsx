@@ -2,21 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { MOBILE_RAIL_CATEGORIES } from '@/lib/categories';
 import styles from './MobileCategoryBar.module.css';
-
-const CATEGORIES = [
-  { label: 'All', href: '/' },
-  { label: 'Latest', href: '/daily-news' },
-  { label: 'India', href: '/india' },
-  { label: 'World', href: '/world' },
-  { label: 'Technology', href: '/technology' },
-  { label: 'AI', href: '/ai' },
-  { label: 'Business', href: '/business' },
-  { label: 'Finance', href: '/finance' },
-  { label: 'Science', href: '/science' },
-  { label: 'Startups', href: '/startups' },
-  { label: 'Sports', href: '/sports' },
-];
 
 export default function MobileCategoryBar() {
   const pathname = usePathname();
@@ -30,7 +17,7 @@ export default function MobileCategoryBar() {
     <div className={styles.container} role="navigation" aria-label="Category quick navigation">
       <div className={styles.fadeLeft} aria-hidden="true" />
       <div className={styles.scrollRail}>
-        {CATEGORIES.map((cat) => {
+        {MOBILE_RAIL_CATEGORIES.map((cat) => {
           const active = isActive(cat.href);
           return (
             <Link

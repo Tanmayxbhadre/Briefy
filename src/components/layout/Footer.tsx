@@ -13,24 +13,12 @@ import {
   ExternalLink,
   Radio,
 } from 'lucide-react';
+import { FOOTER_TOPICS_PRIMARY, FOOTER_TOPICS_SECONDARY } from '@/lib/categories';
 import styles from './Footer.module.css';
 import BrandLogo from '@/components/shared/BrandLogo';
 
-const CATEGORIES_PRIMARY = [
-  { label: 'India', href: '/india' },
-  { label: 'World', href: '/world' },
-  { label: 'Technology', href: '/technology' },
-  { label: 'Artificial Intelligence', href: '/ai' },
-  { label: 'Business', href: '/business' },
-];
-
-const CATEGORIES_SECONDARY = [
-  { label: 'Finance & Markets', href: '/finance' },
-  { label: 'Startups & VC', href: '/startups' },
-  { label: 'Science & Discovery', href: '/science' },
-  { label: 'Sports', href: '/sports' },
-  { label: 'Gaming', href: '/gaming' },
-];
+const CATEGORIES_PRIMARY = FOOTER_TOPICS_PRIMARY;
+const CATEGORIES_SECONDARY = FOOTER_TOPICS_SECONDARY;
 
 const EDITORIAL_LINKS = [
   { label: 'About Briefy', href: '/about' },

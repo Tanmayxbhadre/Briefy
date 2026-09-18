@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { Article } from '@/lib/types';
-import { formatDate, formatReadingTime } from '@/lib/utils';
+import { formatDate, formatReadingTime, truncate, deduplicateArticles } from '@/lib/utils';
 import ArticleImage from '@/components/shared/ArticleImage';
+import { ArrowRight } from 'lucide-react';
 import styles from './CategorySection.module.css';
 
 interface CategorySectionProps {
@@ -11,17 +12,23 @@ interface CategorySectionProps {
 }
 
 export default function CategorySection({ categoryName, categorySlug, articles }: CategorySectionProps) {
-  if (!articles.length) return null;
+  const uniqueArticles = deduplicateArticles(articles);
+  if (!uniqueArticles.length) return null;
 
-  const [primary, ...rest] = articles;
+  const [primary, ...rest] = uniqueArticles;
   const primaryUrl = `/${primary.category.slug}/${primary.slug}`;
 
   return (
     <section className={styles.section} aria-label={`${categoryName} news`}>
-      <h2 className="section-heading">
-        <span>{categoryName}</span>
-        <Link href={`/${categorySlug}`}>View all →</Link>
-      </h2>
+      <div className={styles.header}>
+        <h2 className="section-heading">
+          <span>{categoryName}</span>
+          <Link href={`/${categorySlug}`} className={styles.viewAllLink}>
+            <span>View all in {categoryName}</span>
+            <ArrowRight size={13} aria-hidden="true" />
+          </Link>
+        </h2>
+      </div>
 
       <div className={styles.grid}>
         {/* Primary story */}
@@ -30,6 +37,7 @@ export default function CategorySection({ categoryName, categorySlug, articles }
             <ArticleImage
               src={primary.featuredImage}
               alt={primary.imageAlt}
+              category={primary.category.name}
               fill
               sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 40vw"
               className={styles.image}
@@ -43,11 +51,19 @@ export default function CategorySection({ categoryName, categorySlug, articles }
             <h3 className={styles.primaryHeadline}>
               <Link href={primaryUrl}>{primary.title}</Link>
             </h3>
-            <p className={styles.primaryDesc}>{primary.description}</p>
+            {primary.description && (
+              <p className={styles.primaryDesc}>{truncate(primary.description, 160)}</p>
+            )}
             <div className={styles.primaryMeta}>
               <time dateTime={primary.publishedAt}>{formatDate(primary.publishedAt)}</time>
               <span aria-hidden="true">·</span>
               <span>{formatReadingTime(primary.readingTime)}</span>
+            </div>
+            <div className={styles.primaryCta}>
+              <Link href={primaryUrl} className={styles.readMoreLink} aria-label={`Read story: ${primary.title}`}>
+                <span>Read Story</span>
+                <ArrowRight size={12} aria-hidden="true" />
+              </Link>
             </div>
           </div>
         </article>
@@ -74,6 +90,7 @@ export default function CategorySection({ categoryName, categorySlug, articles }
                     <ArticleImage
                       src={article.featuredImage}
                       alt={article.imageAlt}
+                      category={article.category.name}
                       fill
                       sizes="80px"
                       className={styles.secondaryImage}
