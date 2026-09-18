@@ -209,6 +209,7 @@ export function AdminSidebar({ isOpen, onClose, user = 'Editor', counts }: Admin
     { label: 'News Queue', href: '/admin/news', icon: Newspaper, count: counts?.discovered },
     { label: 'Story Clusters', href: '/admin/clusters', icon: Layers, count: counts?.clusters },
     { label: 'Drafts', href: '/admin/drafts', icon: FileEdit, count: counts?.drafts },
+    { label: 'SEO Studio', href: '/admin/seo', icon: Zap },
   ];
 
   const systemItems: NavItem[] = [
