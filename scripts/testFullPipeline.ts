@@ -20,7 +20,9 @@ async function testFullPipeline() {
   console.log('Sources processed:', result.sourcesProcessed);
   console.log('New news items:', result.newItems);
   console.log('Duplicates:', result.duplicates);
-  console.log('Downstream:', JSON.stringify(result.downstream, null, 2));
+  if ('downstream' in result) {
+    console.log('Downstream:', JSON.stringify(result.downstream, null, 2));
+  }
 
   const afterPublished = await prisma.articleDraft.count({ where: { status: 'PUBLISHED' } });
   const afterDrafts = await prisma.articleDraft.count();

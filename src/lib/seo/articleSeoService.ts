@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/db';
+import { prisma } from '../db';
 import { auditArticleSeo } from './audit';
 import type { ArticleForAudit } from './audit';
 import { optimizeArticleSeo } from './optimizer';

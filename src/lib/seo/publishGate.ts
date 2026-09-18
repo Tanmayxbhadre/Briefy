@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/db';
+import { prisma } from '../db';
 import { getArticleSeoAudit, optimizeAndPersistArticleSeo } from './articleSeoService';
 import type { ArticleForAudit } from './audit';
 
@@ -26,7 +26,7 @@ export function validateSEO(article: ArticleForAudit, version: number): SeoValid
 
 export async function enhanceArticleSEO(id: string) {
   const claimed = await prisma.articleDraft.updateMany({
-    where: { id, status: { not: 'PUBLISHED' }, seoWorkflowStatus: { in: ['PENDING', 'SEO_FAILED', 'SEO_REVIEW'] } },
+    where: { id, status: { not: 'PUBLISHED' }, seoWorkflowStatus: { in: ['PENDING', 'SEO_FAILED', 'SEO_REVIEW', 'READY_TO_PUBLISH'] } },
     data: { seoWorkflowStatus: 'PROCESSING', seoProcessingAt: new Date(), seoLastError: null },
   });
   if (claimed.count !== 1) throw new Error('SEO enhancement is already processing or the article is not editable');

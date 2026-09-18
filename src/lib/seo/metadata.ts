@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
-import type { Article, Category } from '@/lib/types';
-import { brandedTitle, SITE_NAME, SITE_URL, siteUrl } from '@/lib/site';
+import type { Article, Category } from '../types';
+import { brandedTitle, SITE_NAME, SITE_URL, siteUrl } from '../site';
 
 export function articleMetadata(article: Article): Metadata {
   const canonical = article.canonicalUrl?.startsWith('http')
