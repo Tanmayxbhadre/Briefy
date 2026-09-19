@@ -130,13 +130,13 @@ export function AdminSidebar({ isOpen, onClose, user = 'Editor', counts }: Admin
       const res = await fetch('/api/admin/automation/publish-all', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ limit: 100 }),
+        body: JSON.stringify({ limit: 1000 }),
       });
       const data = await res.json();
 
       if (res.ok && data.success) {
         setFeedback({
-          text: data.count > 0 ? `✓ Published ${data.count} news items!` : 'No pending drafts to publish.',
+          text: data.count > 0 ? `✓ Published ${data.count} news items!` : 'No pending news items to publish.',
           isError: false,
         });
         setLastActionTime(Date.now());
@@ -150,7 +150,7 @@ export function AdminSidebar({ isOpen, onClose, user = 'Editor', counts }: Admin
       }
     } catch {
       setFeedback({
-        text: 'Network error while publishing.',
+        text: 'Network error occurred',
         isError: true,
       });
     } finally {

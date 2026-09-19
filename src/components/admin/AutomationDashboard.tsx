@@ -126,7 +126,7 @@ export function AutomationDashboard() {
       const res = await fetch('/api/admin/automation/publish-all', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ limit: 100 }),
+        body: JSON.stringify({ limit: 1000 }),
       });
       const result = await res.json();
 
@@ -135,7 +135,7 @@ export function AutomationDashboard() {
           text:
             result.count > 0
               ? `✓ Successfully published ${result.count} articles to Briefy.live!`
-              : 'No eligible drafts found to publish.',
+              : 'No eligible news items or drafts found to publish.',
           isError: false,
         });
         setLastActionTime(Date.now());

@@ -74,14 +74,15 @@ export function AdminNewsQueue({ initialCategories, initialSources }: AdminNewsQ
       const res = await fetch('/api/admin/automation/publish-all', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ limit: 100 }),
+        body: JSON.stringify({ limit: 1000 }),
       });
       const data = await res.json();
 
       if (res.ok && data.success) {
-        showFeedback(data.count > 0 ? `✓ Published ${data.count} news items!` : 'No pending drafts to publish.');
+        showFeedback(data.count > 0 ? `✓ Published ${data.count} news items!` : 'No pending news items to publish.');
         if (data.count > 0) notifyNewsPublished();
         fetchItems();
+        router.refresh();
       } else {
         showFeedback(data.error || 'Failed to auto-publish news.');
       }
