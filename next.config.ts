@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  trailingSlash: false,
   async rewrites() {
     return {
       // IndexNow requires the key file at https://<host>/{KEY}.txt —

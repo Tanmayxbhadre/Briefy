@@ -1,4 +1,5 @@
 import { auditArticleSeo, SeoAuditResult, ArticleForAudit } from './audit';
+import { SITE_URL } from '../site';
 
 export interface OptimizedSeoFields {
   seoTitle: string;
@@ -15,7 +16,6 @@ export interface OptimizedSeoFields {
  * Bing, and social search before publication.
  */
 export function optimizeArticleSeo(article: ArticleForAudit): OptimizedSeoFields {
-  const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://briefy.live';
   const categorySlug = article.categorySlug || 'news';
   const rawTitle = article.title.trim();
   const slug = article.slug.trim();

@@ -6,7 +6,7 @@
  */
 
 export const SITE_URL = (
-  process.env.NEXT_PUBLIC_SITE_URL || "https://briefy.live"
+  process.env.NEXT_PUBLIC_SITE_URL || "https://www.briefy.live"
 ).replace(/\/+$/, "");
 
 export const SITE_NAME = "Briefy.live";

@@ -2,6 +2,8 @@
 // Briefy — Utility Functions
 // ============================================================
 
+import { SITE_URL } from './site';
+
 /**
  * Calculate estimated reading time from content string.
  * Average reading speed: ~238 wpm
@@ -130,8 +132,8 @@ export function deduplicateArticles<T extends { slug: string; id?: string }>(art
  * Get a canonical URL for the site.
  */
 export function getCanonicalUrl(path: string = ''): string {
-  const base = process.env.NEXT_PUBLIC_SITE_URL || 'https://briefy.live';
-  return `${base}${path}`;
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  return path ? `${SITE_URL}${normalizedPath}` : SITE_URL;
 }
 
 /**
