@@ -27,71 +27,42 @@ export class MockAIProvider extends BaseAIProvider {
     const isBreaking = req.mode === 'breaking';
 
     const allSources = [req.primarySource, ...(req.additionalSources || [])];
-    const sourceNamesList = allSources.map((s) => s.name).join(' · ');
+    const sourceAttribution = allSources.length > 1
+      ? `Reporting synthesized from ${allSources.map((s) => s.name).join(', ')}.`
+      : `According to reporting by ${req.primarySource.name}.`;
+
+    const rawLede = req.description ? req.description.trim() : `${cleanTitle}.`;
 
     const draft: StructuredArticleDraft = {
       title: cleanTitle,
       suggestedSlug: slug,
       excerpt: req.description
-        ? `${req.description.slice(0, 140)}...`
-        : `Comprehensive editorial synthesis of developments verified across ${allSources.length} reporting sources: ${sourceNamesList}.`,
+        ? req.description.slice(0, 150).trim()
+        : `${cleanTitle}. Reporting by ${req.primarySource.name}.`,
       content: isBreaking
-        ? `## Breaking Development\n\n${req.description || 'Initial reports indicate significant developments underway.'}\n\n## Multi-Source Verification\n\n- Cross-verified across reporting from **${sourceNamesList}**.\n- Primary wire transmission confirmed by ${req.primarySource.name}.\n\n## Developing Questions\n\nFurther technical and official confirmations are expected in subsequent updates.`
-        : `## What Happened\n\n${req.description || 'Major announcements were made today regarding key sector developments.'}\n\nAccording to comprehensive reporting synthesized across **${sourceNamesList}**, this event marks a strategic shift with broad industry implications.\n\n## Key Details & Multi-Source Reporting\n\nMultiple independent outlets confirmed core milestones, with wire briefings highlighting operational rollouts scheduled over the coming quarter.\n\n## Why It Matters\n\nThe initiative reinforces strategic positioning while delivering verified improvements for the broader ecosystem.\n\n## What's Next\n\nImplementation is slated to commence immediately, with initial phases rolling out across primary markets in the weeks ahead.`,
-      quickSummary: [
-        allSources.length > 1
-          ? `Cross-verified across ${allSources.length} independent publications (${sourceNamesList}).`
-          : `${req.primarySource.name} reported updates on ${cleanTitle}.`,
-        'Strategic implications expected to impact primary stakeholders and market momentum.',
-        'Follow-up rollout scheduled across subsequent implementation milestones.',
-      ],
-      whatYouNeedToKnow: {
-        whatHappened: `Official developments announced regarding ${cleanTitle}.`,
-        whyItMatters: 'Signals crucial strategic realignment and enhanced capabilities for the ecosystem.',
-        keyDetails: [
-          `Reporting verified across ${allSources.length} sources: ${sourceNamesList}`,
-          'Initial rollout scheduled for immediate phased deployment',
-          'Cross-functional teams leading implementation guidelines',
-        ],
-        whatsNext: 'Further operational guidance and expanded availability expected in coming weeks.',
-      },
-      timeline: [
-        {
-          date: 'Initial Discovery',
-          title: 'Wire Alert Dispatched',
-          description: `Discovered and verified via ${req.primarySource.name}.`,
-        },
-        {
-          date: 'Current Phase',
-          title: 'Multi-Source Editorial Synthesis',
-          description: `Consensus verified across ${sourceNamesList}.`,
-        },
-      ],
+        ? `## Developing Story\n\n${rawLede}\n\n${sourceAttribution}`
+        : `## Overview\n\n${rawLede}\n\n${sourceAttribution}`,
+      quickSummary: req.description
+        ? [req.description.slice(0, 120)]
+        : undefined,
       suggestedCategory: req.categorySlug || 'technology',
       subcategory: req.subcategory,
-      tags: [req.categorySlug || 'Technology', req.primarySource.name, 'Editorial', 'Analysis'],
+      tags: [req.categorySlug ? req.categorySlug.toUpperCase() : 'News', req.primarySource.name],
       seoTitle: cleanTitle.slice(0, 60),
-      metaDescription: `Read Briefy.live's comprehensive analysis on ${cleanTitle.toLowerCase()}. Facts, timeline, and industry implications explained.`.slice(
-        0,
-        155
-      ),
+      metaDescription: (req.description || `${cleanTitle}. Reporting by ${req.primarySource.name}.`).slice(0, 155),
       alternativeHeadlines: [
-        `Explained: ${cleanTitle}`,
-        `Inside ${cleanTitle}: Key Facts & Implications`,
-        `What ${cleanTitle} Means for the Industry`,
+        cleanTitle,
+        `Update: ${cleanTitle}`,
       ],
       sources: [
         { name: req.primarySource.name, url: req.primarySource.url },
         ...(req.additionalSources || []).map((s) => ({ name: s.name, url: s.url })),
       ],
       reviewFlags: {
-        needsVerification: true,
-        verificationNotes: [
-          `Confirm rollout schedule with primary source (${req.primarySource.name}).`,
-          'Verify specific numeric metrics against official release.',
-        ],
+        needsVerification: false,
+        verificationNotes: [],
       },
-      readingTime: isBreaking ? 2 : 4,
+      readingTime: isBreaking ? 1 : 2,
     };
 
     return {

@@ -29,19 +29,25 @@ export default function MultiSourceAttribution({ sources }: MultiSourceAttributi
   const validSources = getValidSources(sources ?? []);
   if (validSources.length === 0) return null;
 
+  const isSingleSource = validSources.length === 1;
+
   return (
     <section className={styles.container} aria-labelledby="article-sources-heading">
       <div className={styles.headerRow}>
         <div>
-          <p className={styles.eyebrow}>Editorial transparency</p>
+          <p className={styles.eyebrow}>Editorial Transparency</p>
           <h2 id="article-sources-heading" className={styles.heading}>
-            Sources &amp; cross-verification
+            {isSingleSource ? 'Original Source' : 'Reporting Sources'}
           </h2>
         </div>
-        <span className={styles.count}>{validSources.length} reporting {validSources.length === 1 ? 'source' : 'sources'}</span>
+        <span className={styles.count}>
+          {isSingleSource ? '1 reporting source' : `${validSources.length} reporting sources`}
+        </span>
       </div>
       <p className={styles.description}>
-        This article was synthesized and cross-checked against the following reporting sources.
+        {isSingleSource
+          ? `This article was synthesized from coverage published by ${validSources[0].name}.`
+          : 'This article was synthesized from reporting published by the following sources:'}
       </p>
       <ul className={styles.sourcesList}>
         {validSources.map((source) => (
@@ -51,7 +57,7 @@ export default function MultiSourceAttribution({ sources }: MultiSourceAttributi
               target="_blank"
               rel="noopener noreferrer"
               className={styles.sourceLink}
-              aria-label={`Read the original report from ${source.name}`}
+              aria-label={`Read original coverage from ${source.name}`}
             >
               <span>{source.name}</span>
               <ExternalLink aria-hidden="true" className={styles.arrow} />
@@ -60,7 +66,7 @@ export default function MultiSourceAttribution({ sources }: MultiSourceAttributi
         ))}
       </ul>
       <p className={styles.note}>
-        Source links are provided for transparency. Consult the original reports for complete context.
+        Original reporting links are provided for attribution and reader verification. Consult the original publisher for complete coverage.
       </p>
     </section>
   );

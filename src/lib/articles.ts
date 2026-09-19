@@ -8,6 +8,8 @@ import { deduplicateArticles } from './utils';
 import slugify from 'slugify';
 import { ArticleDraft, Category as PrismaCategory, NewsItem, StoryCluster } from '@prisma/client';
 
+import { evaluateArticleQuality } from './seo/qualityGate';
+
 type DraftWithRelations = ArticleDraft & {
   category?: PrismaCategory | null;
   newsItem?: NewsItem | null;
@@ -106,6 +108,12 @@ export function draftToArticle(draft: DraftWithRelations): Article {
     seoTitle: draft.seoTitle || undefined,
     metaDescription: draft.metaDescription || undefined,
     canonicalUrl: draft.canonicalUrl || undefined,
+    noindex: !evaluateArticleQuality({
+      title: draft.title,
+      excerpt: draft.excerpt,
+      content: draft.content,
+      sources,
+    }).indexable,
   };
 }
 
