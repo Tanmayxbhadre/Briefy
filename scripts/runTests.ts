@@ -814,6 +814,72 @@ async function runAllTests() {
   });
   assert(afterRejectQueue.length === 0, 'CASE 14: REJECTED NewsItem absent from actionable queue filter');
 
+  // ----------------------------------------------------
+  // TEST GROUP 17: SEO Metadata Rules & Anti-Boilerplate
+  // ----------------------------------------------------
+  console.log('\n--- Test Suite 17: SEO Metadata Rules & Anti-Boilerplate ---');
+  const { SITE_CATEGORIES } = await import('../src/lib/categories');
+  const { categoryMetadata, homeMetadata, articleMetadata } = await import('../src/lib/seo/metadata');
+  const { articles: testMockArticles } = await import('../src/lib/mock-data');
+  const { brandedTitle } = await import('../src/lib/site');
+
+  const BANNED_BOILERPLATE = [
+    /read briefy\.live's comprehensive analysis/i,
+    /india's most trusted source/i,
+    /strategic implications expected to impact primary stakeholders/i,
+    /multiple independent outlets confirmed core milestones/i,
+    /operational rollouts scheduled over the coming quarter/i,
+  ];
+
+  // 1. Homepage Metadata
+  const homeTitle = typeof homeMetadata.title === 'object' && 'absolute' in homeMetadata.title
+    ? (homeMetadata.title.absolute as string)
+    : String(homeMetadata.title || '');
+  const homeDesc = String(homeMetadata.description || '');
+
+  assert(homeTitle.length <= 65, `Homepage title length <= 65 chars (got ${homeTitle.length})`);
+  assert(homeDesc.length >= 100 && homeDesc.length <= 160, `Homepage description length between 100-160 chars (got ${homeDesc.length})`);
+  assert(!BANNED_BOILERPLATE.some((b) => b.test(homeDesc) || b.test(homeTitle)), 'Homepage has no banned boilerplate phrases');
+
+  // 2. Category Metadata
+  const catTitles = new Set<string>();
+  const catDescriptions = new Set<string>();
+  let allCatsValid = true;
+
+  for (const cat of SITE_CATEGORIES) {
+    const meta = categoryMetadata(cat, true);
+    const title = typeof meta.title === 'object' && 'absolute' in meta.title
+      ? (meta.title.absolute as string)
+      : String(meta.title || '');
+    const desc = String(meta.description || '');
+
+    if (title.length > 65 || catTitles.has(title)) allCatsValid = false;
+    if (desc.length < 100 || desc.length > 160 || catDescriptions.has(desc)) allCatsValid = false;
+    if (BANNED_BOILERPLATE.some((b) => b.test(title) || b.test(desc))) allCatsValid = false;
+
+    catTitles.add(title);
+    catDescriptions.add(desc);
+  }
+  assert(allCatsValid, 'All categories have unique, length-compliant titles (<=65 chars) & descriptions (100-160 chars) without boilerplate');
+
+  // 3. Article Metadata Generator
+  let allArticlesValid = true;
+  for (const art of testMockArticles) {
+    const meta = articleMetadata(art);
+    const title = typeof meta.title === 'object' && 'absolute' in meta.title
+      ? (meta.title.absolute as string)
+      : String(meta.title || '');
+    const desc = String(meta.description || '');
+
+    if (title.length > 65 || desc.length > 160) allArticlesValid = false;
+    if (BANNED_BOILERPLATE.some((b) => b.test(desc))) allArticlesValid = false;
+  }
+  assert(allArticlesValid, 'Article metadata generator produces clean titles <=65 chars and strips legacy boilerplate descriptions');
+
+  // 4. Branded Title Formatter
+  assert(brandedTitle('Short Headline').length <= 65, 'brandedTitle respects 65 char ceiling for short titles');
+  assert(brandedTitle('A Very Long Headline That Exceeds Standard Limits Across Multiple News Platforms In Length').length <= 65, 'brandedTitle caps long titles at 65 chars');
+
   // Clean up Suite 16 test data
   await prisma.articleDraft.delete({ where: { id: draft16.id } });
   await prisma.newsItem.delete({ where: { id: testNewsItem16.id } });

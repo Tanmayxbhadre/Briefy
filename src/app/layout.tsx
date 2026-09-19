@@ -32,12 +32,11 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: 'Briefy.live | Serious Journalism for the Modern Reader',
+    default: 'Latest India & World News, Tech, AI, Business | Briefy.live',
     template: '%s | Briefy.live',
   },
   description:
-    'Briefy.live delivers clear, concise, and trustworthy news across India, World, Technology, AI, Business, and Science.',
-  keywords: ['India news', 'world news', 'technology news', 'AI news', 'business news', 'science news'],
+    'Briefy.live delivers clear, verified news and essential analysis across India, World affairs, Technology, AI breakthroughs, Business, and Science.',
   applicationName: SITE_NAME,
   category: 'news',
   authors: [{ name: 'Briefy.live Editorial Team' }],
