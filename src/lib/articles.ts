@@ -8,6 +8,8 @@ import { deduplicateArticles } from './utils';
 import slugify from 'slugify';
 import { ArticleDraft, Category as PrismaCategory, NewsItem, StoryCluster } from '@prisma/client';
 
+import { evaluateArticleQuality } from './seo/qualityGate';
+
 type DraftWithRelations = ArticleDraft & {
   category?: PrismaCategory | null;
   newsItem?: NewsItem | null;
@@ -106,6 +108,12 @@ export function draftToArticle(draft: DraftWithRelations): Article {
     seoTitle: draft.seoTitle || undefined,
     metaDescription: draft.metaDescription || undefined,
     canonicalUrl: draft.canonicalUrl || undefined,
+    noindex: !evaluateArticleQuality({
+      title: draft.title,
+      excerpt: draft.excerpt,
+      content: draft.content,
+      sources,
+    }).indexable,
   };
 }
 
@@ -220,21 +228,113 @@ export async function searchPublishedArticles(query: string): Promise<Article[]>
 }
 
 /**
- * Related articles: same category first, then newest others. Prefers real
- * database articles (previously this only ever returned mock articles).
+ * Related articles: chooses by shared tags/entities/topic similarity plus recency,
+ * not just 'latest in section'. Falls back to same-category when no shared tags exist.
  */
 export async function getRelatedArticles(
   article: Article,
   count = 4
 ): Promise<Article[]> {
   const all = await getAllPublishedArticles();
-  const sameCategory = all.filter(
-    (a) => a.id !== article.id && a.category.slug.toLowerCase() === article.category.slug.toLowerCase()
+  const candidates = all.filter((a) => a.id !== article.id && !a.noindex);
+
+  const currentTags = new Set(article.tags.map((t) => t.toLowerCase()));
+  const currentWords = new Set(
+    article.title
+      .toLowerCase()
+      .split(/\W+/)
+      .filter((w) => w.length > 3)
   );
-  const others = all.filter(
-    (a) => a.id !== article.id && a.category.slug.toLowerCase() !== article.category.slug.toLowerCase()
-  );
-  return deduplicateArticles([...sameCategory, ...others]).slice(0, count);
+
+  const scored = candidates.map((candidate) => {
+    let score = 0;
+
+    // Shared tags score (high weight)
+    for (const tag of candidate.tags) {
+      if (currentTags.has(tag.toLowerCase())) {
+        score += 10;
+      }
+    }
+
+    // Shared title keywords
+    for (const word of candidate.title.toLowerCase().split(/\W+/)) {
+      if (word.length > 3 && currentWords.has(word)) {
+        score += 3;
+      }
+    }
+
+    // Same category bonus
+    if (candidate.category.slug.toLowerCase() === article.category.slug.toLowerCase()) {
+      score += 2;
+    }
+
+    // Recency bonus: within 7 days +1
+    const ageDays = (Date.now() - new Date(candidate.publishedAt).getTime()) / (1000 * 60 * 60 * 24);
+    if (ageDays < 7) {
+      score += 1;
+    }
+
+    return { candidate, score };
+  });
+
+  scored.sort((a, b) => b.score - a.score || new Date(b.candidate.publishedAt).getTime() - new Date(a.candidate.publishedAt).getTime());
+
+  return deduplicateArticles(scored.map((s) => s.candidate)).slice(0, count);
+}
+
+/**
+ * Topic & Tag aggregation helpers
+ */
+export function slugifyTag(tag: string): string {
+  return slugify(tag, { lower: true, strict: true }) || tag.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+}
+
+export async function getTagCounts(): Promise<Map<string, { name: string; count: number; articles: Article[] }>> {
+  const all = await getAllPublishedArticles();
+  const tagMap = new Map<string, { name: string; count: number; articles: Article[] }>();
+
+  for (const article of all) {
+    if (article.noindex) continue;
+    for (const tag of article.tags) {
+      const trimmed = tag.trim();
+      if (!trimmed) continue;
+      const slug = slugifyTag(trimmed);
+      const existing = tagMap.get(slug);
+      if (existing) {
+        existing.count += 1;
+        existing.articles.push(article);
+      } else {
+        tagMap.set(slug, { name: trimmed, count: 1, articles: [article] });
+      }
+    }
+  }
+
+  return tagMap;
+}
+
+export async function getAllEligibleTopicSlugs(minCount = 5): Promise<string[]> {
+  const tagMap = await getTagCounts();
+  const eligible: string[] = [];
+  for (const [slug, data] of tagMap.entries()) {
+    if (data.count >= minCount) {
+      eligible.push(slug);
+    }
+  }
+  return eligible;
+}
+
+export async function getTopicBySlug(
+  slug: string
+): Promise<{ slug: string; name: string; count: number; articles: Article[] } | null> {
+  const tagMap = await getTagCounts();
+  const topic = tagMap.get(slug.toLowerCase());
+  if (!topic) return null;
+  return {
+    slug: slug.toLowerCase(),
+    name: topic.name,
+    count: topic.count,
+    articles: deduplicateArticles(topic.articles),
+  };
 }
 
 /**

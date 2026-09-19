@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getPublishedArticleBySlug, getRelatedArticles } from '@/lib/articles';
+import { getPublishedArticleBySlug, getRelatedArticles, getAllEligibleTopicSlugs } from '@/lib/articles';
 import ArticleHeader from '@/components/article/ArticleHeader';
 import ArticleBody from '@/components/article/ArticleBody';
 import QuickSummary from '@/components/article/QuickSummary';
@@ -39,7 +39,11 @@ export default async function ArticlePage({ params }: Props) {
   if (!article || article.category.slug !== category) notFound();
 
   // DB-backed: previously this only ever returned mock articles.
-  const relatedArticles = await getRelatedArticles(article, 4);
+  const [relatedArticles, eligibleTopicSlugsList] = await Promise.all([
+    getRelatedArticles(article, 4),
+    getAllEligibleTopicSlugs(5),
+  ]);
+  const eligibleTopicSlugs = new Set(eligibleTopicSlugsList);
 
   return (
     <>
@@ -71,7 +75,7 @@ export default async function ArticlePage({ params }: Props) {
         </div>
 
         {/* Body Content */}
-        <ArticleBody article={article} />
+        <ArticleBody article={article} eligibleTopicSlugs={eligibleTopicSlugs} />
 
         {/* Context panel follows the complete article body. */}
         {article.whatYouNeedToKnow && (

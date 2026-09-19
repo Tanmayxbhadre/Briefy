@@ -100,9 +100,14 @@ export async function collectAllNews(): Promise<CollectionSummary> {
         // Find or create category
         let dbCategory = await prisma.category.findUnique({ where: { slug: categoryName } });
         if (!dbCategory) {
+          const formattedName =
+            categoryName === 'ai'
+              ? 'AI'
+              : categoryName.charAt(0).toUpperCase() + categoryName.slice(1);
+
           dbCategory = await prisma.category.create({
             data: {
-              name: categoryName.charAt(0).toUpperCase() + categoryName.slice(1),
+              name: formattedName,
               slug: categoryName,
             },
           });

@@ -22,10 +22,13 @@ export async function GET() {
   // signal).
   const cutoff = new Date(Date.now() - 48 * 60 * 60 * 1000);
 
-  const newsArticles = allArticles.filter((a) => {
-    const pubDate = new Date(a.publishedAt);
-    return pubDate >= cutoff;
-  });
+  const newsArticles = allArticles
+    .filter((a) => {
+      if (a.noindex) return false;
+      const pubDate = new Date(a.publishedAt);
+      return pubDate >= cutoff;
+    })
+    .slice(0, 1000);
 
   const xmlItems = newsArticles
     .map((article) => {

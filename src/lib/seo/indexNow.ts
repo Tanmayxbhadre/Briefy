@@ -8,10 +8,12 @@
  * sitemaps via robots.txt and Search Console; IndexNow covers Bing/Yandex.
  */
 
+import { SITE_URL } from '../site';
+
 export const INDEXNOW_KEY = process.env.INDEXNOW_KEY || 'briefylive-indexnow-key-2026';
 
 export async function submitToIndexNow(urls: string[]): Promise<boolean> {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://briefy.live';
+  const siteUrl = SITE_URL;
 
   if (!urls.length) return false;
 

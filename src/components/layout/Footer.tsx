@@ -23,8 +23,9 @@ const CATEGORIES_SECONDARY = FOOTER_TOPICS_SECONDARY;
 const EDITORIAL_LINKS = [
   { label: 'About Briefy', href: '/about' },
   { label: 'Editorial Policy', href: '/editorial-policy' },
+  { label: 'Corrections Policy', href: '/corrections-policy' },
+  { label: 'Masthead & Team', href: '/masthead' },
   { label: 'Daily Briefing', href: '/daily-news' },
-  { label: 'Global Search', href: '/search' },
   { label: 'Contact & Newsroom', href: '/contact' },
 ];
 

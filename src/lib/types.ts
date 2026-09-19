@@ -67,6 +67,7 @@ export interface Article {
   seoTitle?: string;
   metaDescription?: string;
   canonicalUrl?: string;
+  noindex?: boolean;
 }
 
 export interface BreakingNewsItem {

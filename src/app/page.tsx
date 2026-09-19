@@ -8,21 +8,13 @@ import NewsletterSignup from '@/components/home/NewsletterSignup';
 import AdSlot from '@/components/shared/AdSlot';
 
 import { getHomepageData } from '@/lib/news/homepage';
+import { homeMetadata } from '@/lib/seo/metadata';
 import styles from './page.module.css';
 
 // ISR: edge-cached with 60s freshness, plus instant revalidation on publish
 export const revalidate = 60;
 
-export const metadata: Metadata = {
-  title: {
-    absolute: 'Briefy.live | Serious Journalism for the Modern Reader',
-  },
-  description:
-    "India's most trusted source for clear, concise news across Technology, AI, Business, India, World, Science, Finance, and Sports.",
-  alternates: {
-    canonical: '/',
-  },
-};
+export const metadata: Metadata = homeMetadata;
 
 export default async function HomePage() {
   const {

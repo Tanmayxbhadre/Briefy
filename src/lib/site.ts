@@ -6,7 +6,7 @@
  */
 
 export const SITE_URL = (
-  process.env.NEXT_PUBLIC_SITE_URL || "https://briefy.live"
+  process.env.NEXT_PUBLIC_SITE_URL || "https://www.briefy.live"
 ).replace(/\/+$/, "");
 
 export const SITE_NAME = "Briefy.live";
@@ -24,7 +24,21 @@ export function brandedTitle(title: string): string {
     .replace(/\s*(?:[|—-]\s*)?(?:b(?:r(?:ienfy|iefy))(?:\.live)?)\s*$/i, '')
     .trim();
 
-  return `${normalized || SITE_NAME} | ${SITE_NAME}`;
+  if (!normalized) return SITE_NAME;
+
+  const withBrand = `${normalized} | ${SITE_NAME}`;
+  if (withBrand.length <= 65) {
+    return withBrand;
+  }
+
+  // Drop brand suffix if it exceeds 65 chars; truncate if headline alone > 65 chars
+  if (normalized.length > 65) {
+    const cut = normalized.slice(0, 62);
+    const lastSpace = cut.lastIndexOf(' ');
+    return (lastSpace > 40 ? cut.slice(0, lastSpace) : cut) + '...';
+  }
+
+  return normalized;
 }
 
 /**

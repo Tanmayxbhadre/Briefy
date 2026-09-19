@@ -1,24 +1,20 @@
-import { Article } from '@/lib/types';
+import { Article, Category } from '@/lib/types';
 import { SITE_URL, SITE_NAME } from '@/lib/site';
+import { getAuthorProfile } from '@/config/authors';
 
 interface SchemaOrgProps {
   article?: Article;
+  category?: Category;
+  categoryArticles?: Article[];
   pageType?: 'home' | 'article' | 'category' | 'search';
 }
 
-/**
- * JSON-LD structured data.
- *
- * Notes:
- * - Brand name is unified to "Briefy.live" everywhere.
- * - Article images ship in all three ratios Google Top Stories accepts
- *   (16:9, 4:3, 1:1) instead of a single one.
- * - speakable selectors target stable, real selectors — the previous
- *   '.headline'/'.description' matched CSS-module classes that are hashed at
- *   build time, and '#article-summary' never existed in the DOM.
- * - author.url only links to a real author page when one exists.
- */
-export default function SchemaOrg({ article }: SchemaOrgProps) {
+export default function SchemaOrg({
+  article,
+  category,
+  categoryArticles,
+  pageType = 'home',
+}: SchemaOrgProps) {
   const organizationSchema = {
     '@context': 'https://schema.org',
     '@type': ['Organization', 'NewsMediaOrganization'],
@@ -31,6 +27,10 @@ export default function SchemaOrg({ article }: SchemaOrgProps) {
       width: 512,
       height: 512,
     },
+    publishingPrinciples: `${SITE_URL}/editorial-policy`,
+    ethicsPolicy: `${SITE_URL}/editorial-policy`,
+    correctionsPolicy: `${SITE_URL}/corrections-policy`,
+    masthead: `${SITE_URL}/masthead`,
     sameAs: [
       'https://twitter.com/briefylive',
       'https://instagram.com/briefylive',
@@ -55,18 +55,39 @@ export default function SchemaOrg({ article }: SchemaOrgProps) {
     },
   };
 
+  let authorSchema: object = {
+    '@type': 'NewsMediaOrganization',
+    name: SITE_NAME,
+    url: SITE_URL,
+  };
+
+  if (article?.author?.name) {
+    const profile = getAuthorProfile(article.author.name);
+    if (profile) {
+      authorSchema = {
+        '@type': 'Person',
+        name: profile.name,
+        jobTitle: profile.role,
+        url: `${SITE_URL}/author/${profile.slug}`,
+        sameAs: profile.sameAs,
+      };
+    }
+  }
+
+  const citations = (article?.sources || [])
+    .filter((s) => s.url && s.url.startsWith('http'))
+    .map((s) => s.url);
+
   const articleSchema = article
     ? {
         '@context': 'https://schema.org',
         '@type': 'NewsArticle',
         '@id': `${SITE_URL}/${article.category.slug}/${article.slug}`,
-        headline: article.title,
+        headline: article.title.slice(0, 110),
         description: article.metaDescription || article.description,
         image: [
-          `${article.featuredImage}`,
-          // Top Stories accepts multiple ratios; deriving crops from the
-          // Unsplash CDN keeps one source image while serving 16:9, 4:3, 1:1.
-          ...(article.featuredImage.includes('images.unsplash.com')
+          article.featuredImage || `${SITE_URL}/briefy-logo.png`,
+          ...(article.featuredImage?.includes('images.unsplash.com')
             ? [
                 `${article.featuredImage.split('?')[0]}?w=1200&h=675&fit=crop`,
                 `${article.featuredImage.split('?')[0]}?w=1200&h=900&fit=crop`,
@@ -76,13 +97,7 @@ export default function SchemaOrg({ article }: SchemaOrgProps) {
         ],
         datePublished: article.publishedAt,
         dateModified: article.updatedAt || article.publishedAt,
-        author: {
-          '@type': 'Person',
-          name: article.author.name,
-          ...(article.author.slug === 'briefylive'
-            ? {}
-            : { url: `${SITE_URL}/author/${article.author.slug}` }),
-        },
+        author: authorSchema,
         publisher: { '@id': `${SITE_URL}/#organization` },
         mainEntityOfPage: {
           '@type': 'WebPage',
@@ -90,16 +105,17 @@ export default function SchemaOrg({ article }: SchemaOrgProps) {
         },
         articleSection: article.category.name,
         keywords: article.tags.join(', '),
-        wordCount: article.content
-          ? article.content.split(/\s+/).filter(Boolean).length
-          : undefined,
-        timeRequired: `PT${article.readingTime}M`,
-        inLanguage: 'en',
+        inLanguage: 'en-IN',
         isAccessibleForFree: true,
-        // Speakable targets stable, existing selectors only.
+        ...(citations.length > 0
+          ? {
+              isBasedOn: citations.length === 1 ? citations[0] : citations,
+              citation: citations,
+            }
+          : {}),
         speakable: {
           '@type': 'SpeakableSpecification',
-          cssSelector: ['h1', 'main'],
+          cssSelector: ['h1', '#article-body'],
         },
       }
     : null;
@@ -129,6 +145,50 @@ export default function SchemaOrg({ article }: SchemaOrgProps) {
           },
         ],
       }
+    : category
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Home',
+            item: SITE_URL,
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: category.name,
+            item: `${SITE_URL}/${category.slug}`,
+          },
+        ],
+      }
+    : null;
+
+  const categoryCollectionSchema = category
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'CollectionPage',
+        '@id': `${SITE_URL}/${category.slug}#collection`,
+        url: `${SITE_URL}/${category.slug}`,
+        name: category.name,
+        description: category.description,
+        publisher: { '@id': `${SITE_URL}/#organization` },
+        ...(categoryArticles && categoryArticles.length > 0
+          ? {
+              mainEntity: {
+                '@type': 'ItemList',
+                itemListElement: categoryArticles.slice(0, 10).map((art, idx) => ({
+                  '@type': 'ListItem',
+                  position: idx + 1,
+                  url: `${SITE_URL}/${art.category.slug}/${art.slug}`,
+                  name: art.title,
+                })),
+              },
+            }
+          : {}),
+      }
     : null;
 
   const schemas = [
@@ -136,6 +196,7 @@ export default function SchemaOrg({ article }: SchemaOrgProps) {
     websiteSchema,
     ...(articleSchema ? [articleSchema] : []),
     ...(breadcrumbSchema ? [breadcrumbSchema] : []),
+    ...(categoryCollectionSchema ? [categoryCollectionSchema] : []),
   ];
 
   return (

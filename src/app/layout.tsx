@@ -32,12 +32,11 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: 'Briefy.live | Serious Journalism for the Modern Reader',
+    default: 'Latest India & World News, Tech, AI, Business | Briefy.live',
     template: '%s | Briefy.live',
   },
   description:
-    'Briefy.live delivers clear, concise, and trustworthy news across India, World, Technology, AI, Business, and Science.',
-  keywords: ['India news', 'world news', 'technology news', 'AI news', 'business news', 'science news'],
+    'Briefy.live delivers clear, verified news and essential analysis across India, World affairs, Technology, AI breakthroughs, Business, and Science.',
   applicationName: SITE_NAME,
   category: 'news',
   authors: [{ name: 'Briefy.live Editorial Team' }],
@@ -86,15 +85,15 @@ export const metadata: Metadata = {
     locale: 'en_IN',
     url: SITE_URL,
     siteName: SITE_NAME,
-    title: 'Briefy.live | Serious Journalism for the Modern Reader',
+    title: 'Latest India & World News, Tech, AI, Business | Briefy.live',
     description:
-      'Clear, concise news across India, World, Technology, AI, Business, and Science.',
+      'Briefy.live delivers clear, verified news and essential analysis across India, World affairs, Technology, AI breakthroughs, Business, and Science.',
     images: [
       {
         url: '/briefy-logo.png',
         width: 1200,
         height: 630,
-        alt: 'Briefy.live — Serious Journalism for the Modern Reader',
+        alt: 'Briefy.live — Clear, Verified News & Essential Analysis',
       },
     ],
   },
@@ -102,9 +101,9 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     site: '@briefylive',
     creator: '@briefylive',
-    title: 'Briefy.live | Serious Journalism for the Modern Reader',
+    title: 'Latest India & World News, Tech, AI, Business | Briefy.live',
     description:
-      'Clear, concise, and trustworthy news across India, World, Technology, AI, Business, and Science.',
+      'Briefy.live delivers clear, verified news and essential analysis across India, World affairs, Technology, AI breakthroughs, Business, and Science.',
     images: [`${SITE_URL}/briefy-logo.png`],
   },
 };
