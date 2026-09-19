@@ -25,9 +25,14 @@ export default function ArticleImage({
   const [failed, setFailed] = useState(false);
 
   if (!src || failed) {
+    const cleanLabel =
+      alt && alt.trim().length > 0 && alt !== 'Briefy.live'
+        ? alt
+        : fallbackLabel || (category ? `${category} - Briefy.live News` : 'Briefy.live News Coverage');
+
     return (
       <BrandedPlaceholder
-        label={alt || fallbackLabel || 'Briefy News'}
+        label={cleanLabel}
         category={category}
         className={props.className}
       />

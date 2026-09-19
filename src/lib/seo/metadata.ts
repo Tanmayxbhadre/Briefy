@@ -2,6 +2,34 @@ import type { Metadata } from 'next';
 import type { Article, Category } from '../types';
 import { brandedTitle, SITE_NAME, SITE_URL, siteUrl } from '../site';
 
+export function resolveOgImageUrl(
+  rawImage?: string | null,
+  title?: string,
+  category?: string
+): string {
+  if (!rawImage || rawImage.trim().length === 0) {
+    return `${SITE_URL}/api/og?title=${encodeURIComponent(title || SITE_NAME)}&category=${encodeURIComponent(category || 'News')}`;
+  }
+
+  // Handle Unsplash images: ensure 1200x630 crop
+  if (rawImage.includes('images.unsplash.com')) {
+    const base = rawImage.split('?')[0];
+    return `${base}?w=1200&h=630&fit=crop&q=80`;
+  }
+
+  // Handle BBC thumbnails (upgrade 240/320 thumbnails to high-res 976)
+  if (rawImage.includes('ichef.bbci.co.uk') && /\/(240|320)\//.test(rawImage)) {
+    return rawImage.replace(/\/(240|320)\//, '/976/');
+  }
+
+  // If already full URL, return it
+  if (rawImage.startsWith('http://') || rawImage.startsWith('https://')) {
+    return rawImage;
+  }
+
+  return rawImage.startsWith('/') ? `${SITE_URL}${rawImage}` : `${SITE_URL}/${rawImage}`;
+}
+
 export function articleMetadata(article: Article): Metadata {
   const canonical = article.canonicalUrl?.startsWith('http')
     ? article.canonicalUrl
@@ -22,6 +50,7 @@ export function articleMetadata(article: Article): Metadata {
   }
 
   const isIndexable = !article.noindex;
+  const ogImageUrl = resolveOgImageUrl(article.featuredImage, article.title, article.category.name);
 
   return {
     title: { absolute: title },
@@ -43,14 +72,14 @@ export function articleMetadata(article: Article): Metadata {
       authors: [article.author.name],
       section: article.category.name,
       tags: article.tags,
-      images: [{ url: article.featuredImage || `${SITE_URL}/briefy-logo.png`, width: 1200, height: 630, alt: article.imageAlt || title }],
+      images: [{ url: ogImageUrl, width: 1200, height: 630, alt: article.imageAlt || title }],
     },
     twitter: {
       card: 'summary_large_image',
       site: '@briefylive',
       title,
       description,
-      images: [article.featuredImage || `${SITE_URL}/briefy-logo.png`],
+      images: [ogImageUrl],
     },
   };
 }
