@@ -1,9 +1,11 @@
 import Link from 'next/link';
 import { Article } from '@/lib/types';
+import { slugifyTag } from '@/lib/articles';
 import styles from './ArticleBody.module.css';
 
 interface ArticleBodyProps {
   article: Article;
+  eligibleTopicSlugs?: Set<string>;
 }
 
 /**
@@ -55,7 +57,7 @@ function renderInline(text: string): React.ReactNode[] {
  * style text. Supported: ## / ### headings, > blockquotes, [links](url),
  * **bold**, and paragraphs.
  */
-export default function ArticleBody({ article }: ArticleBodyProps) {
+export default function ArticleBody({ article, eligibleTopicSlugs }: ArticleBodyProps) {
   const paragraphs = article.content
     .split('\n')
     .map((line) => line.trim())
@@ -81,18 +83,28 @@ export default function ArticleBody({ article }: ArticleBodyProps) {
           return <p key={i} className={styles.paragraph}>{renderInline(para)}</p>;
         })}
 
-        {/* Tags — real internal links to search, not inert spans */}
+        {/* Tags — link to /topic/{slug} if tag has >=5 articles; otherwise plain chip */}
         {article.tags.length > 0 && (
           <div className={styles.tags}>
-            {article.tags.map((tag) => (
-              <Link
-                key={tag}
-                href={`/search?q=${encodeURIComponent(tag)}`}
-                className={styles.tag}
-              >
-                {tag}
-              </Link>
-            ))}
+            {article.tags.map((tag) => {
+              const slug = slugifyTag(tag);
+              const isEligible = eligibleTopicSlugs ? eligibleTopicSlugs.has(slug) : false;
+
+              return isEligible ? (
+                <Link
+                  key={tag}
+                  href={`/topic/${slug}`}
+                  className={styles.tag}
+                  title={`View all articles on ${tag}`}
+                >
+                  {tag}
+                </Link>
+              ) : (
+                <span key={tag} className={styles.tag}>
+                  {tag}
+                </span>
+              );
+            })}
           </div>
         )}
       </div>

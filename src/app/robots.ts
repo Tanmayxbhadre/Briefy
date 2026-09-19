@@ -12,12 +12,12 @@ export default function robots(): MetadataRoute.Robots {
         // /api/ blanket rule covers JSON endpoints (/api/news/version,
         // /api/indexnow, /api/analytics/track) that previously crawled as
         // indexable JSON. /admin, /api/admin and /api/cron stay blocked.
-        disallow: ['/admin/', '/api/'],
+        disallow: ['/admin/', '/api/', '/search'],
       },
       {
         userAgent: ['Googlebot', 'Bingbot', 'Googlebot-News'],
         allow: '/',
-        disallow: ['/admin/', '/api/'],
+        disallow: ['/admin/', '/api/', '/search'],
       },
     ],
     sitemap: [`${SITE_URL}/sitemap.xml`, `${SITE_URL}/sitemap-news.xml`],
