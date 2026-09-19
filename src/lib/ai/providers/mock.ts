@@ -44,7 +44,7 @@ export class MockAIProvider extends BaseAIProvider {
         : `## Overview\n\n${rawLede}\n\n${sourceAttribution}`,
       quickSummary: req.description
         ? [req.description.slice(0, 120)]
-        : undefined,
+        : [],
       suggestedCategory: req.categorySlug || 'technology',
       subcategory: req.subcategory,
       tags: [req.categorySlug ? req.categorySlug.toUpperCase() : 'News', req.primarySource.name],

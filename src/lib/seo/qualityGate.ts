@@ -4,7 +4,7 @@
  * receive noindex, follow and are excluded from Google News / standard sitemaps.
  */
 
-import { isSourceIndexable } from '@/config/sources';
+import { isSourceIndexable } from '../../config/sources';
 import { Source } from '../types';
 
 export const MIN_UNIQUE_WORDS_FOR_INDEXING = parseInt(

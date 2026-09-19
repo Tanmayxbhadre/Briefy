@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { getCategoryBySlug, getPublishedArticlesByCategory } from '@/lib/articles';
 import { formatRelativeTime, formatReadingTime, truncate, deduplicateArticles } from '@/lib/utils';
 import { categoryMetadata } from '@/lib/seo/metadata';
+import { siteUrl } from '@/lib/site';
 import AdSlot from '@/components/shared/AdSlot';
 import ArticleImage from '@/components/shared/ArticleImage';
 import { ArrowRight } from 'lucide-react';
