@@ -355,12 +355,20 @@ h1, h2, h3, h4, h5, h6 {
   align-items: center;
   justify-content: center;
   color: var(--color-text-muted);
-  font-size: 10px;
+  font-size: var(--text-xs);
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  /* Collapse cleanly if empty — no giant blank void */
   min-height: 0;
   overflow: hidden;
+}
+
+.ad-slot:empty {
+  display: none !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
 }
 
 /* ─── Page Wrapper ────────────────────────────────────────── */

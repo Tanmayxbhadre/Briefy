@@ -4,31 +4,40 @@ interface AdSlotProps {
   height: number;
   label?: string;
   className?: string;
+  active?: boolean;
 }
 
 /**
- * AdSlot — Reserved space for future Google AdSense integration.
- * Uses max-height rather than fixed height so the slot collapses
- * gracefully when no ad is loaded, preventing giant blank voids.
- * To activate ads later, replace the placeholder content with the AdSense script.
+ * AdSlot — Reserved space for Google AdSense or sponsor integration.
+ * When inactive (default), collapses completely to prevent blank dashed voids
+ * and eliminate Cumulative Layout Shift (CLS).
  */
-export default function AdSlot({ id, width, height, label = 'Advertisement', className }: AdSlotProps) {
-  const clampedHeight = Math.min(height, 90); // Never taller than a leaderboard
+export default function AdSlot({
+  id,
+  width,
+  height,
+  label = 'Advertisement',
+  className,
+  active = false,
+}: AdSlotProps) {
+  if (!active) {
+    return null;
+  }
+
+  const clampedHeight = Math.min(height, 90);
   return (
-    <div
+    <aside
       id={id}
       className={`ad-slot ${className ?? ''}`}
       style={{
         width: '100%',
         maxWidth: width,
         maxHeight: clampedHeight,
-        height: clampedHeight,
         margin: '0 auto',
       }}
       aria-label={label}
-      role="complementary"
     >
-      <span aria-hidden="true">{label}</span>
-    </div>
+      <span className="ad-label" aria-hidden="true">{label}</span>
+    </aside>
   );
 }
