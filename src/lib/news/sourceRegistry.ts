@@ -57,22 +57,7 @@ export const SOURCES: NewsSourceConfig[] = [
     reliabilityScore: 93,
     categoryCoverage: ['technology', 'ai', 'science', 'security'],
   },
-  
   // Business
-  {
-    id: 'cnbc-business',
-    name: 'CNBC Business',
-    type: 'rss',
-    url: 'https://search.cnbc.com/rs/search/combinedcms/view.xml?profile=12000000&id=10001147',
-    defaultCategory: 'business',
-    language: 'en',
-    country: 'US',
-    region: 'North America',
-    enabled: true,
-    priority: 2,
-    reliabilityScore: 91,
-    categoryCoverage: ['business', 'finance', 'economy', 'markets'],
-  },
   
   // India
   {
@@ -105,6 +90,20 @@ export const SOURCES: NewsSourceConfig[] = [
   },
   
   // World
+  {
+    id: 'nyt-world',
+    name: 'NYT World',
+    type: 'rss',
+    url: 'https://rss.nytimes.com/services/xml/rss/nyt/World.xml',
+    defaultCategory: 'world',
+    language: 'en',
+    country: 'US',
+    region: 'Global',
+    enabled: true,
+    priority: 1,
+    reliabilityScore: 95,
+    categoryCoverage: ['world', 'politics', 'economy'],
+  },
   {
     id: 'bbc-world',
     name: 'BBC News - World',
