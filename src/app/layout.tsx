@@ -114,7 +114,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" data-scroll-behavior="smooth">
+    <html lang="en-IN" data-scroll-behavior="smooth">
       <head>
         <SchemaOrg />
         <Script
@@ -131,9 +131,12 @@ export default function RootLayout({
         </Script>
       </head>
       <body className={`${dmSerif.variable} ${inter.variable}`}>
+        <a href="#main-content" className="skip-to-content">
+          Skip to main content
+        </a>
         <div className="page-wrapper">
           <Header />
-          <main className="main-content" id="main-content">
+          <main className="main-content" id="main-content" tabIndex={-1}>
             {children}
           </main>
           <Footer />

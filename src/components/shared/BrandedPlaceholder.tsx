@@ -19,8 +19,7 @@ export default function BrandedPlaceholder({
   return (
     <div
       className={`${styles.container} ${compact ? styles.small : ''} ${className}`}
-      role="img"
-      aria-label={label}
+      aria-hidden="true"
     >
       <div className={styles.patternOverlay} aria-hidden="true" />
       <div className={styles.glowOrb} aria-hidden="true" />

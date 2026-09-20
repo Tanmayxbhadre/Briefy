@@ -14,7 +14,7 @@ export default function MobileCategoryBar() {
   };
 
   return (
-    <div className={styles.container} role="navigation" aria-label="Category quick navigation">
+    <nav className={styles.container} aria-label="Category quick navigation">
       <div className={styles.fadeLeft} aria-hidden="true" />
       <div className={styles.scrollRail}>
         {MOBILE_RAIL_CATEGORIES.map((cat) => {
@@ -32,6 +32,6 @@ export default function MobileCategoryBar() {
         })}
       </div>
       <div className={styles.fadeRight} aria-hidden="true" />
-    </div>
+    </nav>
   );
 }

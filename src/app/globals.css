@@ -16,8 +16,8 @@
   --color-bg-secondary: #f5f4f1;
   --color-bg-tertiary: #eceae5;
   --color-text: #0e0e0e;
-  --color-text-secondary: #4a4a4a;
-  --color-text-muted: #8a8a8a;
+  --color-text-secondary: #383838;
+  --color-text-muted: #575757;
   --color-border: #e0ddd8;
   --color-border-light: #eceae5;
 
@@ -118,6 +118,7 @@ html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   overflow-x: hidden;
+  color-scheme: light;
 }
 
 body {
@@ -132,6 +133,31 @@ body {
   text-rendering: optimizeLegibility;
   overflow-x: hidden;
   min-height: 100dvh;
+  color-scheme: light;
+}
+
+/* ─── Skip to Main Content (WCAG 2.4.1 Bypass Blocks) ──────── */
+.skip-to-content {
+  position: fixed;
+  top: -100px;
+  left: var(--space-4);
+  z-index: 99999;
+  padding: 0.75rem 1.25rem;
+  background: var(--color-accent);
+  color: #ffffff !important;
+  font-weight: 700;
+  font-size: var(--text-sm);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  text-decoration: none;
+  transition: top var(--transition-fast);
+}
+
+.skip-to-content:focus,
+.skip-to-content:focus-visible {
+  top: var(--space-4);
+  outline: 3px solid #ffffff;
+  outline-offset: 2px;
 }
 
 img,

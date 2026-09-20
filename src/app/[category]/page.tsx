@@ -157,15 +157,20 @@ export default async function CategoryPage({ params, searchParams }: Props) {
                           <span>{formatReadingTime(article.readingTime)}</span>
                         </div>
                         <div style={{ marginTop: 'auto', paddingTop: '0.5rem' }}>
-                          <Link href={url} className="read-brief-cta" style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '4px',
-                            fontSize: '0.75rem',
-                            fontWeight: 700,
-                            color: 'var(--color-accent)',
-                            minHeight: '36px',
-                          }}>
+                          <Link
+                            href={url}
+                            className="read-brief-cta"
+                            aria-label={`Read story: ${article.title}`}
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                              fontSize: '0.75rem',
+                              fontWeight: 700,
+                              color: 'var(--color-accent)',
+                              minHeight: '36px',
+                            }}
+                          >
                             <span>Read Story</span>
                             <ArrowRight size={12} aria-hidden="true" />
                           </Link>
