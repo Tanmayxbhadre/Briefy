@@ -114,6 +114,9 @@ export default function Header() {
             >
               <Sparkles size={11} className={styles.trustSparkle} aria-hidden="true" />
               <span>AI-Assisted Oversight</span>
+              <span className={styles.mastheadTrustBadgeTooltip} role="tooltip">
+                Verified newsroom with AI-assisted research &amp; editorial oversight. Click to read our policy.
+              </span>
             </Link>
           </div>
 

@@ -57,6 +57,7 @@
 }
 
 .mastheadTrustBadge {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -74,10 +75,38 @@
   white-space: nowrap;
 }
 
-.mastheadTrustBadge:hover {
+.mastheadTrustBadge:hover,
+.mastheadTrustBadge:focus-visible {
   background: var(--color-accent-light);
   border-color: var(--color-accent);
   color: var(--color-accent);
+}
+
+.mastheadTrustBadgeTooltip {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 250px;
+  padding: 8px 12px;
+  background: #1e293b;
+  color: #f8fafc;
+  font-size: 0.72rem;
+  line-height: 1.4;
+  font-weight: 400;
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 150ms ease, transform 150ms ease;
+  z-index: 200;
+  white-space: normal;
+}
+
+.mastheadTrustBadge:hover .mastheadTrustBadgeTooltip,
+.mastheadTrustBadge:focus-visible .mastheadTrustBadgeTooltip {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .trustSparkle {
