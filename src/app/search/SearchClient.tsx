@@ -92,7 +92,7 @@ function SearchResults() {
               {loading
                 ? 'Searching…'
                 : results
-                  ? `${results.length} result${results.length !== 1 ? 's' : ''} for &ldquo;${query}&rdquo;`
+                  ? `${results.length} result${results.length !== 1 ? 's' : ''} for “${query}”`
                   : ''}
             </p>
 

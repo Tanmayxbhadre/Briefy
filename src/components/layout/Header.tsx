@@ -1,25 +1,68 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Search, Menu, X, Sparkles } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { Search, Menu, X, Sparkles, ChevronDown } from 'lucide-react';
 import MobileMenu from './MobileMenu';
 import MobileCategoryBar from './MobileCategoryBar';
 import BrandLogo from '@/components/shared/BrandLogo';
 import { HEADER_NAV_LINKS } from '@/lib/categories';
 import styles from './Header.module.css';
 
+const PRIMARY_NAV_LINKS = HEADER_NAV_LINKS.slice(0, 7);
+const MORE_NAV_LINKS = HEADER_NAV_LINKS.slice(7);
+
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const moreRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 8);
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Keyboard shortcut '/' to search
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        e.key === '/' &&
+        !['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as HTMLElement)?.tagName) &&
+        !((e.target as HTMLElement)?.isContentEditable)
+      ) {
+        e.preventDefault();
+        router.push('/search');
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [router]);
+
+  // Click outside and Escape to close More dropdown
+  useEffect(() => {
+    if (!moreOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (moreRef.current && !moreRef.current.contains(e.target as Node)) {
+        setMoreOpen(false);
+      }
+    };
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setMoreOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [moreOpen]);
 
   // Prevent body scroll when mobile menu is open
   useEffect(() => {
@@ -33,17 +76,20 @@ export default function Header() {
     };
   }, [menuOpen]);
 
-  // Close mobile menu on route change
+  // Close menus on route change
   const [prevPathname, setPrevPathname] = useState(pathname);
   if (prevPathname !== pathname) {
     setPrevPathname(pathname);
     setMenuOpen(false);
+    setMoreOpen(false);
   }
 
   const isActive = (href: string) => {
     if (href === '/') return pathname === '/';
     return pathname === href || pathname.startsWith(href + '/');
   };
+
+  const isMoreActive = MORE_NAV_LINKS.some((l) => isActive(l.href));
 
   if (pathname?.startsWith('/admin')) {
     return null;
@@ -73,7 +119,7 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <nav className={styles.nav} aria-label="Primary navigation">
-            {HEADER_NAV_LINKS.map((link) => (
+            {PRIMARY_NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -83,6 +129,38 @@ export default function Header() {
                 {link.label}
               </Link>
             ))}
+
+            {/* Overflow "More" Dropdown */}
+            <div className={styles.moreWrapper} ref={moreRef}>
+              <button
+                type="button"
+                className={`${styles.moreTrigger} ${isMoreActive || moreOpen ? styles.moreTriggerActive : ''}`}
+                onClick={() => setMoreOpen((v) => !v)}
+                aria-expanded={moreOpen}
+                aria-haspopup="true"
+                aria-label="More categories"
+              >
+                <span>More</span>
+                <ChevronDown size={14} aria-hidden="true" />
+              </button>
+
+              {moreOpen && (
+                <div className={styles.moreDropdown} role="menu">
+                  {MORE_NAV_LINKS.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      role="menuitem"
+                      className={`${styles.dropdownItem} ${isActive(link.href) ? styles.dropdownItemActive : ''}`}
+                      onClick={() => setMoreOpen(false)}
+                      aria-current={isActive(link.href) ? 'page' : undefined}
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
           </nav>
 
           {/* Right actions */}
@@ -90,9 +168,11 @@ export default function Header() {
             <Link
               href="/search"
               className={`${styles.iconBtn} ${pathname === '/search' ? styles.iconBtnActive : ''}`}
-              aria-label="Search"
+              aria-label="Search news archive (Press /)"
+              title="Search news archive (Press /)"
             >
               <Search size={18} strokeWidth={1.75} />
+              <kbd className={styles.searchKbd} aria-hidden="true">/</kbd>
             </Link>
             <button
               className={`${styles.iconBtn} ${styles.menuToggleBtn}`}

@@ -107,7 +107,7 @@ export default function Footer() {
             <div className={styles.trustBadges}>
               <div className={styles.trustItem}>
                 <ShieldCheck size={16} className={styles.trustIcon} aria-hidden="true" />
-                <span>Multi-Source Verified</span>
+                <span>Multi-Source Reporting</span>
               </div>
               <div className={styles.trustItem}>
                 <Sparkles size={16} className={styles.trustIcon} aria-hidden="true" />
@@ -123,96 +123,83 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Section 1: Topics (Part 1) */}
-          <div className={styles.navCol}>
-            <h3 className={styles.colTitle}>News Topics</h3>
-            <ul className={styles.linkList}>
-              {CATEGORIES_PRIMARY.map((cat) => (
-                <li key={cat.href}>
-                  <Link href={cat.href} className={styles.navLink}>
-                    {cat.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Section 2: Topics (Part 2) */}
-          <div className={styles.navCol}>
-            <h3 className={styles.colTitle}>Coverage</h3>
-            <ul className={styles.linkList}>
-              {CATEGORIES_SECONDARY.map((cat) => (
-                <li key={cat.href}>
-                  <Link href={cat.href} className={styles.navLink}>
-                    {cat.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Section 3: Editorial & Company */}
-          <div className={styles.navCol}>
-            <h3 className={styles.colTitle}>Editorial</h3>
-            <ul className={styles.linkList}>
-              {EDITORIAL_LINKS.map((link) => (
-                <li key={link.href}>
-                  <Link href={link.href} className={styles.navLink}>
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Section 4: Feeds & Connect */}
-          <div className={styles.navCol}>
-            <h3 className={styles.colTitle}>Connect &amp; Feeds</h3>
-            <ul className={styles.linkList}>
-              {SOCIAL_LINKS.map((social) => {
-                const IconComponent = social.icon;
-                if (social.isExternal) {
-                  return (
-                    <li key={social.label}>
-                      <a
-                        href={social.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={styles.navLink}
-                      >
-                        <span>{social.label}</span>
-                        <ExternalLink size={12} className={styles.extIcon} aria-hidden="true" />
-                      </a>
-                    </li>
-                  );
-                }
-                return (
-                  <li key={social.label}>
-                    <Link href={social.href} className={styles.navLink}>
-                      {IconComponent && <IconComponent size={13} aria-hidden="true" />}
-                      <span>{social.label}</span>
+          <nav className={styles.directoryNav} aria-label="Footer directory" style={{ display: 'contents' }}>
+            {/* Section 1: Topics (Part 1) */}
+            <div className={styles.navCol}>
+              <h3 className={styles.colTitle}>News Topics</h3>
+              <ul className={styles.linkList}>
+                {CATEGORIES_PRIMARY.map((cat) => (
+                  <li key={cat.href}>
+                    <Link href={cat.href} className={styles.navLink}>
+                      {cat.label}
                     </Link>
                   </li>
-                );
-              })}
-            </ul>
-          </div>
+                ))}
+              </ul>
+            </div>
 
-        </div>
+            {/* Section 2: Topics (Part 2) */}
+            <div className={styles.navCol}>
+              <h3 className={styles.colTitle}>Coverage</h3>
+              <ul className={styles.linkList}>
+                {CATEGORIES_SECONDARY.map((cat) => (
+                  <li key={cat.href}>
+                    <Link href={cat.href} className={styles.navLink}>
+                      {cat.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-        {/* Mobile Quick Category Rail */}
-        <div className={styles.mobileCategoryRail} aria-label="Quick Category Access">
-          <div className={styles.railLabel}>
-            <Radio size={12} aria-hidden="true" />
-            <span>Popular Sections</span>
-          </div>
-          <div className={styles.railChips}>
-            {[...CATEGORIES_PRIMARY, ...CATEGORIES_SECONDARY].map((c) => (
-              <Link key={c.href} href={c.href} className={styles.railChip}>
-                {c.label}
-              </Link>
-            ))}
-          </div>
+            {/* Section 3: Editorial & Company */}
+            <div className={styles.navCol}>
+              <h3 className={styles.colTitle}>Editorial</h3>
+              <ul className={styles.linkList}>
+                {EDITORIAL_LINKS.map((link) => (
+                  <li key={link.href}>
+                    <Link href={link.href} className={styles.navLink}>
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Section 4: Feeds & Connect */}
+            <div className={styles.navCol}>
+              <h3 className={styles.colTitle}>Connect &amp; Feeds</h3>
+              <ul className={styles.linkList}>
+                {SOCIAL_LINKS.map((social) => {
+                  const IconComponent = social.icon;
+                  if (social.isExternal) {
+                    return (
+                      <li key={social.label}>
+                        <a
+                          href={social.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={styles.navLink}
+                        >
+                          <span>{social.label}</span>
+                          <ExternalLink size={12} className={styles.extIcon} aria-hidden="true" />
+                        </a>
+                      </li>
+                    );
+                  }
+                  return (
+                    <li key={social.label}>
+                      <Link href={social.href} className={styles.navLink}>
+                        {IconComponent && <IconComponent size={13} aria-hidden="true" />}
+                        <span>{social.label}</span>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          </nav>
+
         </div>
 
         {/* Legal and Disclaimer Bar */}

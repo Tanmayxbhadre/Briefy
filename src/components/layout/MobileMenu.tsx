@@ -17,24 +17,56 @@ interface MobileMenuProps {
 export default function MobileMenu({ id, isOpen, onClose, currentPath }: MobileMenuProps) {
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Close on Escape key
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    if (isOpen) {
-      document.addEventListener('keydown', handleKey);
-    }
-    return () => document.removeEventListener('keydown', handleKey);
-  }, [isOpen, onClose]);
+  const previousActiveElement = useRef<HTMLElement | null>(null);
 
-  // Focus management
+  // Close on Escape key and trap focus within the modal dialog
   useEffect(() => {
-    if (isOpen && menuRef.current) {
-      const firstFocusable = menuRef.current.querySelector<HTMLElement>('a, button');
-      firstFocusable?.focus();
-    }
-  }, [isOpen]);
+    if (!isOpen) return;
+
+    previousActiveElement.current = document.activeElement as HTMLElement | null;
+
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onClose();
+        return;
+      }
+
+      if (e.key === 'Tab' && menuRef.current) {
+        const focusables = menuRef.current.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), a[href], input:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusables.length === 0) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKey);
+
+    const timer = setTimeout(() => {
+      if (menuRef.current) {
+        const first = menuRef.current.querySelector<HTMLElement>('button, a');
+        first?.focus();
+      }
+    }, 50);
+
+    return () => {
+      document.removeEventListener('keydown', handleKey);
+      clearTimeout(timer);
+      if (previousActiveElement.current) {
+        previousActiveElement.current.focus();
+      }
+    };
+  }, [isOpen, onClose]);
 
   const isActive = (href: string) => {
     if (!currentPath) return false;

@@ -3,7 +3,7 @@ import SearchClient from './SearchClient';
 import { siteUrl } from '@/lib/site';
 
 export const metadata: Metadata = {
-  title: 'Search | Briefy.live',
+  title: { absolute: 'Search | Briefy.live' },
   description: 'Search all Briefy.live articles.',
   robots: { index: false, follow: true },
   alternates: { canonical: siteUrl('/search') },
