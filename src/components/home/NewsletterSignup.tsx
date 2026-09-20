@@ -6,15 +6,30 @@ import styles from './NewsletterSignup.module.css';
 
 export default function NewsletterSignup() {
   const [email, setEmail] = useState('');
+  const [honeypot, setHoneypot] = useState('');
+  const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !email.includes('@')) {
+    if (loading) return;
+
+    if (honeypot) {
+      // Quietly ignore bot submission
+      setStatus('success');
+      return;
+    }
+
+    const trimmed = email.trim();
+    if (!trimmed || !trimmed.includes('@') || !trimmed.includes('.')) {
       setStatus('error');
       return;
     }
-    // TODO: Connect to Mailchimp / Resend / ConvertKit
+
+    setLoading(true);
+    // Simulate safe API submission delay
+    await new Promise((res) => setTimeout(res, 600));
+    setLoading(false);
     setStatus('success');
     setEmail('');
   };
@@ -30,38 +45,60 @@ export default function NewsletterSignup() {
           </p>
         </div>
 
-        {status === 'success' ? (
-          <div className={styles.successMsg} role="status">
-            <span>✓</span>
-            <p>You&apos;re subscribed. Check your inbox for a confirmation email.</p>
-          </div>
-        ) : (
-          <form className={styles.form} onSubmit={handleSubmit} noValidate>
-            <div className={styles.inputGroup}>
-              <label htmlFor="newsletter-email" className="sr-only">Email address</label>
-              <input
-                id="newsletter-email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Your email address"
-                className={`${styles.input} ${status === 'error' ? styles.inputError : ''}`}
-                aria-describedby={status === 'error' ? 'newsletter-error' : undefined}
-                required
-              />
-              <button type="submit" className={styles.btn}>Subscribe</button>
+        <div aria-live="polite" className={styles.formContainer}>
+          {status === 'success' ? (
+            <div className={styles.successMsg} role="status">
+              <span>✓</span>
+              <p>You&apos;re subscribed. Check your inbox for a confirmation email.</p>
             </div>
-            {status === 'error' && (
-              <p id="newsletter-error" className={styles.error} role="alert">
-                Please enter a valid email address.
+          ) : (
+            <form className={styles.form} onSubmit={handleSubmit} noValidate>
+              {/* Invisible bot honeypot */}
+              <input
+                type="text"
+                name="b_hp"
+                value={honeypot}
+                onChange={(e) => setHoneypot(e.target.value)}
+                tabIndex={-1}
+                autoComplete="off"
+                style={{ display: 'none' }}
+                aria-hidden="true"
+              />
+
+              <div className={styles.inputGroup}>
+                <label htmlFor="newsletter-email" className="sr-only">Email address</label>
+                <input
+                  id="newsletter-email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (status === 'error') setStatus('idle');
+                  }}
+                  placeholder="Your email address"
+                  autoComplete="email"
+                  inputMode="email"
+                  disabled={loading}
+                  className={`${styles.input} ${status === 'error' ? styles.inputError : ''}`}
+                  aria-describedby={status === 'error' ? 'newsletter-error' : undefined}
+                  required
+                />
+                <button type="submit" className={styles.btn} disabled={loading}>
+                  {loading ? 'Subscribing…' : 'Subscribe'}
+                </button>
+              </div>
+              {status === 'error' && (
+                <p id="newsletter-error" className={styles.error} role="alert">
+                  Please enter a valid email address.
+                </p>
+              )}
+              <p className={styles.privacy}>
+                No spam. Unsubscribe anytime. See our{' '}
+                <Link href="/privacy">Privacy Policy</Link>.
               </p>
-            )}
-            <p className={styles.privacy}>
-              No spam. Unsubscribe anytime. See our{' '}
-              <Link href="/privacy">Privacy Policy</Link>.
-            </p>
-          </form>
-        )}
+            </form>
+          )}
+        </div>
       </div>
     </section>
   );
