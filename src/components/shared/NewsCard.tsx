@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Article } from '@/lib/types';
-import { formatRelativeTime, formatReadingTime, truncate } from '@/lib/utils';
+import { formatRelativeTime, formatReadingTime, truncate, formatCategoryName } from '@/lib/utils';
 import ArticleImage from './ArticleImage';
 import { ArrowRight } from 'lucide-react';
 import styles from './NewsCard.module.css';
@@ -19,6 +19,7 @@ export default function NewsCard({
   showAuthor = true,
 }: NewsCardProps) {
   const articleUrl = `/${article.category.slug}/${article.slug}`;
+  const categoryLabel = formatCategoryName(article.category.slug, article.category.name);
 
   return (
     <article className={`${styles.card} ${styles[variant]}`}>
@@ -27,7 +28,7 @@ export default function NewsCard({
         <ArticleImage
           src={article.featuredImage}
           alt={article.imageAlt}
-          category={article.category.name}
+          category={categoryLabel}
           fill
           sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 33vw"
           className={styles.image}
@@ -39,7 +40,7 @@ export default function NewsCard({
       <div className={styles.content}>
         <div className={styles.categoryRow}>
           <Link href={`/${article.category.slug}`} className="category-tag">
-            {article.category.name}
+            {categoryLabel}
           </Link>
           {article.sources && article.sources.length > 1 && (
             <span className={styles.sourceCountBadge} title={`Synthesized from ${article.sources.length} sources`}>

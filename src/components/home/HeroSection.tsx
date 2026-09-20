@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Article } from '@/lib/types';
-import { formatDate, formatReadingTime, truncate } from '@/lib/utils';
+import { formatDate, formatReadingTime, truncate, formatCategoryName } from '@/lib/utils';
 import ArticleImage from '@/components/shared/ArticleImage';
 import { ArrowRight, Flame } from 'lucide-react';
 import styles from './HeroSection.module.css';
@@ -12,6 +12,7 @@ interface HeroSectionProps {
 
 export default function HeroSection({ featured, secondary }: HeroSectionProps) {
   const featuredUrl = `/${featured.category.slug}/${featured.slug}`;
+  const featuredCategoryName = formatCategoryName(featured.category.slug, featured.category.name);
 
   return (
     <section className={styles.hero} aria-label="Lead story and top headlines">
@@ -23,7 +24,7 @@ export default function HeroSection({ featured, secondary }: HeroSectionProps) {
             <ArticleImage
               src={featured.featuredImage}
               alt={featured.imageAlt}
-              category={featured.category.name}
+              category={featuredCategoryName}
               fill
               priority
               sizes="(max-width: 767px) 100vw, (max-width: 1023px) 100vw, 65vw"
@@ -37,7 +38,7 @@ export default function HeroSection({ featured, secondary }: HeroSectionProps) {
                 <span>Lead Story</span>
               </span>
               <Link href={`/${featured.category.slug}`} className={`category-tag ${styles.categoryTag}`}>
-                {featured.category.name}
+                {featuredCategoryName}
               </Link>
             </div>
 
@@ -83,7 +84,7 @@ export default function HeroSection({ featured, secondary }: HeroSectionProps) {
                   <div className={styles.secondaryInner}>
                     <div className={styles.secondaryText}>
                       <Link href={`/${article.category.slug}`} className="category-tag">
-                        {article.category.name}
+                        {formatCategoryName(article.category.slug, article.category.name)}
                       </Link>
                       <h3 className={styles.secondaryHeadline}>
                         <Link href={url}>{article.title}</Link>
@@ -100,7 +101,7 @@ export default function HeroSection({ featured, secondary }: HeroSectionProps) {
                       <ArticleImage
                         src={article.featuredImage}
                         alt={article.imageAlt}
-                        category={article.category.name}
+                        category={formatCategoryName(article.category.slug, article.category.name)}
                         fill
                         sizes="120px"
                         className={styles.secondaryImage}

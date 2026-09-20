@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getCategoryBySlug, getPublishedArticlesByCategory } from '@/lib/articles';
-import { formatRelativeTime, formatReadingTime, truncate, deduplicateArticles } from '@/lib/utils';
+import { formatRelativeTime, formatReadingTime, truncate, deduplicateArticles, formatCategoryName } from '@/lib/utils';
 import { categoryMetadata } from '@/lib/seo/metadata';
 import { siteUrl } from '@/lib/site';
 import AdSlot from '@/components/shared/AdSlot';
@@ -62,6 +62,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
 
   const [featured, ...rest] = pageNumber === 1 ? paginatedArticles : [null, ...paginatedArticles];
   const featuredUrl = featured ? `/${featured.category.slug}/${featured.slug}` : '';
+  const displayName = formatCategoryName(category.slug, category.name);
 
   return (
     <div className={styles.page}>
@@ -69,7 +70,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
 
         {/* Page Header */}
         <div className={styles.pageHeader}>
-          <h1 className={styles.categoryTitle}>{category.name}</h1>
+          <h1 className={styles.categoryTitle}>{displayName}</h1>
           <p className={styles.categoryDesc}>{category.description}</p>
         </div>
 
@@ -89,7 +90,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
                   <ArticleImage
                     src={featured.featuredImage}
                     alt={featured.imageAlt}
-                    category={category.name}
+                    category={displayName}
                     fill
                     priority
                     sizes="(max-width: 767px) 100vw, 60vw"
@@ -98,7 +99,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
                 </Link>
                 <div className={styles.featuredContent}>
                   <Link href={`/${featured.category.slug}`} className="category-tag">
-                    {featured.category.name}
+                    {formatCategoryName(featured.category.slug, featured.category.name)}
                   </Link>
                   <h2 className={styles.featuredHeadline}>
                     <Link href={featuredUrl}>{featured.title}</Link>
@@ -123,9 +124,9 @@ export default async function CategoryPage({ params, searchParams }: Props) {
             </div>
 
             {/* Article Grid */}
-            <section aria-label={`All ${category.name} articles`}>
+            <section aria-label={`All ${displayName} articles`}>
               <h2 className="section-heading">
-                {pageNumber === 1 ? `Latest in ${category.name}` : `${category.name} Stories — Page ${pageNumber}`}
+                {pageNumber === 1 ? `Latest in ${displayName}` : `${displayName} Stories — Page ${pageNumber}`}
               </h2>
               <div className={styles.grid}>
                 {rest.map((article) => {

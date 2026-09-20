@@ -142,3 +142,16 @@ export function getCanonicalUrl(path: string = ''): string {
 export function formatReadingTime(minutes: number): string {
   return `${minutes} min read`;
 }
+
+/**
+ * Normalize and format category names for presentation.
+ * Fixes uppercase acronyms (e.g. 'ai' or 'Ai' -> 'AI') and standardizes display labels.
+ */
+export function formatCategoryName(slug?: string, name?: string): string {
+  if (!slug && !name) return '';
+  const s = (slug || '').toLowerCase().trim();
+  const n = (name || '').trim();
+  if (s === 'ai' || n.toLowerCase() === 'ai' || n.toLowerCase() === 'artificial intelligence') return 'AI';
+  if (s === 'startups' && (n === 'Startups' || n === 'startups')) return 'Startups & Venture';
+  return n || (s ? s.charAt(0).toUpperCase() + s.slice(1) : '');
+}

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Article } from '@/lib/types';
-import { deduplicateArticles } from '@/lib/utils';
+import { deduplicateArticles, formatCategoryName } from '@/lib/utils';
 import { TrendingUp } from 'lucide-react';
 import styles from './TrendingSection.module.css';
 
@@ -28,7 +28,7 @@ export default function TrendingSection({ articles }: TrendingSectionProps) {
               <span className={styles.number} aria-hidden="true">{num}</span>
               <div className={styles.content}>
                 <Link href={`/${article.category.slug}`} className="category-tag">
-                  {article.category.name}
+                  {formatCategoryName(article.category.slug, article.category.name)}
                 </Link>
                 <h3 className={styles.headline}>
                   <Link href={url} className={styles.headlineLink}>
