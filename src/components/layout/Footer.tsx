@@ -11,7 +11,6 @@ import {
   Search,
   Sparkles,
   ExternalLink,
-  Radio,
 } from 'lucide-react';
 import { FOOTER_TOPICS_PRIMARY, FOOTER_TOPICS_SECONDARY } from '@/lib/categories';
 import styles from './Footer.module.css';

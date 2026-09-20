@@ -11,7 +11,6 @@ interface BrandedPlaceholderProps {
 }
 
 export default function BrandedPlaceholder({
-  label = 'Briefy News',
   category,
   compact = false,
   className = '',
