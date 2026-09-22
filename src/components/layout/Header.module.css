@@ -319,16 +319,16 @@
 
 @media (max-width: 767px) {
   .inner {
-    min-height: 56px;
+    height: var(--header-height-mobile);
     gap: var(--space-3);
     padding-top: env(safe-area-inset-top);
     padding-inline: max(0.75rem, env(safe-area-inset-left));
     padding-right: max(0.75rem, env(safe-area-inset-right));
   }
 
-  .iconBtn {
-    min-width: 44px;
-    min-height: 44px;
+  .iconBtn, .menuToggleBtn {
+    min-width: 48px;
+    min-height: 48px;
   }
 
   .logo {

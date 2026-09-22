@@ -324,7 +324,7 @@
 
   .mainHeadline {
     font-size: clamp(1.55rem, 7.4vw, 2.1rem);
-    line-height: 1.18;
+    line-height: 1.25;
     letter-spacing: -0.012em;
   }
 
@@ -342,8 +342,10 @@
   }
 
   .readLink {
-    padding: 8px 14px;
-    font-size: 0.8rem;
+    padding: 12px 18px;
+    font-size: 0.875rem;
+    min-height: 48px;
+    justify-content: center;
   }
 
   .secondaryList {

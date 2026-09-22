@@ -186,6 +186,11 @@
 }
 
 @media (max-width: 480px) {
+  .heading {
+    line-height: 1.25;
+    margin-bottom: var(--space-2);
+  }
+
   .inputGroup {
     flex-direction: column;
   }
@@ -196,5 +201,8 @@
 
   .btn {
     border-radius: var(--radius-md);
+    width: 100%;
+    min-height: 48px;
+    justify-content: center;
   }
 }
