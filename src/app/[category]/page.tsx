@@ -8,6 +8,7 @@ import { siteUrl } from '@/lib/site';
 import AdSlot from '@/components/shared/AdSlot';
 import ArticleImage from '@/components/shared/ArticleImage';
 import { ArrowRight } from 'lucide-react';
+import SchemaOrg from '@/components/seo/SchemaOrg';
 import styles from './category.module.css';
 
 // ISR: edge-cached, revalidated on publish via revalidateNewsPublication().
@@ -65,7 +66,13 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   const displayName = formatCategoryName(category.slug, category.name);
 
   return (
-    <div className={styles.page}>
+    <>
+      <SchemaOrg
+        category={category}
+        categoryArticles={paginatedArticles}
+        pageType="category"
+      />
+      <div className={styles.page}>
       <div className="container">
 
         {/* Page Header */}
@@ -212,5 +219,6 @@ export default async function CategoryPage({ params, searchParams }: Props) {
 
       </div>
     </div>
+    </>
   );
 }

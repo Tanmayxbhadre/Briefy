@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
 import StaticPage from '@/components/pages/StaticPage';
-import { SITE_NAME } from '@/lib/site';
+import { SITE_NAME, siteUrl } from '@/lib/site';
 
 export const metadata: Metadata = {
   title: 'Terms of Use',
   description:
     'The terms governing use of Briefy.live, including content licensing, acceptable use, and limitation of liability.',
-  alternates: { canonical: '/terms' },
+  alternates: { canonical: siteUrl('/terms') },
 };
 
 export default function TermsPage() {

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getLatestDailyBriefing } from '@/lib/news/dailyBriefService';
 import { formatDate } from '@/lib/utils';
+import { siteUrl } from '@/lib/site';
 import styles from './daily-news.module.css';
 
 // ISR: edge-cached, revalidated on publish via revalidateNewsPublication().
@@ -9,10 +10,10 @@ import styles from './daily-news.module.css';
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: 'The Daily Brief | Your 5-Minute News Briefing',
+  title: 'The Daily Brief | 5-Minute News Briefing',
   description:
     'Synthesized, authoritative morning and evening intelligence briefing. Key developments across Technology, AI, India, Business, Science, and World — in 5 minutes.',
-  alternates: { canonical: '/daily-news' },
+  alternates: { canonical: siteUrl('/daily-news') },
 };
 
 interface Props {

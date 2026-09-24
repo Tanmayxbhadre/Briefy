@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'Briefy.live',
     short_name: 'Briefy',
-    description: 'Serious Journalism for the Modern Reader',
+    description: 'Clear, verified news and essential analysis across India, World, Tech, AI, and Business.',
     start_url: '/',
     display: 'standalone',
     background_color: '#fafaf8',

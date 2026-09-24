@@ -1,11 +1,12 @@
 import type { Metadata } from 'next';
 import StaticPage from '@/components/pages/StaticPage';
+import { siteUrl } from '@/lib/site';
 
 export const metadata: Metadata = {
-  title: 'Contact',
+  title: 'Contact Us & Newsroom',
   description:
     'Reach the Briefy.live newsroom: story tips, corrections, advertising, and general enquiries.',
-  alternates: { canonical: '/contact' },
+  alternates: { canonical: siteUrl('/contact') },
 };
 
 export default function ContactPage() {

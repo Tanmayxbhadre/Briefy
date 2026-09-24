@@ -1,5 +1,12 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import styles from './not-found.module.css';
+
+export const metadata: Metadata = {
+  title: { absolute: 'Page Not Found | Briefy.live' },
+  description: 'The requested page could not be found on Briefy.live.',
+  robots: { index: false, follow: false },
+};
 
 export default function NotFound() {
   return (

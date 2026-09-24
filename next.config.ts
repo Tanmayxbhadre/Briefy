@@ -48,6 +48,7 @@ const nextConfig: NextConfig = {
     ];
   },
   images: {
+    formats: ['image/avif', 'image/webp'],
     // Allowlist only the image hosts the newsroom actually uses.
     // Previously `hostname: "**"` let any origin be proxied through the
     // deployment's image optimizer (abuse vector) and allowed http://

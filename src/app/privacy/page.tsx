@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
 import StaticPage from '@/components/pages/StaticPage';
-import { SITE_NAME } from '@/lib/site';
+import { SITE_NAME, siteUrl } from '@/lib/site';
 
 export const metadata: Metadata = {
   title: 'Privacy Policy',
   description:
     'How Briefy.live collects, uses, and protects information when you visit our site.',
-  alternates: { canonical: '/privacy' },
+  alternates: { canonical: siteUrl('/privacy') },
 };
 
 export default function PrivacyPage() {

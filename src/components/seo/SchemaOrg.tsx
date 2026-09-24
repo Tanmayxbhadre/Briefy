@@ -78,27 +78,63 @@ export default function SchemaOrg({
     .filter((s) => s.url && s.url.startsWith('http'))
     .map((s) => s.url);
 
+  const activePageType = pageType || (article ? 'article' : category ? 'category' : 'home');
+
+  let datePublishedIso = new Date().toISOString();
+  try {
+    if (article?.publishedAt) {
+      datePublishedIso = new Date(article.publishedAt).toISOString();
+    }
+  } catch {}
+
+  let dateModifiedIso = datePublishedIso;
+  try {
+    if (article?.updatedAt || article?.publishedAt) {
+      dateModifiedIso = new Date(article.updatedAt || article.publishedAt).toISOString();
+    }
+  } catch {}
+
+  const articleImages: string[] = [];
+  if (article?.featuredImage) {
+    if (article.featuredImage.includes('images.unsplash.com')) {
+      const base = article.featuredImage.split('?')[0];
+      articleImages.push(
+        `${base}?w=1200&h=675&fit=crop`,
+        `${base}?w=1200&h=900&fit=crop`,
+        `${base}?w=1200&h=1200&fit=crop`
+      );
+    } else {
+      articleImages.push(
+        article.featuredImage,
+        `${SITE_URL}/api/og?title=${encodeURIComponent(article.title)}&category=${encodeURIComponent(article.category.name)}`
+      );
+    }
+  } else {
+    articleImages.push(`${SITE_URL}/briefy-logo.png`);
+  }
+
   const articleSchema = article
     ? {
-        '@context': 'https://schema.org',
         '@type': 'NewsArticle',
         '@id': `${SITE_URL}/${article.category.slug}/${article.slug}`,
         headline: article.title.slice(0, 110),
         description: article.metaDescription || article.description,
-        image: [
-          article.featuredImage || `${SITE_URL}/briefy-logo.png`,
-          ...(article.featuredImage?.includes('images.unsplash.com')
-            ? [
-                `${article.featuredImage.split('?')[0]}?w=1200&h=675&fit=crop`,
-                `${article.featuredImage.split('?')[0]}?w=1200&h=900&fit=crop`,
-                `${article.featuredImage.split('?')[0]}?w=1200&h=1200&fit=crop`,
-              ]
-            : []),
-        ],
-        datePublished: article.publishedAt,
-        dateModified: article.updatedAt || article.publishedAt,
+        image: articleImages,
+        datePublished: datePublishedIso,
+        dateModified: dateModifiedIso,
         author: authorSchema,
-        publisher: { '@id': `${SITE_URL}/#organization` },
+        publisher: {
+          '@type': 'NewsMediaOrganization',
+          '@id': `${SITE_URL}/#organization`,
+          name: SITE_NAME,
+          url: SITE_URL,
+          logo: {
+            '@type': 'ImageObject',
+            url: `${SITE_URL}/favicon.png`,
+            width: 512,
+            height: 512,
+          },
+        },
         mainEntityOfPage: {
           '@type': 'WebPage',
           '@id': `${SITE_URL}/${article.category.slug}/${article.slug}`,
@@ -122,7 +158,6 @@ export default function SchemaOrg({
 
   const breadcrumbSchema = article
     ? {
-        '@context': 'https://schema.org',
         '@type': 'BreadcrumbList',
         itemListElement: [
           {
@@ -147,7 +182,6 @@ export default function SchemaOrg({
       }
     : category
     ? {
-        '@context': 'https://schema.org',
         '@type': 'BreadcrumbList',
         itemListElement: [
           {
@@ -168,13 +202,17 @@ export default function SchemaOrg({
 
   const categoryCollectionSchema = category
     ? {
-        '@context': 'https://schema.org',
         '@type': 'CollectionPage',
         '@id': `${SITE_URL}/${category.slug}#collection`,
         url: `${SITE_URL}/${category.slug}`,
-        name: category.name,
+        name: `${category.name} News & Analysis`,
         description: category.description,
-        publisher: { '@id': `${SITE_URL}/#organization` },
+        publisher: {
+          '@type': 'NewsMediaOrganization',
+          '@id': `${SITE_URL}/#organization`,
+          name: SITE_NAME,
+          url: SITE_URL,
+        },
         ...(categoryArticles && categoryArticles.length > 0
           ? {
               mainEntity: {
@@ -191,23 +229,36 @@ export default function SchemaOrg({
       }
     : null;
 
-  const schemas = [
-    organizationSchema,
-    websiteSchema,
-    ...(articleSchema ? [articleSchema] : []),
-    ...(breadcrumbSchema ? [breadcrumbSchema] : []),
-    ...(categoryCollectionSchema ? [categoryCollectionSchema] : []),
-  ];
+  // Render appropriate schemas based on activePageType to prevent duplicates
+  const schemasToRender: object[] = [];
+
+  if (activePageType === 'home') {
+    schemasToRender.push(organizationSchema, websiteSchema);
+  } else if (activePageType === 'article') {
+    if (articleSchema) schemasToRender.push(articleSchema);
+    if (breadcrumbSchema) schemasToRender.push(breadcrumbSchema);
+  } else if (activePageType === 'category') {
+    if (categoryCollectionSchema) schemasToRender.push(categoryCollectionSchema);
+    if (breadcrumbSchema) schemasToRender.push(breadcrumbSchema);
+  } else {
+    // Default fallback
+    schemasToRender.push(organizationSchema, websiteSchema);
+    if (articleSchema) schemasToRender.push(articleSchema);
+    if (breadcrumbSchema) schemasToRender.push(breadcrumbSchema);
+    if (categoryCollectionSchema) schemasToRender.push(categoryCollectionSchema);
+  }
+
+  if (schemasToRender.length === 0) return null;
+
+  const graphJson = {
+    '@context': 'https://schema.org',
+    '@graph': schemasToRender,
+  };
 
   return (
-    <>
-      {schemas.map((schema, i) => (
-        <script
-          key={i}
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-        />
-      ))}
-    </>
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(graphJson) }}
+    />
   );
 }

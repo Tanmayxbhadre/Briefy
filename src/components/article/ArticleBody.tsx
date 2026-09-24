@@ -65,7 +65,7 @@ export default function ArticleBody({ article, eligibleTopicSlugs }: ArticleBody
 
   return (
     <div className="article-container">
-      <div className={styles.body}>
+      <div className={styles.body} id="article-body">
         {paragraphs.map((para, i) => {
           if (para.startsWith('## ')) {
             return <h2 key={i} className={styles.h2}>{renderInline(para.slice(3))}</h2>;

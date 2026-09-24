@@ -5,7 +5,7 @@ import { SITE_NAME, siteUrl } from '@/lib/site';
 import { KNOWN_AUTHORS } from '@/config/authors';
 
 export const metadata: Metadata = {
-  title: 'Masthead & Editorial Leadership | Briefy.live',
+  title: 'Masthead & Editorial Leadership',
   description:
     'Meet the editorial team, newsroom leadership, and technical directors behind Briefy.live news synthesis and verification.',
   alternates: { canonical: siteUrl('/masthead') },

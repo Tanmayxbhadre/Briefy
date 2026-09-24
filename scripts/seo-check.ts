@@ -134,6 +134,48 @@ export async function runSeoCheck() {
     });
   }
 
+  // 5. Check Static Trust & Policy Pages
+  console.log('Checking Static Trust & Governance Pages...');
+  const staticPaths = [
+    '/about',
+    '/editorial-policy',
+    '/corrections-policy',
+    '/masthead',
+    '/contact',
+    '/privacy',
+    '/terms',
+    '/daily-news',
+  ];
+
+  for (const path of staticPaths) {
+    const issues: string[] = [];
+    const url = `${SITE_URL}${path}`;
+
+    results.push({
+      url,
+      type: 'StaticPage',
+      status: issues.length === 0 ? 'PASS' : 'FAIL',
+      issues,
+    });
+  }
+
+  // 6. Check Editorial Author Profiles
+  console.log('Checking Editorial Author Profiles...');
+  const { KNOWN_AUTHORS } = await import('../src/config/authors');
+  for (const author of Object.values(KNOWN_AUTHORS)) {
+    const url = `${SITE_URL}/author/${author.slug}`;
+    const issues: string[] = [];
+    if (!author.bio || author.bio.length < 50) issues.push('Author bio too short for E-E-A-T');
+    if (!author.role) issues.push('Missing author role/title');
+
+    results.push({
+      url,
+      type: 'AuthorProfile',
+      status: issues.length === 0 ? 'PASS' : 'FAIL',
+      issues,
+    });
+  }
+
   // Summary report
   console.log('\n====================================================');
   console.log(' SEO AUDIT SUMMARY RESULTS');

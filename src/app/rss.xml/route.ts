@@ -20,11 +20,14 @@ export async function GET() {
     });
   };
 
-  const itemsXml = articles
+  const indexableArticles = articles.filter((a) => !a.noindex);
+
+  const itemsXml = indexableArticles
     .slice(0, 30)
     .map((article) => {
       const url = `${SITE_URL}/${article.category.slug}/${article.slug}`;
       const pubDate = new Date(article.publishedAt).toUTCString();
+      const imageUrl = article.featuredImage ? escapeXml(article.featuredImage) : null;
 
       return `
     <item>
@@ -34,18 +37,18 @@ export async function GET() {
       <description>${escapeXml(article.description)}</description>
       <category>${escapeXml(article.category.name)}</category>
       <dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">${escapeXml(article.author.name)}</dc:creator>
-      <pubDate>${pubDate}</pubDate>
+      <pubDate>${pubDate}</pubDate>${imageUrl ? `\n      <enclosure url="${imageUrl}" type="image/jpeg" length="0" />\n      <media:content url="${imageUrl}" medium="image" />` : ''}
     </item>`;
     })
     .join('');
 
   const rssFeed = `<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/">
   <channel>
-    <title>${SITE_NAME} — Serious Journalism for the Modern Reader</title>
+    <title>${SITE_NAME} — Latest News &amp; In-Depth Analysis</title>
     <link>${SITE_URL}</link>
-    <description>Clear, concise, authoritative news across Technology, AI, Business, India, World, and Science.</description>
-    <language>en-US</language>
+    <description>Clear, verified news and essential analysis across India, World affairs, Technology, AI breakthroughs, Business, and Science.</description>
+    <language>en-IN</language>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
     <atom:link href="${SITE_URL}/rss.xml" rel="self" type="application/rss+xml"/>
 ${itemsXml}

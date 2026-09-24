@@ -3,7 +3,7 @@ import StaticPage from '@/components/pages/StaticPage';
 import { SITE_NAME, siteUrl } from '@/lib/site';
 
 export const metadata: Metadata = {
-  title: 'Corrections Policy | Briefy.live',
+  title: 'Corrections & Clarifications Policy',
   description:
     'Our transparent standards for handling factual corrections, retractions, and update disclosures across all Briefy.live reporting.',
   alternates: { canonical: siteUrl('/corrections-policy') },

@@ -1,13 +1,13 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import StaticPage from '@/components/pages/StaticPage';
-import { SITE_NAME } from '@/lib/site';
+import { SITE_NAME, siteUrl } from '@/lib/site';
 
 export const metadata: Metadata = {
-  title: 'About',
+  title: 'About Briefy',
   description:
     'Briefy.live is an independent digital newsroom delivering clear, concise, verified news across India, World, Technology, AI, Business, and Science.',
-  alternates: { canonical: '/about' },
+  alternates: { canonical: siteUrl('/about') },
 };
 
 export default function AboutPage() {

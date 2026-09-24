@@ -1,6 +1,7 @@
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { submitToIndexNow } from '../seo/indexNow';
 import { getAllCategorySlugs } from '../articles';
+import { SITE_URL } from '../site';
 
 interface RevalidateOptions {
   categorySlug?: string | null;
@@ -59,7 +60,7 @@ export async function revalidateNewsPublication(options: RevalidateOptions = {})
 
     // 5. Asynchronously trigger search engine indexing (IndexNow). Google
     // discovers updates via sitemaps; its ping endpoint was retired in 2023.
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://briefy.live';
+    const siteUrl = SITE_URL;
     const urlsToIndex = [`${siteUrl}/`];
 
     if (options.categorySlug) {

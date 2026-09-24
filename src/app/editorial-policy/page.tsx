@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
 import StaticPage from '@/components/pages/StaticPage';
-import { SITE_NAME } from '@/lib/site';
+import { SITE_NAME, siteUrl } from '@/lib/site';
 
 export const metadata: Metadata = {
   title: 'Editorial Policy',
   description:
     'The editorial standards, sourcing rules, AI-use disclosure, and corrections policy behind every story published on Briefy.live.',
-  alternates: { canonical: '/editorial-policy' },
+  alternates: { canonical: siteUrl('/editorial-policy') },
 };
 
 export default function EditorialPolicyPage() {
