@@ -538,8 +538,8 @@ export async function runArticleGenerationWorker(multiSourceLimit?: number): Pro
   let autoPublishedCount = 0;
 
   const resolvedMultiLimit =
-    multiSourceLimit ?? parseInt(process.env.NEWS_MAX_MULTI_SOURCE_DRAFTS_PER_RUN || '5', 10);
-  const singleSourceLimit = parseInt(process.env.NEWS_MAX_SINGLE_SOURCE_DRAFTS_PER_RUN || '15', 10);
+    multiSourceLimit ?? parseInt(process.env.NEWS_MAX_MULTI_SOURCE_DRAFTS_PER_RUN || '3', 10);
+  const singleSourceLimit = parseInt(process.env.NEWS_MAX_SINGLE_SOURCE_DRAFTS_PER_RUN || '5', 10);
 
   // 1. Process multi-source clusters first (higher editorial value — independently
   // corroborated by more than one outlet).

@@ -7,11 +7,6 @@
       "destination": "https://www.briefy.live/:path",
       "permanent": true
     }
-  ],
-  "crons": [
-    {
-      "path": "/api/cron/news",
-      "schedule": "0 0 * * *"
-    }
   ]
 }
+

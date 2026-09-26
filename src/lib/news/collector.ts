@@ -47,13 +47,25 @@ export async function collectAllNews(): Promise<CollectionSummary> {
     sourceErrors,
   };
 
+  // Pre-fetch all existing categories into memory to avoid N+1 DB lookups
+  const dbCategories = await prisma.category.findMany();
+  const categoryMap = new Map<string, typeof dbCategories[0]>(
+    dbCategories.map((c) => [c.slug, c])
+  );
+
+  // Pre-fetch existing sources
+  const existingSources = await prisma.source.findMany({
+    where: { id: { in: sources.map((s) => s.id) } },
+    select: { id: true },
+  });
+  const existingSourceIds = new Set(existingSources.map((s) => s.id));
+
   for (const sourceConfig of sources) {
     console.log(`[NEWS] Fetching source: ${sourceConfig.name}`);
     const startedAt = new Date();
 
     // Ensure source exists in DB
-    const dbSource = await prisma.source.findUnique({ where: { id: sourceConfig.id } });
-    if (!dbSource) {
+    if (!existingSourceIds.has(sourceConfig.id)) {
       await prisma.source.create({
         data: {
           id: sourceConfig.id,
@@ -65,7 +77,8 @@ export async function collectAllNews(): Promise<CollectionSummary> {
           priority: sourceConfig.priority,
           enabled: sourceConfig.enabled,
         },
-      });
+      }).catch(() => undefined);
+      existingSourceIds.add(sourceConfig.id);
     }
 
     let itemsFound = 0;
@@ -82,9 +95,9 @@ export async function collectAllNews(): Promise<CollectionSummary> {
       itemsFound = parsedItems.length;
       summary.itemsFound += itemsFound;
 
+      // Prepare items and filter out stale ones
+      const freshItems = [];
       for (const item of parsedItems) {
-        // Freshness filter: skip articles published outside the configured lookback
-        // window so we don't keep re-evaluating the same old backlog every run.
         if (item.publishedAt) {
           const ageHours = (Date.now() - item.publishedAt.getTime()) / (1000 * 60 * 60);
           if (ageHours > lookbackHours) {
@@ -92,37 +105,66 @@ export async function collectAllNews(): Promise<CollectionSummary> {
             continue;
           }
         }
+        freshItems.push(item);
+      }
 
+      // Batch query existing items in DB to check for duplicates in ONE query
+      const candidateNormUrls = freshItems.map((item) => normalizeUrl(item.originalUrl));
+      const candidateHashes = freshItems.map((item) => generateContentHash(item.title, sourceConfig.id));
+
+      const existingInDb = candidateNormUrls.length > 0
+        ? await prisma.newsItem.findMany({
+            where: {
+              OR: [
+                { normalizedUrl: { in: candidateNormUrls } },
+                { contentHash: { in: candidateHashes } },
+              ],
+            },
+            select: { normalizedUrl: true, contentHash: true },
+          })
+        : [];
+
+      const existingUrlSet = new Set(existingInDb.map((i) => i.normalizedUrl));
+      const existingHashSet = new Set(existingInDb.map((i) => i.contentHash));
+
+      for (const item of freshItems) {
         const normUrl = normalizeUrl(item.originalUrl);
         const contentHash = generateContentHash(item.title, sourceConfig.id);
         const categoryName = classifyCategory(item.title, sourceConfig.defaultCategory);
 
-        // Find or create category
-        let dbCategory = await prisma.category.findUnique({ where: { slug: categoryName } });
+        // Quick in-memory duplicate check
+        if (existingUrlSet.has(normUrl) || existingHashSet.has(contentHash)) {
+          duplicates++;
+          summary.duplicates++;
+          continue;
+        }
+
+        // Add to in-memory set to prevent intra-batch duplicates
+        existingUrlSet.add(normUrl);
+        existingHashSet.add(contentHash);
+
+        // Category lookup from memory or create if missing
+        let dbCategory = categoryMap.get(categoryName);
         if (!dbCategory) {
           const formattedName =
             categoryName === 'ai'
               ? 'AI'
               : categoryName.charAt(0).toUpperCase() + categoryName.slice(1);
 
-          dbCategory = await prisma.category.create({
-            data: {
-              name: formattedName,
-              slug: categoryName,
-            },
-          });
+          try {
+            dbCategory = await prisma.category.create({
+              data: {
+                name: formattedName,
+                slug: categoryName,
+              },
+            });
+            categoryMap.set(categoryName, dbCategory);
+          } catch {
+            dbCategory = await prisma.category.findUnique({ where: { slug: categoryName } }) || undefined;
+          }
         }
 
-        // Check for duplicates
-        const existingItem = await prisma.newsItem.findFirst({
-          where: {
-            OR: [{ normalizedUrl: normUrl }, { contentHash: contentHash }],
-          },
-        });
-
-        if (existingItem) {
-          duplicates++;
-          summary.duplicates++;
+        if (!dbCategory) {
           continue;
         }
 
@@ -243,3 +285,4 @@ export async function collectAllNews(): Promise<CollectionSummary> {
 
   return summary;
 }
+

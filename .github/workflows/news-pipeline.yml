@@ -1,0 +1,45 @@
+name: Briefy News Pipeline Worker
+
+on:
+  schedule:
+    # Run every 2 hours to fetch fresh RSS, cluster, generate AI articles, and publish
+    - cron: '0 */2 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: briefy-news-pipeline
+  cancel-in-progress: false
+
+jobs:
+  run-pipeline:
+    name: Execute News Ingestion & AI Processing Pipeline
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Run News Pipeline
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          AI_PRIMARY_PROVIDER: ${{ secrets.AI_PRIMARY_PROVIDER || 'gemini' }}
+          AI_ENABLED: 'true'
+          AUTO_PUBLISH_ENABLED: 'true'
+          SITE_URL: ${{ secrets.SITE_URL || 'https://www.briefy.live' }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          NEWS_LOOKBACK_HOURS: '26'
+        run: npx tsx scripts/runNewsPipeline.ts

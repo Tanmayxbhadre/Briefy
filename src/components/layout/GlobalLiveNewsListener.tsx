@@ -93,8 +93,8 @@ export default function GlobalLiveNewsListener() {
     };
     window.addEventListener('storage', handleStorage);
 
-    // 3. Periodic lightweight polling every 15 seconds
-    const interval = setInterval(checkNewsVersion, 15000);
+    // 3. Periodic lightweight polling every 2 minutes (120 seconds)
+    const interval = setInterval(checkNewsVersion, 120000);
 
     // 4. Tab visibility change & online events
     const handleVisibilityChange = () => {
