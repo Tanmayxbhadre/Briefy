@@ -4,9 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev --webpack",
-    "build": "prisma generate && next build",
+    "build:next": "prisma generate && next build --webpack",
+    "build": "npm run build:next && npx opennextjs-cloudflare build --build-command \"echo skipping\"",
+    "preview": "wrangler dev",
+    "deploy": "wrangler deploy",
     "postinstall": "prisma generate",
-    "start": "next start",
     "lint": "eslint",
     "assets:generate": "tsx scripts/generateSeoImages.ts",
     "test": "tsc scripts/runTests.ts --outDir .dist_test --module commonjs --target es2020 --moduleResolution node --esModuleInterop --skipLibCheck && node .dist_test/scripts/runTests.js && rm -rf .dist_test",
@@ -14,9 +16,11 @@
     "news:watch": "tsx scripts/watchNews.ts"
   },
   "dependencies": {
+    "@prisma/adapter-pg": "^7.10.0",
     "@prisma/client": "^5.22.0",
     "lucide-react": "^1.38.0",
     "next": "16.3.3",
+    "pg": "^8.23.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "rss-parser": "^3.13.0",
@@ -24,13 +28,24 @@
     "zod": "^4.5.4"
   },
   "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.60.2",
+    "@opennextjs/cloudflare": "^1.20.6",
     "@types/node": "^20",
+    "@types/pg": "^8.23.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vinext/cloudflare": "^1.0.0-beta.10",
+    "@vitejs/plugin-react": "^6.1.1",
+    "@vitejs/plugin-rsc": "^0.5.35",
     "eslint": "^9",
     "eslint-config-next": "16.3.3",
     "prisma": "^5.22.0",
+    "react-server-dom-webpack": "^19.3.0",
     "tsx": "^4.23.13",
-    "typescript": "^5"
-  }
+    "typescript": "^5",
+    "vinext": "^1.0.0-beta.12",
+    "vite": "^8.3.1",
+    "wrangler": "^4.141.0"
+  },
+  "type": "module"
 }

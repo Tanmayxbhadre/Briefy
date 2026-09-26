@@ -1,0 +1,27 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /search
+
+User-agent: Googlebot
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /search
+
+User-agent: Bingbot
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /search
+
+User-agent: Googlebot-News
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /search
+
+Sitemap: https://www.briefy.live/sitemap.xml
+Sitemap: https://www.briefy.live/sitemap-news.xml
+Host: https://www.briefy.live

@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: 'standalone',
+  serverExternalPackages: ['@prisma/client', 'pg', '@prisma/adapter-pg'],
   trailingSlash: false,
+
   async rewrites() {
     return {
       // IndexNow requires the key file at https://<host>/{KEY}.txt —

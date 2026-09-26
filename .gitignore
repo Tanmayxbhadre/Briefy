@@ -37,6 +37,8 @@ yarn-error.log*
 .env.development
 .env.test
 .env.production
+.dev.vars
+.open-next
 !.env.example
 
 # vercel
@@ -52,3 +54,6 @@ prisma/*.db-journal
 prisma/*.db-wal
 prisma/*.db-shm
 .dist_test/
+/dist/
+.vinext/
+.wrangler/
